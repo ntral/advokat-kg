@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Адвокат КР — Вход</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Mulish:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Mulish',sans-serif;background:linear-gradient(135deg,#0a0e27 0%,#1a1f3a 100%);color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.login-box{background:rgba(26,31,58,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:48px 40px;width:420px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+.logo{width:80px;height:80px;margin:0 auto 16px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#f59e0b;text-align:center;margin-bottom:8px}
+.subtitle{text-align:center;color:#94a3b8;font-size:0.9rem;margin-bottom:32px}
+h2{font-size:1.4rem;text-align:center;margin-bottom:24px;color:#f1f5f9}
+label{display:block;color:#cbd5e1;font-size:0.85rem;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
+input{width:100%;padding:14px 18px;background:rgba(15,23,42,0.6);border:2px solid rgba(148,163,184,0.2);border-radius:12px;color:#f1f5f9;font-size:1rem;font-family:'Mulish',sans-serif;margin-bottom:20px;transition:all 0.3s}
+input:focus{outline:none;border-color:#3b82f6;background:rgba(15,23,42,0.8)}
+button{width:100%;padding:16px;background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;border-radius:12px;color:white;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.3s;text-transform:uppercase;letter-spacing:1px}
+button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(59,130,246,0.4)}
+.error{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:12px;border-radius:10px;margin-top:16px;display:none;font-size:0.9rem}
+</style>
+</head>
+<body>
+<div class="login-box">
+<div class="logo">⚖️</div>
+<h1>Адвокат КР</h1>
+<p class="subtitle">Подготовка к квалификационному экзамену</p>
+<h2>Вход в систему</h2>
+<label>ИМЯ ПОЛЬЗОВАТЕЛЯ</label>
+<input type="text" id="username" placeholder="admin">
+<label>ПАРОЛЬ</label>
+<input type="password" id="password" placeholder="••••••••••" onkeypress="if(event.key==='Enter')document.getElementById('btnLogin').click()">
+<button id="btnLogin" onclick="
+const u=document.getElementById('username').value.toLowerCase().trim();
+const p=document.getElementById('password').value;
+const err=document.getElementById('error');
+const users={'admin':'advokat2025','demo':'demo123'};
+try{Object.assign(users,JSON.parse(localStorage.getItem('__u__')||'{}'))}catch(e){}
+if(!users[u]||users[u]!==p){err.textContent='❌ Неверный логин или пароль';err.style.display='block';return}
+sessionStorage.setItem('user',u);
+window.location.href='app.html';
+">ВОЙТИ</button>
+<div class="error" id="error"></div>
+</div>
+</body>
+</html>
