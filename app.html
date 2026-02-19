@@ -20,6 +20,11 @@ body{font-family:'Mulish',sans-serif;background:var(--bg);color:var(--text);min-
 .lang-btn.active{background:var(--accent);border-color:var(--accent);color:white}
 .btn-admin{padding:8px 16px;background:linear-gradient(135deg,var(--gold),#d97706);border:none;border-radius:8px;color:white;font-weight:700;cursor:pointer;font-size:0.85rem}
 .topbar-user{color:var(--text-dim);font-size:0.9rem}
+.hamburger{display:none;width:30px;height:30px;flex-direction:column;justify-content:space-around;cursor:pointer;padding:4px}
+.hamburger span{width:100%;height:3px;background:var(--text);border-radius:2px;transition:all 0.3s}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(8px,8px)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(8px,-8px)}
 .main{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 64px)}
 .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 16px;overflow-y:auto;max-height:calc(100vh - 64px);position:sticky;top:64px}
 .sidebar h3{font-size:0.75rem;text-transform:uppercase;color:var(--text-dim);letter-spacing:0.5px;margin:24px 0 12px}
@@ -45,11 +50,24 @@ button{padding:12px 24px;background:var(--accent);border:none;border-radius:12px
 button:hover{background:#2563eb;transform:translateY(-2px)}
 button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 .counter{color:var(--text-dim);font-size:0.9rem;text-align:center;flex:1}
-.stats{display:flex;gap:16px;justify-content:center;margin-bottom:16px}
+.stats{display:flex;gap:16px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
 .stat{padding:8px 16px;background:var(--surface2);border-radius:8px;font-size:0.85rem}
 .stat.correct{color:var(--success)}
 .stat.wrong{color:#ef4444}
-@media(max-width:768px){.main{grid-template-columns:1fr}.sidebar{display:none}.content{padding:16px;padding-bottom:100px}}
+
+@media(max-width:768px){
+.hamburger{display:flex}
+.main{grid-template-columns:1fr}
+.sidebar{position:fixed;left:-280px;top:64px;bottom:0;width:280px;z-index:99;transition:left 0.3s;box-shadow:2px 0 10px rgba(0,0,0,0.3)}
+.sidebar.open{left:0}
+.sidebar-overlay{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:98}
+.sidebar-overlay.open{display:block}
+.content{padding:16px;padding-bottom:100px}
+.topbar-right{gap:8px}
+.lang-btn{padding:6px 12px;font-size:0.8rem}
+.btn-admin{padding:6px 12px;font-size:0.8rem}
+.topbar-user{display:none}
+}
 </style>
 </head>
 <body>
@@ -61,21 +79,30 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 
 <div id="app" style="display:none">
 <div class="topbar">
+<div style="display:flex;align-items:center;gap:12px">
+<div class="hamburger" id="hamburger" onclick="toggleMenu()">
+<span></span>
+<span></span>
+<span></span>
+</div>
 <div class="logo">⚖️ Адвокат КР</div>
+</div>
 <div class="topbar-right">
 <button class="lang-btn active" id="langRu" onclick="setLang('ru')">РУС</button>
 <button class="lang-btn" id="langKy" onclick="setLang('ky')">КЫР</button>
-<button class="btn-admin" onclick="window.location.href='admin.html'" style="display:none" id="adminBtn">⚙️ Админ</button>
+<button class="btn-admin" onclick="window.location.href='admin.html'" style="display:none" id="adminBtn">⚙️</button>
 <span class="topbar-user">👤 <span id="username">Demo</span></span>
 <a href="index.html" onclick="sessionStorage.clear()" style="color:var(--gold);text-decoration:none;font-size:0.85rem">Выход</a>
 </div>
 </div>
 
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMenu()"></div>
+
 <div class="main">
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
 <h3>РЕЖИМ</h3>
-<button class="mode-btn active" id="modeStudy" onclick="setMode('study')">📖 <span>Обучение</span></button>
-<button class="mode-btn" id="modeTest" onclick="setMode('test')">📝 <span>Тестирование</span></button>
+<button class="mode-btn active" id="modeStudy" onclick="setMode('study');closeMobileMenu()">📖 <span>Обучение</span></button>
+<button class="mode-btn" id="modeTest" onclick="setMode('test');closeMobileMenu()">📝 <span>Тестирование</span></button>
 
 <h3>ПОИСК</h3>
 <div class="search-box">
@@ -83,9 +110,10 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 </div>
 
 <h3>ИНСТРУМЕНТЫ</h3>
-<button class="mode-btn" onclick="shuffleQuestions()">🔄 Перемешать</button>
-<button class="mode-btn" onclick="toggleBookmarks()">⭐ Избранное (<span id="bookmarkCount">0</span>)</button>
-<button class="mode-btn" onclick="showErrors()">❌ Ошибки (<span id="errorCount">0</span>)</button>
+<button class="mode-btn" onclick="shuffleQuestions();closeMobileMenu()">🔄 Перемешать</button>
+<button class="mode-btn" onclick="toggleBookmarks();closeMobileMenu()">⭐ Избранное (<span id="bookmarkCount">0</span>)</button>
+<button class="mode-btn" onclick="showErrors();closeMobileMenu()">❌ Ошибки (<span id="errorCount">0</span>)</button>
+<button class="mode-btn" onclick="resetProgress();closeMobileMenu()">🔄 Сбросить прогресс</button>
 </div>
 
 <div class="content">
@@ -112,7 +140,6 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 </div>
 
 <script>
-// Проверка блокировки
 const user=sessionStorage.getItem('user');
 if(!user){window.location.href='index.html';}
 
@@ -127,6 +154,36 @@ document.getElementById('username').textContent=user;
 if(user==='admin')document.getElementById('adminBtn').style.display='inline-block';
 
 let DATA={ru:[],ky:[]},lang='ru',mode='study',cur=0,allQ=[],filtered=[],bookmarks=new Set(),errors=new Set(),answered={},correct=0,wrong=0,showingBookmarks=false,showingErrors=false;
+
+function toggleMenu(){
+const sidebar=document.getElementById('sidebar');
+const overlay=document.getElementById('sidebarOverlay');
+const hamburger=document.getElementById('hamburger');
+sidebar.classList.toggle('open');
+overlay.classList.toggle('open');
+hamburger.classList.toggle('open');
+}
+
+function closeMobileMenu(){
+if(window.innerWidth<=768){
+document.getElementById('sidebar').classList.remove('open');
+document.getElementById('sidebarOverlay').classList.remove('open');
+document.getElementById('hamburger').classList.remove('open');
+}
+}
+
+function resetProgress(){
+if(!confirm('Удалить весь прогресс (избранное, ошибки, статистику)?'))return;
+bookmarks.clear();
+errors.clear();
+answered={};
+correct=0;
+wrong=0;
+localStorage.removeItem('advokat_'+user);
+updateCounts();
+showQ();
+alert('✅ Прогресс сброшен');
+}
 
 try{
 const saved=localStorage.getItem('advokat_'+user);
