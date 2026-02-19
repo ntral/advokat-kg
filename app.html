@@ -31,11 +31,15 @@ body{font-family:'Mulish',sans-serif;background:var(--bg);color:var(--text);min-
 .mode-btn{width:100%;padding:12px 16px;background:var(--surface2);border:2px solid transparent;border-radius:10px;color:var(--text);font-size:0.9rem;cursor:pointer;margin:6px 0;transition:all 0.2s;display:flex;align-items:center;gap:8px;text-align:left}
 .mode-btn.active{border-color:var(--accent);background:rgba(59,130,246,0.1)}
 .mode-btn:hover{border-color:var(--border)}
+.mode-btn.bookmarked{border-color:var(--gold);background:rgba(245,158,11,0.1)}
 .search-box{margin:12px 0;position:relative}
 .search-input{width:100%;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.85rem}
 .search-input:focus{outline:none;border-color:var(--accent)}
 .content{padding:32px;max-width:900px;margin:0 auto;width:100%;padding-bottom:100px}
-.question-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:24px;box-shadow:0 4px 30px rgba(0,0,0,0.3);min-height:400px}
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:24px;box-shadow:0 4px 30px rgba(0,0,0,0.3);min-height:400px;position:relative}
+.bookmark-btn{position:absolute;top:20px;right:20px;background:transparent;border:2px solid var(--border);width:40px;height:40px;border-radius:50%;font-size:1.2rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+.bookmark-btn:hover{border-color:var(--gold);transform:scale(1.1)}
+.bookmark-btn.active{border-color:var(--gold);background:rgba(245,158,11,0.1)}
 .q-number{color:var(--text-dim);font-size:0.85rem;margin-bottom:12px}
 .q-section{color:var(--accent);font-size:0.85rem;margin-bottom:8px}
 .q-text{font-size:1.05rem;margin-bottom:24px;padding:20px;background:rgba(236,72,153,0.1);border:2px solid rgba(236,72,153,0.3);border-radius:14px;color:#fce7f3;line-height:1.7;word-wrap:break-word;white-space:pre-wrap}
@@ -54,6 +58,8 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 .stat{padding:8px 16px;background:var(--surface2);border-radius:8px;font-size:0.85rem}
 .stat.correct{color:var(--success)}
 .stat.wrong{color:#ef4444}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--gold);padding:16px 24px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:1000;display:none;animation:slideUp 0.3s}
+@keyframes slideUp{from{bottom:60px;opacity:0}to{bottom:80px;opacity:1}}
 
 @media(max-width:768px){
 .hamburger{display:flex}
@@ -67,6 +73,8 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 .lang-btn{padding:6px 12px;font-size:0.8rem}
 .btn-admin{padding:6px 12px;font-size:0.8rem}
 .topbar-user{display:none}
+.bookmark-btn{width:36px;height:36px;top:16px;right:16px}
+.question-card{padding:20px;padding-top:60px}
 }
 </style>
 </head>
@@ -124,6 +132,7 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 </div>
 
 <div class="question-card">
+<button class="bookmark-btn" id="bookmarkBtn" onclick="toggleCurrentBookmark()">☆</button>
 <div class="q-number" id="qNum"></div>
 <div class="q-section" id="qSection"></div>
 <div class="q-text" id="qText"></div>
@@ -139,6 +148,8 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
 const user=sessionStorage.getItem('user');
 if(!user){window.location.href='index.html';}
@@ -153,7 +164,14 @@ window.location.href='index.html';
 document.getElementById('username').textContent=user;
 if(user==='admin')document.getElementById('adminBtn').style.display='inline-block';
 
-let DATA={ru:[],ky:[]},lang='ru',mode='study',cur=0,allQ=[],filtered=[],bookmarks=new Set(),errors=new Set(),answered={},correct=0,wrong=0,showingBookmarks=false,showingErrors=false;
+let DATA={ru:[],ky:[]},lang='ru',mode='study',cur=0,allQ=[],filtered=[],bookmarks=new Set(),errors=new Set(),answered={},correct=0,wrong=0,showingBookmarks=false,showingErrors=false,lastPosition=0;
+
+function showToast(msg){
+const t=document.getElementById('toast');
+t.textContent=msg;
+t.style.display='block';
+setTimeout(()=>t.style.display='none',3000);
+}
 
 function toggleMenu(){
 const sidebar=document.getElementById('sidebar');
@@ -179,10 +197,37 @@ errors.clear();
 answered={};
 correct=0;
 wrong=0;
+lastPosition=0;
 localStorage.removeItem('advokat_'+user);
 updateCounts();
 showQ();
-alert('✅ Прогресс сброшен');
+showToast('✅ Прогресс сброшен');
+}
+
+function toggleCurrentBookmark(){
+const q=filtered[cur];
+if(!q)return;
+if(bookmarks.has(q.id)){
+bookmarks.delete(q.id);
+showToast('⭐ Удалено из избранного');
+}else{
+bookmarks.add(q.id);
+showToast('⭐ Добавлено в избранное');
+}
+saveData();
+updateBookmarkBtn();
+}
+
+function updateBookmarkBtn(){
+const q=filtered[cur];
+const btn=document.getElementById('bookmarkBtn');
+if(q && bookmarks.has(q.id)){
+btn.textContent='★';
+btn.classList.add('active');
+}else{
+btn.textContent='☆';
+btn.classList.remove('active');
+}
 }
 
 try{
@@ -191,11 +236,17 @@ if(saved){
 const data=JSON.parse(saved);
 bookmarks=new Set(data.bookmarks||[]);
 errors=new Set(data.errors||[]);
+lastPosition=data.lastPosition||0;
 }
 }catch(e){}
 
 function saveData(){
-localStorage.setItem('advokat_'+user,JSON.stringify({bookmarks:Array.from(bookmarks),errors:Array.from(errors)}));
+lastPosition=cur;
+localStorage.setItem('advokat_'+user,JSON.stringify({
+bookmarks:Array.from(bookmarks),
+errors:Array.from(errors),
+lastPosition:lastPosition
+}));
 updateCounts();
 }
 
@@ -242,6 +293,12 @@ document.querySelector('.loading-text').textContent='Ошибка загрузк
 
 function initApp(){
 buildQuestions();
+if(lastPosition>0 && lastPosition<filtered.length){
+const msg=`Продолжить с вопроса ${lastPosition+1}?`;
+if(confirm(msg)){
+cur=lastPosition;
+}
+}
 showQ();
 updateCounts();
 document.getElementById('loading').style.display='none';
@@ -268,7 +325,7 @@ document.getElementById('qText').textContent=q.text;
 
 const opts=document.getElementById('options');
 if(mode==='study'){
-opts.innerHTML=q.options.map((o,i)=>`<div class="option ${o.correct?'correct':''}" onclick="toggleBookmark('${q.id}')">${i+1}. ${o.text}</div>`).join('');
+opts.innerHTML=q.options.map((o,i)=>`<div class="option ${o.correct?'correct':''}">${i+1}. ${o.text}</div>`).join('');
 }else{
 const ans=answered[q.id];
 opts.innerHTML=q.options.map((o,i)=>{
@@ -289,6 +346,8 @@ document.getElementById('statTotal').textContent=Object.keys(answered).length;
 document.getElementById('statCorrect').textContent=correct;
 document.getElementById('statWrong').textContent=wrong;
 }
+updateBookmarkBtn();
+saveData();
 window.scrollTo(0,0);
 }
 
@@ -299,18 +358,14 @@ const isCorrect=q.options[idx].correct;
 answered[qid]=idx;
 if(isCorrect){
 correct++;
+showToast('✅ Правильно!');
 }else{
 wrong++;
 errors.add(qid);
+showToast('❌ Неправильно');
 }
 saveData();
 showQ();
-}
-
-function toggleBookmark(qid){
-if(bookmarks.has(qid))bookmarks.delete(qid);
-else bookmarks.add(qid);
-saveData();
 }
 
 function toggleBookmarks(){
@@ -318,7 +373,8 @@ showingBookmarks=!showingBookmarks;
 showingErrors=false;
 if(showingBookmarks){
 filtered=allQ.filter(q=>bookmarks.has(q.id));
-if(filtered.length===0){alert('Нет избранных вопросов');showingBookmarks=false;filtered=[...allQ];}
+if(filtered.length===0){showToast('Нет избранных вопросов');showingBookmarks=false;filtered=[...allQ];}
+else{showToast(`⭐ Избранное: ${filtered.length} вопросов`);}
 }else{
 filtered=[...allQ];
 }
@@ -331,7 +387,8 @@ showingErrors=!showingErrors;
 showingBookmarks=false;
 if(showingErrors){
 filtered=allQ.filter(q=>errors.has(q.id));
-if(filtered.length===0){alert('Нет ошибок');showingErrors=false;filtered=[...allQ];}
+if(filtered.length===0){showToast('Нет ошибок');showingErrors=false;filtered=[...allQ];}
+else{showToast(`❌ Ошибок: ${filtered.length}`);}
 }else{
 filtered=[...allQ];
 }
@@ -347,6 +404,7 @@ if(!term){
 filtered=[...allQ];
 }else{
 filtered=allQ.filter(q=>q.text.toLowerCase().includes(term)||q.options.some(o=>o.text.toLowerCase().includes(term)));
+showToast(`🔍 Найдено: ${filtered.length} вопросов`);
 }
 cur=0;
 showQ();
@@ -363,6 +421,7 @@ const j=Math.floor(Math.random()*(i+1));
 }
 cur=0;
 showQ();
+showToast('🔄 Вопросы перемешаны');
 }
 
 function prev(){if(cur>0){cur--;showQ();}}
