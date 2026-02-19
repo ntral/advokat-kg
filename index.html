@@ -18,6 +18,7 @@ input{width:100%;padding:14px 18px;background:rgba(15,23,42,0.6);border:2px soli
 input:focus{outline:none;border-color:#3b82f6;background:rgba(15,23,42,0.8)}
 button{width:100%;padding:16px;background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;border-radius:12px;color:white;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.3s;text-transform:uppercase;letter-spacing:1px}
 button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(59,130,246,0.4)}
+button:disabled{opacity:0.5;cursor:not-allowed}
 .error{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:12px;border-radius:10px;margin-top:16px;display:none;font-size:0.9rem}
 .warning{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);padding:20px;border-radius:12px;margin-top:24px;font-size:0.85rem;color:#fbbf24}
 .warning h3{font-size:1rem;margin-bottom:12px;color:#f59e0b;display:flex;align-items:center;gap:8px}
@@ -38,6 +39,7 @@ button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(59,130,246,0.
 .modal li{margin:8px 0}
 .modal strong{color:#f59e0b}
 .danger-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:16px;border-radius:10px;margin:16px 0;color:#fca5a5}
+.loading{display:none;text-align:center;color:#94a3b8;font-size:0.9rem;margin-top:8px}
 </style>
 </head>
 <body>
@@ -54,7 +56,8 @@ button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(59,130,246,0.
 <label>ПАРОЛЬ</label>
 <input type="password" id="password" placeholder="Введите пароль" onkeypress="if(event.key==='Enter')login()">
 
-<button onclick="login()">ВОЙТИ</button>
+<button id="loginBtn" onclick="login()">ВОЙТИ</button>
+<div class="loading" id="loading">Проверка данных...</div>
 
 <div class="error" id="error"></div>
 
@@ -73,7 +76,6 @@ button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(59,130,246,0.
 </div>
 </div>
 
-<!-- ИНСТРУКЦИЯ -->
 <div class="modal" id="instructionsModal" onclick="if(event.target===this)closeInstructions()">
 <div class="modal-content">
 <button class="modal-close" onclick="closeInstructions()">×</button>
@@ -101,7 +103,7 @@ button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(59,130,246,0.
 <p>Введите ключевое слово в поле поиска — система найдет все вопросы, содержащие это слово.</p>
 
 <h3>⭐ Избранное</h3>
-<p>В режиме <strong>Обучение</strong> кликните на вопрос чтобы добавить в избранное. Нажмите кнопку "Избранное" чтобы просмотреть сохраненные вопросы.</p>
+<p>Нажмите на звёздочку ★ справа вверху вопроса чтобы добавить в избранное. Нажмите кнопку "Избранное" в меню чтобы просмотреть сохраненные вопросы.</p>
 
 <h3>❌ Ошибки</h3>
 <p>Все вопросы на которые вы ответили неправильно в режиме <strong>Тестирование</strong> автоматически сохраняются. Повторите их позже!</p>
@@ -122,7 +124,7 @@ button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(59,130,246,0.
 
 <div class="danger-box">
 <strong>⚠️ За нарушение правил:</strong><br>
-Немедленная блокировка аккаунта без возврата оплаты. Администрация оставляет за собой право обратиться в правоохранительные органы при грубых нарушениях.
+Немедленная блокировка аккаунта без возврата оплаты.
 </div>
 
 <h3>📞 Поддержка</h3>
@@ -130,86 +132,134 @@ button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(59,130,246,0.
 </div>
 </div>
 
-<script>
-// Пользователи (admin - для управления, остальные - для обучения)
-const USERS = {
-'admin': 'advokat2025',
-'demo': 'demo123'
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+import{getDatabase,ref,get,set}from'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+const firebaseConfig={
+apiKey:"AIzaSyBLCjON8ap7Mi0OKL1WYfKhIUuRPNgXEqQ",
+authDomain:"advokat-kg.firebaseapp.com",
+databaseURL:"https://advokat-kg-default-rtdb.firebaseio.com",
+projectId:"advokat-kg",
+storageBucket:"advokat-kg.firebasestorage.app",
+messagingSenderId:"142941867206",
+appId:"1:142941867206:web:f46e90d1c5b4c8ea6e0f0d"
 };
 
-// Загрузка дополнительных пользователей из localStorage (добавленных админом)
-function loadUsers() {
-try {
-const custom = localStorage.getItem('__custom_users__');
-if (custom) {
-const parsed = JSON.parse(custom);
-Object.assign(USERS, parsed);
-}
-} catch(e) {}
-}
+const app=initializeApp(firebaseConfig);
+const db=getDatabase(app);
+window.db=db;
+window.dbRef=ref;
+window.dbGet=get;
+window.dbSet=set;
+</script>
 
-function login() {
-loadUsers();
-const u = document.getElementById('username').value.toLowerCase().trim();
-const p = document.getElementById('password').value;
-const err = document.getElementById('error');
-
-if (!u || !p) {
-err.textContent = '❌ Введите логин и пароль';
-err.style.display = 'block';
-return;
+<script>
+function openInstructions(){
+document.getElementById('instructionsModal').classList.add('open');
+document.body.style.overflow='hidden';
 }
 
-if (!USERS[u] || USERS[u] !== p) {
-err.textContent = '❌ Неверный логин или пароль';
-err.style.display = 'block';
-return;
+function closeInstructions(){
+document.getElementById('instructionsModal').classList.remove('open');
+document.body.style.overflow='';
 }
 
-// Проверка устройства (кроме admin и demo)
-if (u !== 'admin' && u !== 'demo') {
-const deviceId = getDeviceId();
-const boundDevice = localStorage.getItem('__device_' + u);
-
-if (boundDevice && boundDevice !== deviceId) {
-err.innerHTML = '🔒 Этот аккаунт привязан к другому устройству.<br><small>Для смены устройства обратитесь к администратору.</small>';
-err.style.display = 'block';
-return;
-}
-
-// Привязка к устройству при первом входе
-if (!boundDevice) {
-localStorage.setItem('__device_' + u, deviceId);
-}
-}
-
-// Успешный вход
-sessionStorage.setItem('user', u);
-window.location.href = 'app.html';
-}
-
-function getDeviceId() {
-let id = localStorage.getItem('__device_id__');
-if (!id) {
-id = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-localStorage.setItem('__device_id__', id);
+function getDeviceId(){
+let id=localStorage.getItem('__device_id__');
+if(!id){
+id='device_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);
+localStorage.setItem('__device_id__',id);
 }
 return id;
 }
 
-function openInstructions() {
-document.getElementById('instructionsModal').classList.add('open');
-document.body.style.overflow = 'hidden';
+async function login(){
+const btn=document.getElementById('loginBtn');
+const loading=document.getElementById('loading');
+const u=document.getElementById('username').value.toLowerCase().trim();
+const p=document.getElementById('password').value;
+const err=document.getElementById('error');
+
+if(!u||!p){
+err.textContent='❌ Введите логин и пароль';
+err.style.display='block';
+return;
 }
 
-function closeInstructions() {
-document.getElementById('instructionsModal').classList.remove('open');
-document.body.style.overflow = '';
+btn.disabled=true;
+loading.style.display='block';
+err.style.display='none';
+
+try{
+// Проверка admin локально
+if(u==='admin'&&p==='advokat2025'){
+sessionStorage.setItem('user',u);
+window.location.href='app.html';
+return;
 }
 
-// Enter key на поле логина
-document.getElementById('username').addEventListener('keypress', function(e) {
-if (e.key === 'Enter') {
+// Проверка в Firebase
+const userRef=window.dbRef(window.db,'users/'+u);
+const snapshot=await window.dbGet(userRef);
+
+if(!snapshot.exists()){
+err.textContent='❌ Неверный логин или пароль';
+err.style.display='block';
+btn.disabled=false;
+loading.style.display='none';
+return;
+}
+
+const userData=snapshot.val();
+
+if(userData.password!==p){
+err.textContent='❌ Неверный логин или пароль';
+err.style.display='block';
+btn.disabled=false;
+loading.style.display='none';
+return;
+}
+
+if(userData.blocked){
+err.innerHTML='🚫 Этот аккаунт заблокирован.<br><small>Обратитесь к администратору.</small>';
+err.style.display='block';
+btn.disabled=false;
+loading.style.display='none';
+return;
+}
+
+// Проверка устройства
+const deviceId=getDeviceId();
+if(userData.device&&userData.device!==deviceId){
+err.innerHTML='🔒 Этот аккаунт привязан к другому устройству.<br><small>Для смены устройства обратитесь к администратору.</small>';
+err.style.display='block';
+btn.disabled=false;
+loading.style.display='none';
+return;
+}
+
+// Привязка устройства
+if(!userData.device){
+await window.dbSet(userRef,{...userData,device:deviceId,lastLogin:new Date().toISOString()});
+}else{
+await window.dbSet(window.dbRef(window.db,'users/'+u+'/lastLogin'),new Date().toISOString());
+}
+
+sessionStorage.setItem('user',u);
+window.location.href='app.html';
+
+}catch(e){
+console.error('Login error:',e);
+err.textContent='❌ Ошибка подключения. Проверьте интернет.';
+err.style.display='block';
+btn.disabled=false;
+loading.style.display='none';
+}
+}
+
+document.getElementById('username').addEventListener('keypress',function(e){
+if(e.key==='Enter'){
 document.getElementById('password').focus();
 }
 });
