@@ -8,10 +8,11 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2e8f0;padding:20px}
 .container{max-width:1000px;margin:0 auto}
-.header{background:#1a1f3a;padding:20px;border-radius:12px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center}
+.header{background:#1a1f3a;padding:20px;border-radius:12px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
 .header h1{color:#f59e0b;font-size:1.5rem}
-.btn{padding:10px 20px;background:#3b82f6;border:none;border-radius:8px;color:white;font-weight:600;cursor:pointer;font-size:0.9rem}
+.btn{padding:10px 20px;background:#3b82f6;border:none;border-radius:8px;color:white;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s}
 .btn:hover{background:#2563eb}
+.btn:active{transform:scale(0.95)}
 .btn-success{background:#10b981}
 .btn-success:hover{background:#059669}
 .btn-danger{background:#ef4444}
@@ -24,13 +25,13 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2
 .form-group input:focus{outline:none;border-color:#3b82f6}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .user-list{margin-top:16px}
-.user-item{background:#0f172a;padding:12px 16px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
-.user-item .info{flex:1}
+.user-item{background:#0f172a;padding:12px 16px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.user-item .info{flex:1;min-width:200px}
 .user-item .name{font-weight:600;color:#e2e8f0}
 .user-item .meta{font-size:0.8rem;color:#94a3b8;margin-top:4px}
-.user-item .actions{display:flex;gap:8px}
+.user-item .actions{display:flex;gap:8px;flex-wrap:wrap}
 .user-item button{padding:6px 12px;font-size:0.8rem}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
 .stat-card{background:#1a1f3a;padding:20px;border-radius:12px;text-align:center}
 .stat-card .number{font-size:2rem;font-weight:700;color:#3b82f6;margin-bottom:4px}
 .stat-card .label{color:#94a3b8;font-size:0.85rem}
@@ -38,6 +39,14 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2
 .alert-success{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#6ee7b7}
 .alert-danger{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5}
 .code-box{background:#0f172a;padding:12px;border-radius:6px;font-family:monospace;font-size:0.85rem;color:#10b981;margin-top:8px;word-break:break-all}
+.toast{position:fixed;top:20px;right:20px;background:#10b981;color:white;padding:16px 24px;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);display:none;z-index:1000;animation:slideIn 0.3s}
+@keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@media(max-width:768px){
+.grid{grid-template-columns:1fr}
+.user-item{flex-direction:column;align-items:flex-start}
+.user-item .actions{width:100%}
+.user-item button{flex:1}
+}
 </style>
 </head>
 <body>
@@ -91,50 +100,58 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2
 </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-// Проверка доступа
-const user = sessionStorage.getItem('user');
-if (user !== 'admin') {
+const user=sessionStorage.getItem('user');
+if(user!=='admin'){
 alert('⛔ Доступ запрещён');
-window.location.href = 'index.html';
+window.location.href='index.html';
 }
 
-function loadUsers() {
-const custom = JSON.parse(localStorage.getItem('__custom_users__') || '{}');
-const metadata = JSON.parse(localStorage.getItem('__users_meta__') || '{}');
-const blocked = JSON.parse(localStorage.getItem('__blocked_users__') || '[]');
+function showToast(msg){
+const t=document.getElementById('toast');
+t.textContent=msg;
+t.style.display='block';
+setTimeout(()=>t.style.display='none',3000);
+}
 
-const users = Object.keys(custom).filter(u => u !== 'admin' && u !== 'demo');
-const active = users.filter(u => !blocked.includes(u)).length;
+function loadUsers(){
+const custom=JSON.parse(localStorage.getItem('__custom_users__')||'{}');
+const metadata=JSON.parse(localStorage.getItem('__users_meta__')||'{}');
+const blocked=JSON.parse(localStorage.getItem('__blocked_users__')||'[]');
 
-document.getElementById('totalUsers').textContent = users.length;
-document.getElementById('activeUsers').textContent = active;
-document.getElementById('blockedUsers').textContent = blocked.length;
+const users=Object.keys(custom).filter(u=>u!=='admin'&&u!=='demo');
+const active=users.filter(u=>!blocked.includes(u)).length;
 
-const list = document.getElementById('userList');
-if (users.length === 0) {
-list.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px">Учеников пока нет</p>';
+document.getElementById('totalUsers').textContent=users.length;
+document.getElementById('activeUsers').textContent=active;
+document.getElementById('blockedUsers').textContent=blocked.length;
+
+const list=document.getElementById('userList');
+if(users.length===0){
+list.innerHTML='<p style="color:#94a3b8;text-align:center;padding:20px">Учеников пока нет</p>';
 return;
 }
 
-list.innerHTML = users.map(u => {
-const meta = metadata[u] || {};
-const isBlocked = blocked.includes(u);
-const device = localStorage.getItem('__device_' + u);
+list.innerHTML=users.map(u=>{
+const meta=metadata[u]||{};
+const isBlocked=blocked.includes(u);
+const device=localStorage.getItem('__device_'+u);
 return `
 <div class="user-item">
 <div class="info">
-<div class="name">${meta.name || u} ${isBlocked ? '🚫' : ''}</div>
+<div class="name">${meta.name||u} ${isBlocked?'🚫':''}</div>
 <div class="meta">
 Логин: <strong>${u}</strong> | Пароль: <strong>${custom[u]}</strong>
-${device ? ' | 🔒 Привязан' : ' | 🔓 Свободен'}
+${device?' | 🔒 Привязан':' | 🔓 Свободен'}
 </div>
 </div>
 <div class="actions">
-<button class="btn" onclick="copyCredentials('${u}','${custom[u]}')">📋 Скопировать</button>
-${device ? `<button class="btn" onclick="resetDevice('${u}')">🔓 Сбросить</button>` : ''}
-${isBlocked ? 
-`<button class="btn btn-success" onclick="unblockUser('${u}')">✅ Разблокировать</button>` :
+<button class="btn" onclick="copyCredentials('${u}','${custom[u]}','${meta.name||''}')">📋 Скопировать</button>
+${device?`<button class="btn" onclick="resetDevice('${u}')">🔓 Сбросить</button>`:''}
+${isBlocked?
+`<button class="btn btn-success" onclick="unblockUser('${u}')">✅ Разблокировать</button>`:
 `<button class="btn btn-danger" onclick="blockUser('${u}')">🚫 Заблокировать</button>`
 }
 <button class="btn btn-danger" onclick="deleteUser('${u}')">🗑️</button>
@@ -144,59 +161,60 @@ ${isBlocked ?
 }).join('');
 }
 
-function generateCredentials() {
-const num = Object.keys(JSON.parse(localStorage.getItem('__custom_users__') || '{}')).length + 1;
-const login = 'student' + String(num).padStart(3, '0');
-const password = generatePassword();
-document.getElementById('newLogin').value = login;
-document.getElementById('newPassword').value = password;
+function generateCredentials(){
+const custom=JSON.parse(localStorage.getItem('__custom_users__')||'{}');
+const num=Object.keys(custom).length+1;
+const login='student'+String(num).padStart(3,'0');
+const password=generatePassword();
+document.getElementById('newLogin').value=login;
+document.getElementById('newPassword').value=password;
 }
 
-function generatePassword() {
-const words = ['ADV', 'LAW', 'KR', 'EXZ'];
-const word = words[Math.floor(Math.random() * words.length)];
-const num = Math.floor(Math.random() * 900) + 100;
-const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-const code = Array.from({length: 3}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+function generatePassword(){
+const words=['ADV','LAW','KR','EXZ'];
+const word=words[Math.floor(Math.random()*words.length)];
+const num=Math.floor(Math.random()*900)+100;
+const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const code=Array.from({length:3},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
 return `${word}${num}${code}`;
 }
 
-function addStudent() {
-const login = document.getElementById('newLogin').value.toLowerCase().trim();
-const password = document.getElementById('newPassword').value.trim();
-const name = document.getElementById('newName').value.trim();
+function addStudent(){
+const login=document.getElementById('newLogin').value.toLowerCase().trim();
+const password=document.getElementById('newPassword').value.trim();
+const name=document.getElementById('newName').value.trim();
 
-if (!login || !password) {
-showMessage('⚠️ Введите логин и пароль', 'danger');
+if(!login||!password){
+showMessage('⚠️ Введите логин и пароль','danger');
 return;
 }
 
-const users = JSON.parse(localStorage.getItem('__custom_users__') || '{}');
-if (users[login]) {
-showMessage('❌ Логин уже используется', 'danger');
+const users=JSON.parse(localStorage.getItem('__custom_users__')||'{}');
+if(users[login]){
+showMessage('❌ Логин уже используется','danger');
 return;
 }
 
-users[login] = password;
-localStorage.setItem('__custom_users__', JSON.stringify(users));
+users[login]=password;
+localStorage.setItem('__custom_users__',JSON.stringify(users));
 
-if (name) {
-const metadata = JSON.parse(localStorage.getItem('__users_meta__') || '{}');
-metadata[login] = {name, created: new Date().toISOString()};
-localStorage.setItem('__users_meta__', JSON.stringify(metadata));
+if(name){
+const metadata=JSON.parse(localStorage.getItem('__users_meta__')||'{}');
+metadata[login]={name,created:new Date().toISOString()};
+localStorage.setItem('__users_meta__',JSON.stringify(metadata));
 }
 
-showMessage(`✅ Ученик добавлен! Логин: ${login}, Пароль: ${password}`, 'success');
-document.getElementById('newLogin').value = '';
-document.getElementById('newPassword').value = '';
-document.getElementById('newName').value = '';
+showMessage(`✅ Ученик добавлен! Логин: ${login}, Пароль: ${password}`,'success');
+document.getElementById('newLogin').value='';
+document.getElementById('newPassword').value='';
+document.getElementById('newName').value='';
 loadUsers();
 }
 
-function copyCredentials(login, password) {
-const text = `🎓 Доступ к приложению "Адвокат КР"
+function copyCredentials(login,password,name){
+const text=`🎓 Доступ к приложению "Адвокат КР"
 
-👤 Логин: ${login}
+${name?`👤 ФИО: ${name}\n`:''}👤 Логин: ${login}
 🔑 Пароль: ${password}
 
 🌐 Ссылка: https://ntral.github.io/advokat-kg/
@@ -208,54 +226,73 @@ const text = `🎓 Доступ к приложению "Адвокат КР"
 
 📖 При входе ознакомьтесь с инструкцией`;
 
-navigator.clipboard.writeText(text).then(() => {
-showMessage('✅ Данные скопированы! Отправьте ученику', 'success');
+// Копирование для всех браузеров (включая мобильные)
+const textarea=document.createElement('textarea');
+textarea.value=text;
+textarea.style.position='fixed';
+textarea.style.opacity='0';
+document.body.appendChild(textarea);
+textarea.select();
+textarea.setSelectionRange(0,99999);
+try{
+document.execCommand('copy');
+showToast('✅ Данные скопированы! Отправьте ученику');
+}catch(e){
+// Fallback для современных браузеров
+if(navigator.clipboard){
+navigator.clipboard.writeText(text).then(()=>{
+showToast('✅ Данные скопированы! Отправьте ученику');
 });
+}else{
+alert('Скопируйте вручную:\n\n'+text);
+}
+}
+document.body.removeChild(textarea);
 }
 
-function resetDevice(login) {
-if (!confirm(`Сбросить привязку устройства для ${login}?`)) return;
-localStorage.removeItem('__device_' + login);
-showMessage(`✅ Устройство для ${login} сброшено`, 'success');
+function resetDevice(login){
+if(!confirm(`Сбросить привязку устройства для ${login}?`))return;
+localStorage.removeItem('__device_'+login);
+showMessage(`✅ Устройство для ${login} сброшено`,'success');
 loadUsers();
 }
 
-function blockUser(login) {
-if (!confirm(`Заблокировать ${login}?`)) return;
-const blocked = JSON.parse(localStorage.getItem('__blocked_users__') || '[]');
-if (!blocked.includes(login)) {
+function blockUser(login){
+if(!confirm(`Заблокировать ${login}?`))return;
+const blocked=JSON.parse(localStorage.getItem('__blocked_users__')||'[]');
+if(!blocked.includes(login)){
 blocked.push(login);
-localStorage.setItem('__blocked_users__', JSON.stringify(blocked));
-showMessage(`🚫 ${login} заблокирован`, 'success');
+localStorage.setItem('__blocked_users__',JSON.stringify(blocked));
+showMessage(`🚫 ${login} заблокирован`,'success');
 loadUsers();
 }
 }
 
-function unblockUser(login) {
-const blocked = JSON.parse(localStorage.getItem('__blocked_users__') || '[]');
-const index = blocked.indexOf(login);
-if (index > -1) {
-blocked.splice(index, 1);
-localStorage.setItem('__blocked_users__', JSON.stringify(blocked));
-showMessage(`✅ ${login} разблокирован`, 'success');
+function unblockUser(login){
+const blocked=JSON.parse(localStorage.getItem('__blocked_users__')||'[]');
+const index=blocked.indexOf(login);
+if(index>-1){
+blocked.splice(index,1);
+localStorage.setItem('__blocked_users__',JSON.stringify(blocked));
+showMessage(`✅ ${login} разблокирован`,'success');
 loadUsers();
 }
 }
 
-function deleteUser(login) {
-if (!confirm(`Удалить ${login}? Это действие нельзя отменить!`)) return;
-const users = JSON.parse(localStorage.getItem('__custom_users__') || '{}');
+function deleteUser(login){
+if(!confirm(`Удалить ${login}? Это действие нельзя отменить!`))return;
+const users=JSON.parse(localStorage.getItem('__custom_users__')||'{}');
 delete users[login];
-localStorage.setItem('__custom_users__', JSON.stringify(users));
-localStorage.removeItem('__device_' + login);
-showMessage(`🗑️ ${login} удалён`, 'success');
+localStorage.setItem('__custom_users__',JSON.stringify(users));
+localStorage.removeItem('__device_'+login);
+showMessage(`🗑️ ${login} удалён`,'success');
 loadUsers();
 }
 
-function showMessage(text, type) {
-const msg = document.getElementById('message');
-msg.innerHTML = `<div class="alert alert-${type}">${text}</div>`;
-setTimeout(() => msg.innerHTML = '', 5000);
+function showMessage(text,type){
+const msg=document.getElementById('message');
+msg.innerHTML=`<div class="alert alert-${type}">${text}</div>`;
+setTimeout(()=>msg.innerHTML='',5000);
 }
 
 loadUsers();
