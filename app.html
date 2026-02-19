@@ -26,20 +26,30 @@ body{font-family:'Mulish',sans-serif;background:var(--bg);color:var(--text);min-
 .mode-btn{width:100%;padding:12px 16px;background:var(--surface2);border:2px solid transparent;border-radius:10px;color:var(--text);font-size:0.9rem;cursor:pointer;margin:6px 0;transition:all 0.2s;display:flex;align-items:center;gap:8px;text-align:left}
 .mode-btn.active{border-color:var(--accent);background:rgba(59,130,246,0.1)}
 .mode-btn:hover{border-color:var(--border)}
-.content{padding:32px;max-width:800px;margin:0 auto;width:100%}
-.question-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:24px;box-shadow:0 4px 30px rgba(0,0,0,0.3)}
+.search-box{margin:12px 0;position:relative}
+.search-input{width:100%;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.85rem}
+.search-input:focus{outline:none;border-color:var(--accent)}
+.content{padding:32px;max-width:900px;margin:0 auto;width:100%;padding-bottom:100px}
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:24px;box-shadow:0 4px 30px rgba(0,0,0,0.3);min-height:400px}
 .q-number{color:var(--text-dim);font-size:0.85rem;margin-bottom:12px}
 .q-section{color:var(--accent);font-size:0.85rem;margin-bottom:8px}
-.q-text{font-size:1.1rem;margin-bottom:24px;padding:20px;background:rgba(236,72,153,0.1);border:2px solid rgba(236,72,153,0.3);border-radius:14px;color:#fce7f3;line-height:1.6}
+.q-text{font-size:1.05rem;margin-bottom:24px;padding:20px;background:rgba(236,72,153,0.1);border:2px solid rgba(236,72,153,0.3);border-radius:14px;color:#fce7f3;line-height:1.7;word-wrap:break-word;white-space:pre-wrap}
 .options{display:flex;flex-direction:column;gap:10px}
-.option{padding:16px 20px;background:var(--surface2);border:2px solid transparent;border-radius:14px;cursor:pointer;font-size:0.95rem;line-height:1.55;transition:all 0.2s;word-wrap:break-word}
+.option{padding:16px 20px;background:var(--surface2);border:2px solid transparent;border-radius:14px;cursor:pointer;font-size:0.95rem;line-height:1.6;transition:all 0.2s;word-wrap:break-word;white-space:normal;min-height:50px;display:flex;align-items:center}
 .option:hover{border-color:var(--accent);background:#1e293b}
-.option.correct{border-color:var(--success);background:rgba(16,185,129,0.1)}
-.nav-buttons{display:flex;justify-content:space-between;margin-top:24px;align-items:center}
+.option.correct{border-color:var(--success);background:rgba(16,185,129,0.1);font-weight:600}
+.option.selected{border-color:#f59e0b;background:rgba(245,158,11,0.1)}
+.option.wrong{border-color:#ef4444;background:rgba(239,68,68,0.1)}
+.nav-buttons{display:flex;justify-content:space-between;margin-top:24px;align-items:center;gap:12px}
 button{padding:12px 24px;background:var(--accent);border:none;border-radius:12px;color:white;font-weight:700;cursor:pointer;transition:all 0.2s;font-size:0.9rem}
 button:hover{background:#2563eb;transform:translateY(-2px)}
-.counter{color:var(--text-dim);font-size:0.9rem}
-@media(max-width:768px){.main{grid-template-columns:1fr}.sidebar{display:none}.content{padding:16px}}
+button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.counter{color:var(--text-dim);font-size:0.9rem;text-align:center;flex:1}
+.stats{display:flex;gap:16px;justify-content:center;margin-bottom:16px}
+.stat{padding:8px 16px;background:var(--surface2);border-radius:8px;font-size:0.85rem}
+.stat.correct{color:var(--success)}
+.stat.wrong{color:#ef4444}
+@media(max-width:768px){.main{grid-template-columns:1fr}.sidebar{display:none}.content{padding:16px;padding-bottom:100px}}
 </style>
 </head>
 <body>
@@ -55,7 +65,7 @@ button:hover{background:#2563eb;transform:translateY(-2px)}
 <div class="topbar-right">
 <button class="lang-btn active" id="langRu" onclick="setLang('ru')">РУС</button>
 <button class="lang-btn" id="langKy" onclick="setLang('ky')">КЫР</button>
-<button class="btn-admin" onclick="if(sessionStorage.getItem('user')==='admin')openAdmin();else alert('Доступ только для admin')" style="display:none" id="adminBtn">⚙️ Админ</button>
+<button class="btn-admin" onclick="alert('Панель администратора:\n\nДля добавления клиентов обратитесь к администратору')" style="display:none" id="adminBtn">⚙️ Админ</button>
 <span class="topbar-user">👤 <span id="username">Demo</span></span>
 <a href="index.html" onclick="sessionStorage.clear()" style="color:var(--gold);text-decoration:none;font-size:0.85rem">Выход</a>
 </div>
@@ -66,19 +76,32 @@ button:hover{background:#2563eb;transform:translateY(-2px)}
 <h3>РЕЖИМ</h3>
 <button class="mode-btn active" id="modeStudy" onclick="setMode('study')">📖 <span>Обучение</span></button>
 <button class="mode-btn" id="modeTest" onclick="setMode('test')">📝 <span>Тестирование</span></button>
+
+<h3>ПОИСК</h3>
+<div class="search-box">
+<input type="text" class="search-input" id="searchInput" placeholder="Поиск вопросов..." onkeyup="searchQuestions()">
+</div>
+
 <h3>ИНСТРУМЕНТЫ</h3>
 <button class="mode-btn" onclick="shuffleQuestions()">🔄 Перемешать</button>
-<button class="mode-btn" onclick="alert('Функция Избранное в разработке')">⭐ Избранное</button>
-<button class="mode-btn" onclick="alert('Функция Ошибки в разработке')">❌ Ошибки</button>
+<button class="mode-btn" onclick="toggleBookmarks()">⭐ Избранное (<span id="bookmarkCount">0</span>)</button>
+<button class="mode-btn" onclick="showErrors()">❌ Ошибки (<span id="errorCount">0</span>)</button>
 </div>
 
 <div class="content">
+<div class="stats" id="stats" style="display:none">
+<div class="stat">Всего: <strong id="statTotal">0</strong></div>
+<div class="stat correct">✓ Правильно: <strong id="statCorrect">0</strong></div>
+<div class="stat wrong">✗ Ошибок: <strong id="statWrong">0</strong></div>
+</div>
+
 <div class="question-card">
 <div class="q-number" id="qNum"></div>
 <div class="q-section" id="qSection"></div>
 <div class="q-text" id="qText"></div>
 <div class="options" id="options"></div>
 </div>
+
 <div class="nav-buttons">
 <button onclick="prev()">← Назад</button>
 <div class="counter" id="counter"></div>
@@ -94,50 +117,206 @@ if(!user){window.location.href='index.html';}
 document.getElementById('username').textContent=user;
 if(user==='admin')document.getElementById('adminBtn').style.display='inline-block';
 
-let DATA={ru:[],ky:[]},lang='ru',mode='study',cur=0,allQ=[],filtered=[];
+let DATA={ru:[],ky:[]},lang='ru',mode='study',cur=0,allQ=[],filtered=[],bookmarks=new Set(),errors=new Set(),answered={},correct=0,wrong=0,showingBookmarks=false,showingErrors=false;
+
+// Load saved data
+try{
+const saved=localStorage.getItem('advokat_'+user);
+if(saved){
+const data=JSON.parse(saved);
+bookmarks=new Set(data.bookmarks||[]);
+errors=new Set(data.errors||[]);
+}
+}catch(e){}
+
+function saveData(){
+localStorage.setItem('advokat_'+user,JSON.stringify({bookmarks:Array.from(bookmarks),errors:Array.from(errors)}));
+updateCounts();
+}
+
+function updateCounts(){
+document.getElementById('bookmarkCount').textContent=bookmarks.size;
+document.getElementById('errorCount').textContent=errors.size;
+}
 
 async function loadData(){
 try{
+// Try to load from cache first
+const cached=localStorage.getItem('advokat_data_cache');
+const cacheTime=localStorage.getItem('advokat_data_cache_time');
+const now=Date.now();
+
+if(cached && cacheTime && (now-parseInt(cacheTime))<86400000){
+DATA=JSON.parse(cached);
+console.log('✅ Loaded from cache');
+initApp();
+return;
+}
+
+// Load from network
 const res=await fetch('data.json');
 DATA=await res.json();
-console.log('✅ Loaded',DATA.ru.length,'RU sections,',DATA.ky.length,'KY sections');
+console.log('✅ Loaded',DATA.ru.length,'RU,',DATA.ky.length,'KY sections');
+
+// Cache for offline use
+try{
+localStorage.setItem('advokat_data_cache',JSON.stringify(DATA));
+localStorage.setItem('advokat_data_cache_time',now.toString());
+}catch(e){console.warn('Cache save failed:',e);}
+
+initApp();
+}catch(e){
+console.error('❌ Load failed:',e);
+// Try cache as fallback
+const cached=localStorage.getItem('advokat_data_cache');
+if(cached){
+DATA=JSON.parse(cached);
+console.log('✅ Using cached data (offline mode)');
+initApp();
+}else{
+document.querySelector('.loading-text').textContent='Ошибка загрузки. Проверьте подключение к интернету.';
+}
+}
+}
+
+function initApp(){
 buildQuestions();
 showQ();
+updateCounts();
 document.getElementById('loading').style.display='none';
 document.getElementById('app').style.display='block';
-}catch(e){
-console.error('❌ Failed to load data:',e);
-document.querySelector('.loading-text').textContent='Ошибка загрузки данных. Обновите страницу.';
-}
 }
 
 function buildQuestions(){
 const d=DATA[lang];
 allQ=[];
-d.forEach(sec=>sec.questions.forEach(q=>allQ.push({section:sec.section,text:q.text,options:q.options})));
+d.forEach(sec=>sec.questions.forEach((q,i)=>{
+const id=sec.section+'_'+i;
+allQ.push({id,section:sec.section,text:q.text,options:q.options});
+}));
 filtered=[...allQ];
 }
 
 function showQ(){
 const q=filtered[cur];
 if(!q)return;
+
 document.getElementById('qNum').textContent=`Вопрос ${cur+1} из ${filtered.length}`;
 document.getElementById('qSection').textContent=q.section;
 document.getElementById('qText').textContent=q.text;
+
 const opts=document.getElementById('options');
-opts.innerHTML=q.options.map((o,i)=>`<div class="option ${mode==='study'&&o.correct?'correct':''}">${i+1}. ${o.text}</div>`).join('');
+if(mode==='study'){
+opts.innerHTML=q.options.map((o,i)=>`<div class="option ${o.correct?'correct':''}" onclick="toggleBookmark('${q.id}')">${i+1}. ${o.text}</div>`).join('');
+}else{
+const ans=answered[q.id];
+opts.innerHTML=q.options.map((o,i)=>{
+let cls='option';
+if(ans!==undefined){
+if(ans===i)cls+=' selected';
+if(o.correct)cls+=' correct';
+else if(ans===i)cls+=' wrong';
+}
+return `<div class="${cls}" onclick="answerQuestion(${i},'${q.id}')">${i+1}. ${o.text}</div>`;
+}).join('');
+}
+
 document.getElementById('counter').textContent=`${cur+1} / ${filtered.length}`;
+document.getElementById('stats').style.display=mode==='test'?'flex':'none';
+if(mode==='test'){
+document.getElementById('statTotal').textContent=Object.keys(answered).length;
+document.getElementById('statCorrect').textContent=correct;
+document.getElementById('statWrong').textContent=wrong;
+}
 window.scrollTo(0,0);
+}
+
+function answerQuestion(idx,qid){
+if(answered[qid]!==undefined)return;
+const q=filtered[cur];
+const isCorrect=q.options[idx].correct;
+answered[qid]=idx;
+if(isCorrect){
+correct++;
+}else{
+wrong++;
+errors.add(qid);
+}
+saveData();
+showQ();
+}
+
+function toggleBookmark(qid){
+if(bookmarks.has(qid))bookmarks.delete(qid);
+else bookmarks.add(qid);
+saveData();
+}
+
+function toggleBookmarks(){
+showingBookmarks=!showingBookmarks;
+showingErrors=false;
+if(showingBookmarks){
+filtered=allQ.filter(q=>bookmarks.has(q.id));
+if(filtered.length===0){alert('Нет избранных вопросов');showingBookmarks=false;filtered=[...allQ];}
+}else{
+filtered=[...allQ];
+}
+cur=0;
+showQ();
+}
+
+function showErrors(){
+showingErrors=!showingErrors;
+showingBookmarks=false;
+if(showingErrors){
+filtered=allQ.filter(q=>errors.has(q.id));
+if(filtered.length===0){alert('Нет ошибок');showingErrors=false;filtered=[...allQ];}
+}else{
+filtered=[...allQ];
+}
+cur=0;
+showQ();
+}
+
+function searchQuestions(){
+const term=document.getElementById('searchInput').value.toLowerCase().trim();
+showingBookmarks=false;
+showingErrors=false;
+if(!term){
+filtered=[...allQ];
+}else{
+filtered=allQ.filter(q=>q.text.toLowerCase().includes(term)||q.options.some(o=>o.text.toLowerCase().includes(term)));
+}
+cur=0;
+showQ();
+}
+
+function shuffleQuestions(){
+showingBookmarks=false;
+showingErrors=false;
+document.getElementById('searchInput').value='';
+filtered=[...allQ];
+for(let i=filtered.length-1;i>0;i--){
+const j=Math.floor(Math.random()*(i+1));
+[filtered[i],filtered[j]]=[filtered[j],filtered[i]];
+}
+cur=0;
+showQ();
 }
 
 function prev(){if(cur>0){cur--;showQ();}}
 function next(){if(cur<filtered.length-1){cur++;showQ();}}
+
 function setMode(m){
 mode=m;
+answered={};
+correct=0;
+wrong=0;
 document.getElementById('modeStudy').classList.toggle('active',m==='study');
 document.getElementById('modeTest').classList.toggle('active',m==='test');
 showQ();
 }
+
 function setLang(l){
 lang=l;
 document.getElementById('langRu').classList.toggle('active',l==='ru');
@@ -146,15 +325,11 @@ buildQuestions();
 cur=0;
 showQ();
 }
-function shuffleQuestions(){
-for(let i=filtered.length-1;i>0;i--){
-const j=Math.floor(Math.random()*(i+1));
-[filtered[i],filtered[j]]=[filtered[j],filtered[i]];
+
+// Register service worker for offline support
+if('serviceWorker' in navigator){
+navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW registration failed:',e));
 }
-cur=0;
-showQ();
-}
-function openAdmin(){alert('Панель администратора в разработке');}
 
 loadData();
 </script>
