@@ -13,6 +13,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2
 .btn{padding:10px 20px;background:#3b82f6;border:none;border-radius:8px;color:white;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s}
 .btn:hover{background:#2563eb}
 .btn:active{transform:scale(0.95)}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
 .btn-success{background:#10b981}
 .btn-success:hover{background:#059669}
 .btn-danger{background:#ef4444}
@@ -21,7 +22,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2
 .card h2{color:#3b82f6;margin-bottom:16px;font-size:1.2rem}
 .form-group{margin-bottom:16px}
 .form-group label{display:block;color:#94a3b8;font-size:0.85rem;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
-.form-group input,.form-group select{width:100%;padding:10px 14px;background:#0f172a;border:1px solid rgba(148,163,184,0.2);border-radius:8px;color:#e2e8f0;font-size:0.95rem}
+.form-group input{width:100%;padding:10px 14px;background:#0f172a;border:1px solid rgba(148,163,184,0.2);border-radius:8px;color:#e2e8f0;font-size:0.95rem}
 .form-group input:focus{outline:none;border-color:#3b82f6}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .user-list{margin-top:16px}
@@ -38,9 +39,9 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2
 .alert{padding:12px 16px;border-radius:8px;margin-bottom:16px}
 .alert-success{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#6ee7b7}
 .alert-danger{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5}
-.code-box{background:#0f172a;padding:12px;border-radius:6px;font-family:monospace;font-size:0.85rem;color:#10b981;margin-top:8px;word-break:break-all}
 .toast{position:fixed;top:20px;right:20px;background:#10b981;color:white;padding:16px 24px;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);display:none;z-index:1000;animation:slideIn 0.3s}
 @keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.loading{text-align:center;color:#94a3b8;padding:40px}
 @media(max-width:768px){
 .grid{grid-template-columns:1fr}
 .user-item{flex-direction:column;align-items:flex-start}
@@ -61,15 +62,15 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2
 
 <div class="stats">
 <div class="stat-card">
-<div class="number" id="totalUsers">0</div>
+<div class="number" id="totalUsers">-</div>
 <div class="label">Всего учеников</div>
 </div>
 <div class="stat-card">
-<div class="number" id="activeUsers">0</div>
+<div class="number" id="activeUsers">-</div>
 <div class="label">Активных</div>
 </div>
 <div class="stat-card">
-<div class="number" id="blockedUsers">0</div>
+<div class="number" id="blockedUsers">-</div>
 <div class="label">Заблокировано</div>
 </div>
 </div>
@@ -90,25 +91,52 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2
 <label>ФИО ученика (необязательно)</label>
 <input type="text" id="newName" placeholder="Иванов Иван Иванович">
 </div>
-<button class="btn btn-success" onclick="addStudent()">✅ Добавить ученика</button>
+<button class="btn btn-success" id="addBtn" onclick="addStudent()">✅ Добавить ученика</button>
 <button class="btn" onclick="generateCredentials()">🎲 Сгенерировать логин и пароль</button>
 </div>
 
 <div class="card">
 <h2>👥 Список учеников</h2>
-<div class="user-list" id="userList"></div>
+<div class="user-list" id="userList">
+<div class="loading">Загрузка...</div>
+</div>
 </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<script>
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+import{getDatabase,ref,get,set,remove}from'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+const firebaseConfig={
+apiKey:"AIzaSyBLCjON8ap7Mi0OKL1WYfKhIUuRPNgXEqQ",
+authDomain:"advokat-kg.firebaseapp.com",
+databaseURL:"https://advokat-kg-default-rtdb.firebaseio.com",
+projectId:"advokat-kg",
+storageBucket:"advokat-kg.firebasestorage.app",
+messagingSenderId:"142941867206",
+appId:"1:142941867206:web:f46e90d1c5b4c8ea6e0f0d"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getDatabase(app);
+window.db=db;
+window.dbRef=ref;
+window.dbGet=get;
+window.dbSet=set;
+window.dbRemove=remove;
+
 const user=sessionStorage.getItem('user');
 if(user!=='admin'){
 alert('⛔ Доступ запрещён');
 window.location.href='index.html';
 }
 
+loadUsers();
+</script>
+
+<script>
 function showToast(msg){
 const t=document.getElementById('toast');
 t.textContent=msg;
@@ -116,41 +144,49 @@ t.style.display='block';
 setTimeout(()=>t.style.display='none',3000);
 }
 
-function loadUsers(){
-const custom=JSON.parse(localStorage.getItem('__custom_users__')||'{}');
-const metadata=JSON.parse(localStorage.getItem('__users_meta__')||'{}');
-const blocked=JSON.parse(localStorage.getItem('__blocked_users__')||'[]');
-
-const users=Object.keys(custom).filter(u=>u!=='admin'&&u!=='demo');
-const active=users.filter(u=>!blocked.includes(u)).length;
-
-document.getElementById('totalUsers').textContent=users.length;
-document.getElementById('activeUsers').textContent=active;
-document.getElementById('blockedUsers').textContent=blocked.length;
+async function loadUsers(){
+try{
+const usersRef=window.dbRef(window.db,'users');
+const snapshot=await window.dbGet(usersRef);
 
 const list=document.getElementById('userList');
-if(users.length===0){
+
+if(!snapshot.exists()){
+list.innerHTML='<p style="color:#94a3b8;text-align:center;padding:20px">Учеников пока нет</p>';
+document.getElementById('totalUsers').textContent='0';
+document.getElementById('activeUsers').textContent='0';
+document.getElementById('blockedUsers').textContent='0';
+return;
+}
+
+const users=snapshot.val();
+const userList=Object.keys(users).filter(u=>u!=='admin');
+const blocked=userList.filter(u=>users[u].blocked).length;
+
+document.getElementById('totalUsers').textContent=userList.length;
+document.getElementById('activeUsers').textContent=userList.length-blocked;
+document.getElementById('blockedUsers').textContent=blocked;
+
+if(userList.length===0){
 list.innerHTML='<p style="color:#94a3b8;text-align:center;padding:20px">Учеников пока нет</p>';
 return;
 }
 
-list.innerHTML=users.map(u=>{
-const meta=metadata[u]||{};
-const isBlocked=blocked.includes(u);
-const device=localStorage.getItem('__device_'+u);
+list.innerHTML=userList.map(u=>{
+const userData=users[u];
 return `
 <div class="user-item">
 <div class="info">
-<div class="name">${meta.name||u} ${isBlocked?'🚫':''}</div>
+<div class="name">${userData.name||u} ${userData.blocked?'🚫':''}</div>
 <div class="meta">
-Логин: <strong>${u}</strong> | Пароль: <strong>${custom[u]}</strong>
-${device?' | 🔒 Привязан':' | 🔓 Свободен'}
+Логин: <strong>${u}</strong> | Пароль: <strong>${userData.password}</strong>
+${userData.device?' | 🔒 Привязан':' | 🔓 Свободен'}
 </div>
 </div>
 <div class="actions">
-<button class="btn" onclick="copyCredentials('${u}','${custom[u]}','${meta.name||''}')">📋 Скопировать</button>
-${device?`<button class="btn" onclick="resetDevice('${u}')">🔓 Сбросить</button>`:''}
-${isBlocked?
+<button class="btn" onclick="copyCredentials('${u}','${userData.password}','${userData.name||''}')">📋 Скопировать</button>
+${userData.device?`<button class="btn" onclick="resetDevice('${u}')">🔓 Сбросить</button>`:''}
+${userData.blocked?
 `<button class="btn btn-success" onclick="unblockUser('${u}')">✅ Разблокировать</button>`:
 `<button class="btn btn-danger" onclick="blockUser('${u}')">🚫 Заблокировать</button>`
 }
@@ -159,11 +195,15 @@ ${isBlocked?
 </div>
 `;
 }).join('');
+
+}catch(e){
+console.error('Load error:',e);
+document.getElementById('userList').innerHTML='<p style="color:#ef4444;text-align:center;padding:20px">Ошибка загрузки. Проверьте интернет.</p>';
+}
 }
 
 function generateCredentials(){
-const custom=JSON.parse(localStorage.getItem('__custom_users__')||'{}');
-const num=Object.keys(custom).length+1;
+const num=Math.floor(Math.random()*900)+100;
 const login='student'+String(num).padStart(3,'0');
 const password=generatePassword();
 document.getElementById('newLogin').value=login;
@@ -176,10 +216,11 @@ const word=words[Math.floor(Math.random()*words.length)];
 const num=Math.floor(Math.random()*900)+100;
 const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const code=Array.from({length:3},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
-return `${word}${num}${code}`;
+return word+num+code;
 }
 
-function addStudent(){
+async function addStudent(){
+const btn=document.getElementById('addBtn');
 const login=document.getElementById('newLogin').value.toLowerCase().trim();
 const password=document.getElementById('newPassword').value.trim();
 const name=document.getElementById('newName').value.trim();
@@ -189,26 +230,39 @@ showMessage('⚠️ Введите логин и пароль','danger');
 return;
 }
 
-const users=JSON.parse(localStorage.getItem('__custom_users__')||'{}');
-if(users[login]){
+btn.disabled=true;
+
+try{
+const userRef=window.dbRef(window.db,'users/'+login);
+const snapshot=await window.dbGet(userRef);
+
+if(snapshot.exists()){
 showMessage('❌ Логин уже используется','danger');
+btn.disabled=false;
 return;
 }
 
-users[login]=password;
-localStorage.setItem('__custom_users__',JSON.stringify(users));
+await window.dbSet(userRef,{
+password:password,
+name:name||'',
+device:null,
+blocked:false,
+created:new Date().toISOString()
+});
 
-if(name){
-const metadata=JSON.parse(localStorage.getItem('__users_meta__')||'{}');
-metadata[login]={name,created:new Date().toISOString()};
-localStorage.setItem('__users_meta__',JSON.stringify(metadata));
-}
-
-showMessage(`✅ Ученик добавлен! Логин: ${login}, Пароль: ${password}`,'success');
+showMessage(`✅ Ученик добавлен! Логин: ${login}','success');
 document.getElementById('newLogin').value='';
 document.getElementById('newPassword').value='';
 document.getElementById('newName').value='';
+generateCredentials();
 loadUsers();
+
+}catch(e){
+console.error('Add error:',e);
+showMessage('❌ Ошибка. Проверьте интернет.','danger');
+}finally{
+btn.disabled=false;
+}
 }
 
 function copyCredentials(login,password,name){
@@ -226,7 +280,6 @@ ${name?`👤 ФИО: ${name}\n`:''}👤 Логин: ${login}
 
 📖 При входе ознакомьтесь с инструкцией`;
 
-// Копирование для всех браузеров (включая мобильные)
 const textarea=document.createElement('textarea');
 textarea.value=text;
 textarea.style.position='fixed';
@@ -238,7 +291,6 @@ try{
 document.execCommand('copy');
 showToast('✅ Данные скопированы! Отправьте ученику');
 }catch(e){
-// Fallback для современных браузеров
 if(navigator.clipboard){
 navigator.clipboard.writeText(text).then(()=>{
 showToast('✅ Данные скопированы! Отправьте ученику');
@@ -250,43 +302,51 @@ alert('Скопируйте вручную:\n\n'+text);
 document.body.removeChild(textarea);
 }
 
-function resetDevice(login){
+async function resetDevice(login){
 if(!confirm(`Сбросить привязку устройства для ${login}?`))return;
-localStorage.removeItem('__device_'+login);
+try{
+const deviceRef=window.dbRef(window.db,'users/'+login+'/device');
+await window.dbSet(deviceRef,null);
 showMessage(`✅ Устройство для ${login} сброшено`,'success');
 loadUsers();
+}catch(e){
+showMessage('❌ Ошибка','danger');
+}
 }
 
-function blockUser(login){
+async function blockUser(login){
 if(!confirm(`Заблокировать ${login}?`))return;
-const blocked=JSON.parse(localStorage.getItem('__blocked_users__')||'[]');
-if(!blocked.includes(login)){
-blocked.push(login);
-localStorage.setItem('__blocked_users__',JSON.stringify(blocked));
+try{
+const blockedRef=window.dbRef(window.db,'users/'+login+'/blocked');
+await window.dbSet(blockedRef,true);
 showMessage(`🚫 ${login} заблокирован`,'success');
 loadUsers();
+}catch(e){
+showMessage('❌ Ошибка','danger');
 }
 }
 
-function unblockUser(login){
-const blocked=JSON.parse(localStorage.getItem('__blocked_users__')||'[]');
-const index=blocked.indexOf(login);
-if(index>-1){
-blocked.splice(index,1);
-localStorage.setItem('__blocked_users__',JSON.stringify(blocked));
+async function unblockUser(login){
+try{
+const blockedRef=window.dbRef(window.db,'users/'+login+'/blocked');
+await window.dbSet(blockedRef,false);
 showMessage(`✅ ${login} разблокирован`,'success');
 loadUsers();
+}catch(e){
+showMessage('❌ Ошибка','danger');
 }
 }
 
-function deleteUser(login){
+async function deleteUser(login){
 if(!confirm(`Удалить ${login}? Это действие нельзя отменить!`))return;
-const users=JSON.parse(localStorage.getItem('__custom_users__')||'{}');
-delete users[login];
-localStorage.setItem('__custom_users__',JSON.stringify(users));
-localStorage.removeItem('__device_'+login);
+try{
+const userRef=window.dbRef(window.db,'users/'+login);
+await window.dbRemove(userRef);
 showMessage(`🗑️ ${login} удалён`,'success');
 loadUsers();
+}catch(e){
+showMessage('❌ Ошибка','danger');
+}
 }
 
 function showMessage(text,type){
@@ -295,7 +355,6 @@ msg.innerHTML=`<div class="alert alert-${type}">${text}</div>`;
 setTimeout(()=>msg.innerHTML='',5000);
 }
 
-loadUsers();
 generateCredentials();
 </script>
 </body>
