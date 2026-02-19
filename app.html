@@ -65,7 +65,7 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 <div class="topbar-right">
 <button class="lang-btn active" id="langRu" onclick="setLang('ru')">РУС</button>
 <button class="lang-btn" id="langKy" onclick="setLang('ky')">КЫР</button>
-<button class="btn-admin" onclick="alert('Панель администратора:\n\nДля добавления клиентов обратитесь к администратору')" style="display:none" id="adminBtn">⚙️ Админ</button>
+<button class="btn-admin" onclick="window.location.href='admin.html'" style="display:none" id="adminBtn">⚙️ Админ</button>
 <span class="topbar-user">👤 <span id="username">Demo</span></span>
 <a href="index.html" onclick="sessionStorage.clear()" style="color:var(--gold);text-decoration:none;font-size:0.85rem">Выход</a>
 </div>
@@ -112,14 +112,22 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 </div>
 
 <script>
+// Проверка блокировки
 const user=sessionStorage.getItem('user');
 if(!user){window.location.href='index.html';}
+
+const blocked=JSON.parse(localStorage.getItem('__blocked_users__')||'[]');
+if(blocked.includes(user)){
+alert('🚫 Ваш аккаунт заблокирован.\n\nПричина: Нарушение правил использования.\n\nДля разблокировки обратитесь к администратору.');
+sessionStorage.clear();
+window.location.href='index.html';
+}
+
 document.getElementById('username').textContent=user;
 if(user==='admin')document.getElementById('adminBtn').style.display='inline-block';
 
 let DATA={ru:[],ky:[]},lang='ru',mode='study',cur=0,allQ=[],filtered=[],bookmarks=new Set(),errors=new Set(),answered={},correct=0,wrong=0,showingBookmarks=false,showingErrors=false;
 
-// Load saved data
 try{
 const saved=localStorage.getItem('advokat_'+user);
 if(saved){
@@ -141,7 +149,6 @@ document.getElementById('errorCount').textContent=errors.size;
 
 async function loadData(){
 try{
-// Try to load from cache first
 const cached=localStorage.getItem('advokat_data_cache');
 const cacheTime=localStorage.getItem('advokat_data_cache_time');
 const now=Date.now();
@@ -153,12 +160,10 @@ initApp();
 return;
 }
 
-// Load from network
 const res=await fetch('data.json');
 DATA=await res.json();
 console.log('✅ Loaded',DATA.ru.length,'RU,',DATA.ky.length,'KY sections');
 
-// Cache for offline use
 try{
 localStorage.setItem('advokat_data_cache',JSON.stringify(DATA));
 localStorage.setItem('advokat_data_cache_time',now.toString());
@@ -167,7 +172,6 @@ localStorage.setItem('advokat_data_cache_time',now.toString());
 initApp();
 }catch(e){
 console.error('❌ Load failed:',e);
-// Try cache as fallback
 const cached=localStorage.getItem('advokat_data_cache');
 if(cached){
 DATA=JSON.parse(cached);
@@ -326,7 +330,6 @@ cur=0;
 showQ();
 }
 
-// Register service worker for offline support
 if('serviceWorker' in navigator){
 navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW registration failed:',e));
 }
