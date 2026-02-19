@@ -2,13 +2,13 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Адвокат КР — Вход</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Mulish:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Mulish',sans-serif;background:linear-gradient(135deg,#0a0e27 0%,#1a1f3a 100%);color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center}
-.login-box{background:rgba(26,31,58,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:48px 40px;width:420px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+body{font-family:'Mulish',sans-serif;background:linear-gradient(135deg,#0a0e27 0%,#1a1f3a 100%);color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:rgba(26,31,58,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:48px 40px;width:480px;max-width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
 .logo{width:80px;height:80px;margin:0 auto 16px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px}
 h1{font-family:'Playfair Display',serif;font-size:2rem;color:#f59e0b;text-align:center;margin-bottom:8px}
 .subtitle{text-align:center;color:#94a3b8;font-size:0.9rem;margin-bottom:32px}
@@ -19,29 +19,200 @@ input:focus{outline:none;border-color:#3b82f6;background:rgba(15,23,42,0.8)}
 button{width:100%;padding:16px;background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;border-radius:12px;color:white;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.3s;text-transform:uppercase;letter-spacing:1px}
 button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(59,130,246,0.4)}
 .error{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:12px;border-radius:10px;margin-top:16px;display:none;font-size:0.9rem}
+.warning{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);padding:20px;border-radius:12px;margin-top:24px;font-size:0.85rem;color:#fbbf24}
+.warning h3{font-size:1rem;margin-bottom:12px;color:#f59e0b;display:flex;align-items:center;gap:8px}
+.warning ul{padding-left:20px;line-height:1.8}
+.warning li{margin:6px 0}
+.info-link{text-align:center;margin-top:16px;font-size:0.85rem}
+.info-link a{color:#3b82f6;text-decoration:none;cursor:pointer}
+.info-link a:hover{text-decoration:underline}
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:1000;padding:20px;overflow-y:auto}
+.modal.open{display:flex;align-items:center;justify-content:center}
+.modal-content{background:rgba(26,31,58,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;position:relative}
+.modal-close{position:absolute;top:16px;right:16px;background:transparent;border:none;color:#94a3b8;font-size:28px;cursor:pointer;padding:8px;line-height:1}
+.modal-close:hover{color:#f1f5f9}
+.modal h2{color:#f59e0b;margin-bottom:20px;font-size:1.5rem}
+.modal h3{color:#3b82f6;margin-top:24px;margin-bottom:12px;font-size:1.1rem}
+.modal p{line-height:1.7;margin-bottom:12px;color:#cbd5e1}
+.modal ul,.modal ol{padding-left:24px;line-height:1.8;color:#cbd5e1;margin-bottom:16px}
+.modal li{margin:8px 0}
+.modal strong{color:#f59e0b}
+.danger-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:16px;border-radius:10px;margin:16px 0;color:#fca5a5}
 </style>
 </head>
 <body>
+
 <div class="login-box">
 <div class="logo">⚖️</div>
 <h1>Адвокат КР</h1>
 <p class="subtitle">Подготовка к квалификационному экзамену</p>
 <h2>Вход в систему</h2>
+
 <label>ИМЯ ПОЛЬЗОВАТЕЛЯ</label>
-<input type="text" id="username" placeholder="admin">
+<input type="text" id="username" placeholder="Введите логин">
+
 <label>ПАРОЛЬ</label>
-<input type="password" id="password" placeholder="••••••••••" onkeypress="if(event.key==='Enter')document.getElementById('btnLogin').click()">
-<button id="btnLogin" onclick="
-const u=document.getElementById('username').value.toLowerCase().trim();
-const p=document.getElementById('password').value;
-const err=document.getElementById('error');
-const users={'admin':'advokat2025','demo':'demo123'};
-try{Object.assign(users,JSON.parse(localStorage.getItem('__u__')||'{}'))}catch(e){}
-if(!users[u]||users[u]!==p){err.textContent='❌ Неверный логин или пароль';err.style.display='block';return}
-sessionStorage.setItem('user',u);
-window.location.href='app.html';
-">ВОЙТИ</button>
+<input type="password" id="password" placeholder="Введите пароль" onkeypress="if(event.key==='Enter')login()">
+
+<button onclick="login()">ВОЙТИ</button>
+
 <div class="error" id="error"></div>
+
+<div class="warning">
+<h3>⚠️ ПРАВИЛА ИСПОЛЬЗОВАНИЯ</h3>
+<ul>
+<li><strong>Один аккаунт = одно устройство</strong></li>
+<li>Передача доступа третьим лицам строго запрещена</li>
+<li>При нарушении — блокировка без возврата средств</li>
+<li>Все действия логируются</li>
+</ul>
 </div>
+
+<div class="info-link">
+<a onclick="openInstructions()">📖 Как пользоваться приложением?</a>
+</div>
+</div>
+
+<!-- ИНСТРУКЦИЯ -->
+<div class="modal" id="instructionsModal" onclick="if(event.target===this)closeInstructions()">
+<div class="modal-content">
+<button class="modal-close" onclick="closeInstructions()">×</button>
+<h2>📖 Инструкция по использованию</h2>
+
+<h3>🔐 Получение доступа</h3>
+<p>Для получения доступа к приложению:</p>
+<ol>
+<li>Свяжитесь с администратором</li>
+<li>Оплатите обучение</li>
+<li>Получите персональные логин и пароль</li>
+<li>Войдите в систему с вашего устройства</li>
+</ol>
+
+<div class="danger-box">
+<strong>⚠️ ВАЖНО!</strong><br>
+Ваш аккаунт привязывается к первому устройству, с которого вы вошли. Вход с другого устройства будет заблокирован. Если вам нужно сменить устройство — обратитесь к администратору.
+</div>
+
+<h3>📚 Режимы работы</h3>
+<p><strong>Обучение:</strong> Правильные ответы сразу выделены зеленым. Используйте для изучения материала.</p>
+<p><strong>Тестирование:</strong> Выбирайте ответ — система покажет правильно ли вы ответили и посчитает статистику.</p>
+
+<h3>🔍 Поиск вопросов</h3>
+<p>Введите ключевое слово в поле поиска — система найдет все вопросы, содержащие это слово.</p>
+
+<h3>⭐ Избранное</h3>
+<p>В режиме <strong>Обучение</strong> кликните на вопрос чтобы добавить в избранное. Нажмите кнопку "Избранное" чтобы просмотреть сохраненные вопросы.</p>
+
+<h3>❌ Ошибки</h3>
+<p>Все вопросы на которые вы ответили неправильно в режиме <strong>Тестирование</strong> автоматически сохраняются. Повторите их позже!</p>
+
+<h3>🔄 Перемешать</h3>
+<p>Случайный порядок вопросов для лучшего запоминания.</p>
+
+<h3>🌐 Офлайн режим</h3>
+<p>После первой загрузки приложение работает без интернета. Все данные сохраняются на вашем устройстве.</p>
+
+<h3>🚫 Запрещено</h3>
+<ul>
+<li>Передавать логин и пароль другим лицам</li>
+<li>Использовать аккаунт на нескольких устройствах одновременно</li>
+<li>Копировать или распространять вопросы</li>
+<li>Продавать или передавать доступ</li>
+</ul>
+
+<div class="danger-box">
+<strong>⚠️ За нарушение правил:</strong><br>
+Немедленная блокировка аккаунта без возврата оплаты. Администрация оставляет за собой право обратиться в правоохранительные органы при грубых нарушениях.
+</div>
+
+<h3>📞 Поддержка</h3>
+<p>Если у вас возникли технические проблемы или вопросы — обратитесь к администратору.</p>
+</div>
+</div>
+
+<script>
+// Пользователи (admin - для управления, остальные - для обучения)
+const USERS = {
+'admin': 'advokat2025',
+'demo': 'demo123'
+};
+
+// Загрузка дополнительных пользователей из localStorage (добавленных админом)
+function loadUsers() {
+try {
+const custom = localStorage.getItem('__custom_users__');
+if (custom) {
+const parsed = JSON.parse(custom);
+Object.assign(USERS, parsed);
+}
+} catch(e) {}
+}
+
+function login() {
+loadUsers();
+const u = document.getElementById('username').value.toLowerCase().trim();
+const p = document.getElementById('password').value;
+const err = document.getElementById('error');
+
+if (!u || !p) {
+err.textContent = '❌ Введите логин и пароль';
+err.style.display = 'block';
+return;
+}
+
+if (!USERS[u] || USERS[u] !== p) {
+err.textContent = '❌ Неверный логин или пароль';
+err.style.display = 'block';
+return;
+}
+
+// Проверка устройства (кроме admin и demo)
+if (u !== 'admin' && u !== 'demo') {
+const deviceId = getDeviceId();
+const boundDevice = localStorage.getItem('__device_' + u);
+
+if (boundDevice && boundDevice !== deviceId) {
+err.innerHTML = '🔒 Этот аккаунт привязан к другому устройству.<br><small>Для смены устройства обратитесь к администратору.</small>';
+err.style.display = 'block';
+return;
+}
+
+// Привязка к устройству при первом входе
+if (!boundDevice) {
+localStorage.setItem('__device_' + u, deviceId);
+}
+}
+
+// Успешный вход
+sessionStorage.setItem('user', u);
+window.location.href = 'app.html';
+}
+
+function getDeviceId() {
+let id = localStorage.getItem('__device_id__');
+if (!id) {
+id = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+localStorage.setItem('__device_id__', id);
+}
+return id;
+}
+
+function openInstructions() {
+document.getElementById('instructionsModal').classList.add('open');
+document.body.style.overflow = 'hidden';
+}
+
+function closeInstructions() {
+document.getElementById('instructionsModal').classList.remove('open');
+document.body.style.overflow = '';
+}
+
+// Enter key на поле логина
+document.getElementById('username').addEventListener('keypress', function(e) {
+if (e.key === 'Enter') {
+document.getElementById('password').focus();
+}
+});
+</script>
 </body>
 </html>
