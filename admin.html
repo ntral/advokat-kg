@@ -25,7 +25,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2
 .form-group input{width:100%;padding:10px 14px;background:#0f172a;border:1px solid rgba(148,163,184,0.2);border-radius:8px;color:#e2e8f0;font-size:0.95rem}
 .form-group input:focus{outline:none;border-color:#3b82f6}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.user-list{margin-top:16px}
+.user-list{margin-top:16px;min-height:100px}
 .user-item{background:#0f172a;padding:12px 16px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 .user-item .info{flex:1;min-width:200px}
 .user-item .name{font-weight:600;color:#e2e8f0}
@@ -65,15 +65,15 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2
 
 <div class="stats">
 <div class="stat-card">
-<div class="number" id="totalUsers">-</div>
+<div class="number" id="totalUsers">0</div>
 <div class="label">Всего учеников</div>
 </div>
 <div class="stat-card">
-<div class="number" id="activeUsers">-</div>
+<div class="number" id="activeUsers">0</div>
 <div class="label">Активных</div>
 </div>
 <div class="stat-card">
-<div class="number" id="blockedUsers">-</div>
+<div class="number" id="blockedUsers">0</div>
 <div class="label">Заблокировано</div>
 </div>
 </div>
@@ -94,8 +94,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2
 <label>ФИО ученика (необязательно)</label>
 <input type="text" id="newName" placeholder="Иванов Иван Иванович">
 </div>
-<button class="btn btn-success" id="addBtn" onclick="addStudent()" disabled>✅ Добавить ученика</button>
-<button class="btn" id="genBtn" onclick="generateCredentials()" disabled>🎲 Сгенерировать логин и пароль</button>
+<button class="btn btn-success" id="addBtn" onclick="addStudent()">✅ Добавить ученика</button>
+<button class="btn" id="genBtn" onclick="generateCredentials()">🎲 Сгенерировать логин и пароль</button>
 </div>
 
 <div class="card">
@@ -112,6 +112,12 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2
 import{initializeApp}from'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import{getDatabase,ref,get,set,remove}from'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
+const user=sessionStorage.getItem('user');
+if(user!=='admin'){
+alert('⛔ Доступ запрещён');
+window.location.href='index.html';
+}
+
 const firebaseConfig={
 apiKey:"AIzaSyBLCjON8ap7Mi0OKL1WYfKhIUuRPNgXEqQ",
 authDomain:"advokat-kg.firebaseapp.com",
@@ -122,40 +128,29 @@ messagingSenderId:"142941867206",
 appId:"1:142941867206:web:f46e90d1c5b4c8ea6e0f0d"
 };
 
+let db,dbRef,dbGet,dbSet,dbRemove;
+
 try{
 const app=initializeApp(firebaseConfig);
-const db=getDatabase(app);
-window.db=db;
-window.dbRef=ref;
-window.dbGet=get;
-window.dbSet=set;
-window.dbRemove=remove;
-window.firebaseReady=true;
+db=getDatabase(app);
+dbRef=ref;
+dbGet=get;
+dbSet=set;
+dbRemove=remove;
 
 document.getElementById('firebaseStatus').innerHTML='✅ Firebase подключён';
 document.getElementById('firebaseStatus').style.background='rgba(16,185,129,0.1)';
 document.getElementById('firebaseStatus').style.borderColor='rgba(16,185,129,0.3)';
 document.getElementById('firebaseStatus').style.color='#10b981';
 
-document.getElementById('addBtn').disabled=false;
-document.getElementById('genBtn').disabled=false;
-
 loadUsers();
-setTimeout(generateCredentials,500);
+setTimeout(()=>window.generateCredentials(),500);
 }catch(e){
 console.error('Firebase init error:',e);
 document.getElementById('firebaseStatus').innerHTML='❌ Ошибка подключения к Firebase';
 document.getElementById('firebaseStatus').style.background='rgba(239,68,68,0.1)';
 document.getElementById('firebaseStatus').style.borderColor='rgba(239,68,68,0.3)';
 document.getElementById('firebaseStatus').style.color='#ef4444';
-}
-</script>
-
-<script>
-const user=sessionStorage.getItem('user');
-if(user!=='admin'){
-alert('⛔ Доступ запрещён');
-window.location.href='index.html';
 }
 
 function showToast(msg){
@@ -166,14 +161,9 @@ setTimeout(()=>t.style.display='none',3000);
 }
 
 async function loadUsers(){
-if(!window.firebaseReady){
-document.getElementById('userList').innerHTML='<p style="color:#ef4444;text-align:center;padding:20px">Firebase не подключён</p>';
-return;
-}
-
 try{
-const usersRef=window.dbRef(window.db,'users');
-const snapshot=await window.dbGet(usersRef);
+const usersRef=dbRef(db,'users');
+const snapshot=await dbGet(usersRef);
 
 const list=document.getElementById('userList');
 
@@ -210,13 +200,13 @@ ${userData.device?' | 🔒 Привязан':' | 🔓 Свободен'}
 </div>
 </div>
 <div class="actions">
-<button class="btn" onclick="copyCredentials('${u}','${userData.password}','${userData.name||''}')">📋 Скопировать</button>
-${userData.device?`<button class="btn" onclick="resetDevice('${u}')">🔓 Сбросить</button>`:''}
+<button class="btn" onclick="window.copyCredentials('${u}','${userData.password}','${userData.name||''}')">📋 Скопировать</button>
+${userData.device?`<button class="btn" onclick="window.resetDevice('${u}')">🔓 Сбросить</button>`:''}
 ${userData.blocked?
-`<button class="btn btn-success" onclick="unblockUser('${u}')">✅ Разблокировать</button>`:
-`<button class="btn btn-danger" onclick="blockUser('${u}')">🚫 Заблокировать</button>`
+`<button class="btn btn-success" onclick="window.unblockUser('${u}')">✅ Разблокировать</button>`:
+`<button class="btn btn-danger" onclick="window.blockUser('${u}')">🚫 Заблокировать</button>`
 }
-<button class="btn btn-danger" onclick="deleteUser('${u}')">🗑️</button>
+<button class="btn btn-danger" onclick="window.deleteUser('${u}')">🗑️</button>
 </div>
 </div>
 `;
@@ -224,33 +214,24 @@ ${userData.blocked?
 
 }catch(e){
 console.error('Load error:',e);
-document.getElementById('userList').innerHTML='<p style="color:#ef4444;text-align:center;padding:20px">Ошибка загрузки. Проверьте интернет.</p>';
+document.getElementById('userList').innerHTML='<p style="color:#ef4444;text-align:center;padding:20px">Ошибка загрузки</p>';
 }
 }
 
-function generateCredentials(){
+window.generateCredentials=function(){
 const num=Math.floor(Math.random()*900)+100;
 const login='student'+String(num).padStart(3,'0');
-const password=generatePassword();
+const words=['ADV','LAW','KR','EXZ'];
+const word=words[Math.floor(Math.random()*words.length)];
+const pnum=Math.floor(Math.random()*900)+100;
+const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const code=Array.from({length:3},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+const password=word+pnum+code;
 document.getElementById('newLogin').value=login;
 document.getElementById('newPassword').value=password;
 }
 
-function generatePassword(){
-const words=['ADV','LAW','KR','EXZ'];
-const word=words[Math.floor(Math.random()*words.length)];
-const num=Math.floor(Math.random()*900)+100;
-const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-const code=Array.from({length:3},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
-return word+num+code;
-}
-
-async function addStudent(){
-if(!window.firebaseReady){
-showMessage('❌ Firebase не подключён','danger');
-return;
-}
-
+window.addStudent=async function(){
 const btn=document.getElementById('addBtn');
 const login=document.getElementById('newLogin').value.toLowerCase().trim();
 const password=document.getElementById('newPassword').value.trim();
@@ -264,8 +245,8 @@ return;
 btn.disabled=true;
 
 try{
-const userRef=window.dbRef(window.db,'users/'+login);
-const snapshot=await window.dbGet(userRef);
+const userRef=dbRef(db,'users/'+login);
+const snapshot=await dbGet(userRef);
 
 if(snapshot.exists()){
 showMessage('❌ Логин уже используется','danger');
@@ -273,7 +254,7 @@ btn.disabled=false;
 return;
 }
 
-await window.dbSet(userRef,{
+await dbSet(userRef,{
 password:password,
 name:name||'',
 device:null,
@@ -281,22 +262,22 @@ blocked:false,
 created:new Date().toISOString()
 });
 
-showMessage(`✅ Ученик добавлен! Логин: ${login}`,'success');
+showMessage(`✅ Ученик добавлен!`,'success');
 document.getElementById('newLogin').value='';
 document.getElementById('newPassword').value='';
 document.getElementById('newName').value='';
-generateCredentials();
+window.generateCredentials();
 loadUsers();
 
 }catch(e){
 console.error('Add error:',e);
-showMessage('❌ Ошибка. Проверьте интернет.','danger');
+showMessage('❌ Ошибка','danger');
 }finally{
 btn.disabled=false;
 }
 }
 
-function copyCredentials(login,password,name){
+window.copyCredentials=function(login,password,name){
 const text=`🎓 Доступ к приложению "Адвокат КР"
 
 ${name?`👤 ФИО: ${name}\n`:''}👤 Логин: ${login}
@@ -320,26 +301,19 @@ textarea.select();
 textarea.setSelectionRange(0,99999);
 try{
 document.execCommand('copy');
-showToast('✅ Данные скопированы! Отправьте ученику');
+showToast('✅ Данные скопированы!');
 }catch(e){
 if(navigator.clipboard){
-navigator.clipboard.writeText(text).then(()=>{
-showToast('✅ Данные скопированы! Отправьте ученику');
-}).catch(()=>{
-prompt('Скопируйте вручную:',text);
-});
-}else{
-prompt('Скопируйте вручную:',text);
+navigator.clipboard.writeText(text).then(()=>showToast('✅ Данные скопированы!'));
 }
 }
 document.body.removeChild(textarea);
 }
 
-async function resetDevice(login){
+window.resetDevice=async function(login){
 if(!confirm(`Сбросить привязку устройства для ${login}?`))return;
 try{
-const deviceRef=window.dbRef(window.db,'users/'+login+'/device');
-await window.dbSet(deviceRef,null);
+await dbSet(dbRef(db,'users/'+login+'/device'),null);
 showMessage(`✅ Устройство для ${login} сброшено`,'success');
 loadUsers();
 }catch(e){
@@ -347,11 +321,10 @@ showMessage('❌ Ошибка','danger');
 }
 }
 
-async function blockUser(login){
+window.blockUser=async function(login){
 if(!confirm(`Заблокировать ${login}?`))return;
 try{
-const blockedRef=window.dbRef(window.db,'users/'+login+'/blocked');
-await window.dbSet(blockedRef,true);
+await dbSet(dbRef(db,'users/'+login+'/blocked'),true);
 showMessage(`🚫 ${login} заблокирован`,'success');
 loadUsers();
 }catch(e){
@@ -359,10 +332,9 @@ showMessage('❌ Ошибка','danger');
 }
 }
 
-async function unblockUser(login){
+window.unblockUser=async function(login){
 try{
-const blockedRef=window.dbRef(window.db,'users/'+login+'/blocked');
-await window.dbSet(blockedRef,false);
+await dbSet(dbRef(db,'users/'+login+'/blocked'),false);
 showMessage(`✅ ${login} разблокирован`,'success');
 loadUsers();
 }catch(e){
@@ -370,11 +342,10 @@ showMessage('❌ Ошибка','danger');
 }
 }
 
-async function deleteUser(login){
-if(!confirm(`Удалить ${login}? Это действие нельзя отменить!`))return;
+window.deleteUser=async function(login){
+if(!confirm(`Удалить ${login}?`))return;
 try{
-const userRef=window.dbRef(window.db,'users/'+login);
-await window.dbRemove(userRef);
+await dbRemove(dbRef(db,'users/'+login));
 showMessage(`🗑️ ${login} удалён`,'success');
 loadUsers();
 }catch(e){
