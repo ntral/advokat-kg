@@ -9,6 +9,10 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0a0e27;--surface:#1a1f3a;--surface2:#0f172a;--border:rgba(148,163,184,0.2);--text:#e2e8f0;--text-dim:#94a3b8;--accent:#3b82f6;--gold:#f59e0b;--success:#10b981}
 body{font-family:'Mulish',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.loading{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000}
+.loading-spinner{width:50px;height:50px;border:4px solid var(--surface2);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{margin-top:20px;color:var(--text-dim);font-size:0.9rem}
 .topbar{background:var(--surface);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
 .logo{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold);display:flex;align-items:center;gap:8px}
 .topbar-right{display:flex;align-items:center;gap:16px}
@@ -19,15 +23,16 @@ body{font-family:'Mulish',sans-serif;background:var(--bg);color:var(--text);min-
 .main{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 64px)}
 .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 16px;overflow-y:auto;max-height:calc(100vh - 64px);position:sticky;top:64px}
 .sidebar h3{font-size:0.75rem;text-transform:uppercase;color:var(--text-dim);letter-spacing:0.5px;margin:24px 0 12px}
-.mode-btn{width:100%;padding:12px 16px;background:var(--surface2);border:2px solid transparent;border-radius:10px;color:var(--text);font-size:0.9rem;cursor:pointer;margin:6px 0;transition:all 0.2s;display:flex;align-items:center;gap:8px}
+.mode-btn{width:100%;padding:12px 16px;background:var(--surface2);border:2px solid transparent;border-radius:10px;color:var(--text);font-size:0.9rem;cursor:pointer;margin:6px 0;transition:all 0.2s;display:flex;align-items:center;gap:8px;text-align:left}
 .mode-btn.active{border-color:var(--accent);background:rgba(59,130,246,0.1)}
+.mode-btn:hover{border-color:var(--border)}
 .content{padding:32px;max-width:800px;margin:0 auto;width:100%}
 .question-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:24px;box-shadow:0 4px 30px rgba(0,0,0,0.3)}
 .q-number{color:var(--text-dim);font-size:0.85rem;margin-bottom:12px}
 .q-section{color:var(--accent);font-size:0.85rem;margin-bottom:8px}
 .q-text{font-size:1.1rem;margin-bottom:24px;padding:20px;background:rgba(236,72,153,0.1);border:2px solid rgba(236,72,153,0.3);border-radius:14px;color:#fce7f3;line-height:1.6}
 .options{display:flex;flex-direction:column;gap:10px}
-.option{padding:16px 20px;background:var(--surface2);border:2px solid transparent;border-radius:14px;cursor:pointer;font-size:0.95rem;line-height:1.55;transition:all 0.2s}
+.option{padding:16px 20px;background:var(--surface2);border:2px solid transparent;border-radius:14px;cursor:pointer;font-size:0.95rem;line-height:1.55;transition:all 0.2s;word-wrap:break-word}
 .option:hover{border-color:var(--accent);background:#1e293b}
 .option.correct{border-color:var(--success);background:rgba(16,185,129,0.1)}
 .nav-buttons{display:flex;justify-content:space-between;margin-top:24px;align-items:center}
@@ -39,12 +44,18 @@ button:hover{background:#2563eb;transform:translateY(-2px)}
 </head>
 <body>
 
+<div class="loading" id="loading">
+<div class="loading-spinner"></div>
+<div class="loading-text">Загрузка вопросов...</div>
+</div>
+
+<div id="app" style="display:none">
 <div class="topbar">
 <div class="logo">⚖️ Адвокат КР</div>
 <div class="topbar-right">
-<button class="lang-btn active" onclick="setLang('ru')">РУС</button>
-<button class="lang-btn" onclick="setLang('ky')">КЫР</button>
-<button class="btn-admin" onclick="if(sessionStorage.getItem('user')==='admin')alert('Админ панель в разработке');else alert('Доступ только для admin')" style="display:none" id="adminBtn">⚙️ Админ</button>
+<button class="lang-btn active" id="langRu" onclick="setLang('ru')">РУС</button>
+<button class="lang-btn" id="langKy" onclick="setLang('ky')">КЫР</button>
+<button class="btn-admin" onclick="if(sessionStorage.getItem('user')==='admin')openAdmin();else alert('Доступ только для admin')" style="display:none" id="adminBtn">⚙️ Админ</button>
 <span class="topbar-user">👤 <span id="username">Demo</span></span>
 <a href="index.html" onclick="sessionStorage.clear()" style="color:var(--gold);text-decoration:none;font-size:0.85rem">Выход</a>
 </div>
@@ -53,19 +64,19 @@ button:hover{background:#2563eb;transform:translateY(-2px)}
 <div class="main">
 <div class="sidebar">
 <h3>РЕЖИМ</h3>
-<button class="mode-btn active" onclick="setMode('study')">📖 <span>Обучение</span></button>
-<button class="mode-btn" onclick="setMode('test')">📝 <span>Тестирование</span></button>
+<button class="mode-btn active" id="modeStudy" onclick="setMode('study')">📖 <span>Обучение</span></button>
+<button class="mode-btn" id="modeTest" onclick="setMode('test')">📝 <span>Тестирование</span></button>
 <h3>ИНСТРУМЕНТЫ</h3>
-<button class="mode-btn" onclick="alert('Функция в разработке')">⭐ Избранное</button>
-<button class="mode-btn" onclick="alert('Функция в разработке')">🔄 Перемешать</button>
-<button class="mode-btn" onclick="alert('Функция в разработке')">❌ Ошибки</button>
+<button class="mode-btn" onclick="shuffleQuestions()">🔄 Перемешать</button>
+<button class="mode-btn" onclick="alert('Функция Избранное в разработке')">⭐ Избранное</button>
+<button class="mode-btn" onclick="alert('Функция Ошибки в разработке')">❌ Ошибки</button>
 </div>
 
 <div class="content">
 <div class="question-card">
-<div class="q-number" id="qNum">Загрузка...</div>
+<div class="q-number" id="qNum"></div>
 <div class="q-section" id="qSection"></div>
-<div class="q-text" id="qText">Загрузка вопросов...</div>
+<div class="q-text" id="qText"></div>
 <div class="options" id="options"></div>
 </div>
 <div class="nav-buttons">
@@ -75,25 +86,30 @@ button:hover{background:#2563eb;transform:translateY(-2px)}
 </div>
 </div>
 </div>
+</div>
 
 <script>
-// Check login
-const user = sessionStorage.getItem('user');
+const user=sessionStorage.getItem('user');
 if(!user){window.location.href='index.html';}
 document.getElementById('username').textContent=user;
 if(user==='admin')document.getElementById('adminBtn').style.display='inline-block';
 
-// Sample data - replace with full data later
-const DATA={ru:[{section:"Конституционное право",questions:[
-{text:"Органы судебной власти",options:[{text:"Верховный суд и местные суды",correct:false},{text:"Конституционная палата, Верховный суд и местные суды",correct:false},{text:"Конституционный суд, Верховный суд и Бейтарап сот",correct:false},{text:"Конституционный суд, Верховный суд и местные суды",correct:true}]},
-{text:"Система органов государственной власти КР определяется",options:[{text:"Законом КР",correct:false},{text:"Указом Президента КР",correct:false},{text:"Конституционными законами КР",correct:false},{text:"Конституцией КР",correct:true}]},
-{text:"Органы законодательной власти КР",options:[{text:"Избираемые представительные и исполнительные учреждения",correct:false},{text:"Назначаемые представительные и законодательные учреждения",correct:false},{text:"Назначаемые представительные и исполнительные учреждения",correct:false},{text:"Избираемые представительные и законодательные учреждения",correct:true}]}
-]}],ky:[{section:"Конституциялык укук",questions:[
-{text:"Сот бийлигинин органдары",options:[{text:"Жогорку сот жана жергиликтүү соттор",correct:false},{text:"Конституциялык палата, Жогорку сот жана жергиликтүү соттор",correct:false},{text:"Конституциялык сот, Жогорку сот жана Бейтарап сот",correct:false},{text:"Конституциялык сот, Жогорку сот жана жергиликтүү соттор",correct:true}]},
-{text:"КР мамлекеттик бийлигинин органдарынын системасы ... белгиленет",options:[{text:"КР Мыйзамы менен",correct:false},{text:"КР Президентинин Жарлыгы менен",correct:false},{text:"КР конституциялык мыйзамдары менен",correct:false},{text:"КР Конституциясы менен",correct:true}]}
-]}]};
+let DATA={ru:[],ky:[]},lang='ru',mode='study',cur=0,allQ=[],filtered=[];
 
-let lang='ru',mode='study',cur=0,allQ=[],filtered=[];
+async function loadData(){
+try{
+const res=await fetch('data.json');
+DATA=await res.json();
+console.log('✅ Loaded',DATA.ru.length,'RU sections,',DATA.ky.length,'KY sections');
+buildQuestions();
+showQ();
+document.getElementById('loading').style.display='none';
+document.getElementById('app').style.display='block';
+}catch(e){
+console.error('❌ Failed to load data:',e);
+document.querySelector('.loading-text').textContent='Ошибка загрузки данных. Обновите страницу.';
+}
+}
 
 function buildQuestions(){
 const d=DATA[lang];
@@ -104,7 +120,7 @@ filtered=[...allQ];
 
 function showQ(){
 const q=filtered[cur];
-if(!q){document.getElementById('qText').textContent='Вопросы не найдены';return;}
+if(!q)return;
 document.getElementById('qNum').textContent=`Вопрос ${cur+1} из ${filtered.length}`;
 document.getElementById('qSection').textContent=q.section;
 document.getElementById('qText').textContent=q.text;
@@ -116,11 +132,31 @@ window.scrollTo(0,0);
 
 function prev(){if(cur>0){cur--;showQ();}}
 function next(){if(cur<filtered.length-1){cur++;showQ();}}
-function setMode(m){mode=m;document.querySelectorAll('.mode-btn').forEach((b,i)=>b.classList.toggle('active',i===(m==='study'?0:1)));showQ();}
-function setLang(l){lang=l;document.querySelectorAll('.lang-btn').forEach((b,i)=>b.classList.toggle('active',i===(l==='ru'?0:1)));buildQuestions();cur=0;showQ();}
-
-buildQuestions();
+function setMode(m){
+mode=m;
+document.getElementById('modeStudy').classList.toggle('active',m==='study');
+document.getElementById('modeTest').classList.toggle('active',m==='test');
 showQ();
+}
+function setLang(l){
+lang=l;
+document.getElementById('langRu').classList.toggle('active',l==='ru');
+document.getElementById('langKy').classList.toggle('active',l==='ky');
+buildQuestions();
+cur=0;
+showQ();
+}
+function shuffleQuestions(){
+for(let i=filtered.length-1;i>0;i--){
+const j=Math.floor(Math.random()*(i+1));
+[filtered[i],filtered[j]]=[filtered[j],filtered[i]];
+}
+cur=0;
+showQ();
+}
+function openAdmin(){alert('Панель администратора в разработке');}
+
+loadData();
 </script>
 </body>
 </html>
