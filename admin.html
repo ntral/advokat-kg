@@ -42,6 +42,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2
 .toast{position:fixed;top:20px;right:20px;background:#10b981;color:white;padding:16px 24px;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);display:none;z-index:1000;animation:slideIn 0.3s}
 @keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 .loading{text-align:center;color:#94a3b8;padding:40px}
+.firebase-status{text-align:center;padding:12px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:8px;margin-bottom:16px;color:#3b82f6;font-size:0.9rem}
 @media(max-width:768px){
 .grid{grid-template-columns:1fr}
 .user-item{flex-direction:column;align-items:flex-start}
@@ -57,6 +58,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2
 <h1>⚙️ Панель администратора</h1>
 <button class="btn" onclick="window.location.href='app.html'">📚 К приложению</button>
 </div>
+
+<div class="firebase-status" id="firebaseStatus">🔄 Подключение к Firebase...</div>
 
 <div id="message"></div>
 
@@ -91,8 +94,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e27;color:#e2
 <label>ФИО ученика (необязательно)</label>
 <input type="text" id="newName" placeholder="Иванов Иван Иванович">
 </div>
-<button class="btn btn-success" id="addBtn" onclick="addStudent()">✅ Добавить ученика</button>
-<button class="btn" onclick="generateCredentials()">🎲 Сгенерировать логин и пароль</button>
+<button class="btn btn-success" id="addBtn" onclick="addStudent()" disabled>✅ Добавить ученика</button>
+<button class="btn" id="genBtn" onclick="generateCredentials()" disabled>🎲 Сгенерировать логин и пароль</button>
 </div>
 
 <div class="card">
@@ -119,6 +122,7 @@ messagingSenderId:"142941867206",
 appId:"1:142941867206:web:f46e90d1c5b4c8ea6e0f0d"
 };
 
+try{
 const app=initializeApp(firebaseConfig);
 const db=getDatabase(app);
 window.db=db;
@@ -126,17 +130,34 @@ window.dbRef=ref;
 window.dbGet=get;
 window.dbSet=set;
 window.dbRemove=remove;
+window.firebaseReady=true;
 
+document.getElementById('firebaseStatus').innerHTML='✅ Firebase подключён';
+document.getElementById('firebaseStatus').style.background='rgba(16,185,129,0.1)';
+document.getElementById('firebaseStatus').style.borderColor='rgba(16,185,129,0.3)';
+document.getElementById('firebaseStatus').style.color='#10b981';
+
+document.getElementById('addBtn').disabled=false;
+document.getElementById('genBtn').disabled=false;
+
+loadUsers();
+setTimeout(generateCredentials,500);
+}catch(e){
+console.error('Firebase init error:',e);
+document.getElementById('firebaseStatus').innerHTML='❌ Ошибка подключения к Firebase';
+document.getElementById('firebaseStatus').style.background='rgba(239,68,68,0.1)';
+document.getElementById('firebaseStatus').style.borderColor='rgba(239,68,68,0.3)';
+document.getElementById('firebaseStatus').style.color='#ef4444';
+}
+</script>
+
+<script>
 const user=sessionStorage.getItem('user');
 if(user!=='admin'){
 alert('⛔ Доступ запрещён');
 window.location.href='index.html';
 }
 
-loadUsers();
-</script>
-
-<script>
 function showToast(msg){
 const t=document.getElementById('toast');
 t.textContent=msg;
@@ -145,6 +166,11 @@ setTimeout(()=>t.style.display='none',3000);
 }
 
 async function loadUsers(){
+if(!window.firebaseReady){
+document.getElementById('userList').innerHTML='<p style="color:#ef4444;text-align:center;padding:20px">Firebase не подключён</p>';
+return;
+}
+
 try{
 const usersRef=window.dbRef(window.db,'users');
 const snapshot=await window.dbGet(usersRef);
@@ -220,6 +246,11 @@ return word+num+code;
 }
 
 async function addStudent(){
+if(!window.firebaseReady){
+showMessage('❌ Firebase не подключён','danger');
+return;
+}
+
 const btn=document.getElementById('addBtn');
 const login=document.getElementById('newLogin').value.toLowerCase().trim();
 const password=document.getElementById('newPassword').value.trim();
@@ -250,7 +281,7 @@ blocked:false,
 created:new Date().toISOString()
 });
 
-showMessage(`✅ Ученик добавлен! Логин: ${login}','success');
+showMessage(`✅ Ученик добавлен! Логин: ${login}`,'success');
 document.getElementById('newLogin').value='';
 document.getElementById('newPassword').value='';
 document.getElementById('newName').value='';
@@ -294,9 +325,11 @@ showToast('✅ Данные скопированы! Отправьте учен�
 if(navigator.clipboard){
 navigator.clipboard.writeText(text).then(()=>{
 showToast('✅ Данные скопированы! Отправьте ученику');
+}).catch(()=>{
+prompt('Скопируйте вручную:',text);
 });
 }else{
-alert('Скопируйте вручную:\n\n'+text);
+prompt('Скопируйте вручную:',text);
 }
 }
 document.body.removeChild(textarea);
@@ -354,8 +387,6 @@ const msg=document.getElementById('message');
 msg.innerHTML=`<div class="alert alert-${type}">${text}</div>`;
 setTimeout(()=>msg.innerHTML='',5000);
 }
-
-generateCredentials();
 </script>
 </body>
 </html>
