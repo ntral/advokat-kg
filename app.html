@@ -9,6 +9,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0a0e27;--surface:#1a1f3a;--surface2:#0f172a;--border:rgba(148,163,184,0.2);--text:#e2e8f0;--text-dim:#94a3b8;--accent:#3b82f6;--gold:#f59e0b;--success:#10b981}
 body{font-family:'Mulish',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.demo-badge{position:fixed;top:80px;right:20px;background:rgba(245,158,11,0.9);color:#fff;padding:8px 16px;border-radius:8px;font-size:0.85rem;font-weight:700;z-index:200;box-shadow:0 4px 12px rgba(245,158,11,0.3)}
 .loading{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000}
 .loading-spinner{width:50px;height:50px;border:4px solid var(--surface2);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -31,7 +32,6 @@ body{font-family:'Mulish',sans-serif;background:var(--bg);color:var(--text);min-
 .mode-btn{width:100%;padding:12px 16px;background:var(--surface2);border:2px solid transparent;border-radius:10px;color:var(--text);font-size:0.9rem;cursor:pointer;margin:6px 0;transition:all 0.2s;display:flex;align-items:center;gap:8px;text-align:left}
 .mode-btn.active{border-color:var(--accent);background:rgba(59,130,246,0.1)}
 .mode-btn:hover{border-color:var(--border)}
-.mode-btn.bookmarked{border-color:var(--gold);background:rgba(245,158,11,0.1)}
 .search-box{margin:12px 0;position:relative}
 .search-input{width:100%;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.85rem}
 .search-input:focus{outline:none;border-color:var(--accent)}
@@ -75,6 +75,7 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 .topbar-user{display:none}
 .bookmark-btn{width:36px;height:36px;top:16px;right:16px}
 .question-card{padding:20px;padding-top:60px}
+.demo-badge{top:70px;right:10px;padding:6px 12px;font-size:0.75rem}
 }
 </style>
 </head>
@@ -86,6 +87,8 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 </div>
 
 <div id="app" style="display:none">
+<div class="demo-badge" id="demoBadge" style="display:none">🎯 DEMO</div>
+
 <div class="topbar">
 <div style="display:flex;align-items:center;gap:12px">
 <div class="hamburger" id="hamburger" onclick="toggleMenu()">
@@ -154,11 +157,10 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 const user=sessionStorage.getItem('user');
 if(!user){window.location.href='index.html';}
 
-const blocked=JSON.parse(localStorage.getItem('__blocked_users__')||'[]');
-if(blocked.includes(user)){
-alert('🚫 Ваш аккаунт заблокирован.\n\nПричина: Нарушение правил использования.\n\nДля разблокировки обратитесь к администратору.');
-sessionStorage.clear();
-window.location.href='index.html';
+const IS_DEMO=user==='demo';
+
+if(IS_DEMO){
+document.getElementById('demoBadge').style.display='block';
 }
 
 document.getElementById('username').textContent=user;
@@ -221,7 +223,7 @@ updateBookmarkBtn();
 function updateBookmarkBtn(){
 const q=filtered[cur];
 const btn=document.getElementById('bookmarkBtn');
-if(q && bookmarks.has(q.id)){
+if(q&&bookmarks.has(q.id)){
 btn.textContent='★';
 btn.classList.add('active');
 }else{
@@ -261,7 +263,7 @@ const cached=localStorage.getItem('advokat_data_cache');
 const cacheTime=localStorage.getItem('advokat_data_cache_time');
 const now=Date.now();
 
-if(cached && cacheTime && (now-parseInt(cacheTime))<86400000){
+if(cached&&cacheTime&&(now-parseInt(cacheTime))<86400000){
 DATA=JSON.parse(cached);
 console.log('✅ Loaded from cache');
 initApp();
@@ -293,7 +295,7 @@ document.querySelector('.loading-text').textContent='Ошибка загрузк
 
 function initApp(){
 buildQuestions();
-if(lastPosition>0 && lastPosition<filtered.length){
+if(!IS_DEMO&&lastPosition>0&&lastPosition<filtered.length){
 const msg=`Продолжить с вопроса ${lastPosition+1}?`;
 if(confirm(msg)){
 cur=lastPosition;
@@ -303,6 +305,10 @@ showQ();
 updateCounts();
 document.getElementById('loading').style.display='none';
 document.getElementById('app').style.display='block';
+
+if(IS_DEMO){
+showToast('🎯 DEMO: Доступно 10 вопросов. Для полного доступа свяжитесь с администратором.');
+}
 }
 
 function buildQuestions(){
@@ -312,6 +318,11 @@ d.forEach(sec=>sec.questions.forEach((q,i)=>{
 const id=sec.section+'_'+i;
 allQ.push({id,section:sec.section,text:q.text,options:q.options});
 }));
+
+if(IS_DEMO){
+allQ=allQ.slice(0,10);
+}
+
 filtered=[...allQ];
 }
 
@@ -347,7 +358,7 @@ document.getElementById('statCorrect').textContent=correct;
 document.getElementById('statWrong').textContent=wrong;
 }
 updateBookmarkBtn();
-saveData();
+if(!IS_DEMO)saveData();
 window.scrollTo(0,0);
 }
 
@@ -364,7 +375,7 @@ wrong++;
 errors.add(qid);
 showToast('❌ Неправильно');
 }
-saveData();
+if(!IS_DEMO)saveData();
 showQ();
 }
 
