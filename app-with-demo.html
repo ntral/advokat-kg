@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Адвокат КР</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Mulish:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e27;--surface:#1a1f3a;--surface2:#0f172a;--border:rgba(148,163,184,0.2);--text:#e2e8f0;--text-dim:#94a3b8;--accent:#3b82f6;--gold:#f59e0b;--success:#10b981}
+body{font-family:'Mulish',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.loading{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000}
+.loading-spinner{width:50px;height:50px;border:4px solid var(--surface2);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{margin-top:20px;color:var(--text-dim);font-size:0.9rem}
+.demo-banner{background:linear-gradient(135deg,#f59e0b,#d97706);color:white;padding:8px 16px;text-align:center;font-weight:700;font-size:0.9rem;position:sticky;top:0;z-index:101;box-shadow:0 2px 10px rgba(0,0,0,0.3)}
+.demo-banner a{color:white;text-decoration:underline;margin-left:8px}
+.topbar{background:var(--surface);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.topbar.with-demo{top:40px}
+.logo{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold);display:flex;align-items:center;gap:8px}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.lang-btn{padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);cursor:pointer;font-size:0.85rem;transition:all 0.2s}
+.lang-btn.active{background:var(--accent);border-color:var(--accent);color:white}
+.btn-admin{padding:8px 16px;background:linear-gradient(135deg,var(--gold),#d97706);border:none;border-radius:8px;color:white;font-weight:700;cursor:pointer;font-size:0.85rem}
+.topbar-user{color:var(--text-dim);font-size:0.9rem}
+.hamburger{display:none;width:30px;height:30px;flex-direction:column;justify-content:space-around;cursor:pointer;padding:4px}
+.hamburger span{width:100%;height:3px;background:var(--text);border-radius:2px;transition:all 0.3s}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(8px,8px)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(8px,-8px)}
+.main{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 64px)}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 16px;overflow-y:auto;max-height:calc(100vh - 64px);position:sticky;top:64px}
+.sidebar.with-demo{top:104px;max-height:calc(100vh - 104px)}
+.sidebar h3{font-size:0.75rem;text-transform:uppercase;color:var(--text-dim);letter-spacing:0.5px;margin:24px 0 12px}
+.mode-btn{width:100%;padding:12px 16px;background:var(--surface2);border:2px solid transparent;border-radius:10px;color:var(--text);font-size:0.9rem;cursor:pointer;margin:6px 0;transition:all 0.2s;display:flex;align-items:center;gap:8px;text-align:left}
+.mode-btn.active{border-color:var(--accent);background:rgba(59,130,246,0.1)}
+.mode-btn:hover{border-color:var(--border)}
+.search-box{margin:12px 0;position:relative}
+.search-input{width:100%;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.85rem}
+.search-input:focus{outline:none;border-color:var(--accent)}
+.content{padding:32px;max-width:900px;margin:0 auto;width:100%;padding-bottom:100px}
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:24px;box-shadow:0 4px 30px rgba(0,0,0,0.3);min-height:400px;position:relative}
+.bookmark-btn{position:absolute;top:20px;right:20px;background:transparent;border:2px solid var(--border);width:40px;height:40px;border-radius:50%;font-size:1.2rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+.bookmark-btn:hover{border-color:var(--gold);transform:scale(1.1)}
+.bookmark-btn.active{border-color:var(--gold);background:rgba(245,158,11,0.1)}
+.q-number{color:var(--text-dim);font-size:0.85rem;margin-bottom:12px}
+.q-section{color:var(--accent);font-size:0.85rem;margin-bottom:8px}
+.q-text{font-size:1.05rem;margin-bottom:24px;padding:20px;background:rgba(236,72,153,0.1);border:2px solid rgba(236,72,153,0.3);border-radius:14px;color:#fce7f3;line-height:1.7;word-wrap:break-word;white-space:pre-wrap}
+.options{display:flex;flex-direction:column;gap:10px}
+.option{padding:16px 20px;background:var(--surface2);border:2px solid transparent;border-radius:14px;cursor:pointer;font-size:0.95rem;line-height:1.6;transition:all 0.2s;word-wrap:break-word;white-space:normal;min-height:50px;display:flex;align-items:center}
+.option:hover{border-color:var(--accent);background:#1e293b}
+.option.correct{border-color:var(--success);background:rgba(16,185,129,0.1);font-weight:600}
+.option.selected{border-color:#f59e0b;background:rgba(245,158,11,0.1)}
+.option.wrong{border-color:#ef4444;background:rgba(239,68,68,0.1)}
+.nav-buttons{display:flex;justify-content:space-between;margin-top:24px;align-items:center;gap:12px}
+button{padding:12px 24px;background:var(--accent);border:none;border-radius:12px;color:white;font-weight:700;cursor:pointer;transition:all 0.2s;font-size:0.9rem}
+button:hover{background:#2563eb;transform:translateY(-2px)}
+button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.counter{color:var(--text-dim);font-size:0.9rem;text-align:center;flex:1}
+.stats{display:flex;gap:16px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.stat{padding:8px 16px;background:var(--surface2);border-radius:8px;font-size:0.85rem}
+.stat.correct{color:var(--success)}
+.stat.wrong{color:#ef4444}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--gold);padding:16px 24px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:1000;display:none;animation:slideUp 0.3s}
+@keyframes slideUp{from{bottom:60px;opacity:0}to{bottom:80px;opacity:1}}
+@media(max-width:768px){
+.hamburger{display:flex}
+.main{grid-template-columns:1fr}
+.sidebar{position:fixed;left:-280px;top:64px;bottom:0;width:280px;z-index:99;transition:left 0.3s;box-shadow:2px 0 10px rgba(0,0,0,0.3)}
+.sidebar.with-demo{top:104px}
+.sidebar.open{left:0}
+.sidebar-overlay{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:98}
+.sidebar-overlay.with-demo{top:104px}
+.sidebar-overlay.open{display:block}
+.content{padding:16px;padding-bottom:100px}
+.topbar-right{gap:8px}
+.lang-btn{padding:6px 12px;font-size:0.8rem}
+.btn-admin{padding:6px 12px;font-size:0.8rem}
+.topbar-user{display:none}
+.bookmark-btn{width:36px;height:36px;top:16px;right:16px}
+.question-card{padding:20px;padding-top:60px}
+}
+</style>
+</head>
+<body>
+
+<div class="loading" id="loading">
+<div class="loading-spinner"></div>
+<div class="loading-text">Загрузка вопросов...</div>
+</div>
+
+<div id="app" style="display:none">
+<div class="demo-banner" id="demoBanner" style="display:none">
+🎓 ДЕМО-ВЕРСИЯ — Доступно 10 вопросов из 4866. <a href="demo.html">Купить полную версию →</a>
+</div>
+
+<div class="topbar" id="topbar">
+<div style="display:flex;align-items:center;gap:12px">
+<div class="hamburger" id="hamburger" onclick="toggleMenu()">
+<span></span>
+<span></span>
+<span></span>
+</div>
+<div class="logo">⚖️ Адвокат КР</div>
+</div>
+<div class="topbar-right">
+<button class="lang-btn active" id="langRu" onclick="setLang('ru')">РУС</button>
+<button class="lang-btn" id="langKy" onclick="setLang('ky')">КЫР</button>
+<button class="btn-admin" onclick="window.location.href='admin.html'" style="display:none" id="adminBtn">⚙️</button>
+<span class="topbar-user">👤 <span id="username">Demo</span></span>
+<a href="index.html" onclick="sessionStorage.clear()" style="color:var(--gold);text-decoration:none;font-size:0.85rem">Выход</a>
+</div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMenu()"></div>
+
+<div class="main">
+<div class="sidebar" id="sidebar">
+<h3>РЕЖИМ</h3>
+<button class="mode-btn active" id="modeStudy" onclick="setMode('study');closeMobileMenu()">📖 <span>Обучение</span></button>
+<button class="mode-btn" id="modeTest" onclick="setMode('test');closeMobileMenu()">📝 <span>Тестирование</span></button>
+
+<h3>ПОИСК</h3>
+<div class="search-box">
+<input type="text" class="search-input" id="searchInput" placeholder="Поиск вопросов..." onkeyup="searchQuestions()">
+</div>
+
+<h3>ИНСТРУМЕНТЫ</h3>
+<button class="mode-btn" onclick="shuffleQuestions();closeMobileMenu()">🔄 Перемешать</button>
+<button class="mode-btn" onclick="toggleBookmarks();closeMobileMenu()">⭐ Избранное (<span id="bookmarkCount">0</span>)</button>
+<button class="mode-btn" onclick="showErrors();closeMobileMenu()">❌ Ошибки (<span id="errorCount">0</span>)</button>
+<button class="mode-btn" onclick="resetProgress();closeMobileMenu()">🔄 Сбросить прогресс</button>
+</div>
+
+<div class="content">
+<div class="stats" id="stats" style="display:none">
+<div class="stat">Всего: <strong id="statTotal">0</strong></div>
+<div class="stat correct">✓ Правильно: <strong id="statCorrect">0</strong></div>
+<div class="stat wrong">✗ Ошибок: <strong id="statWrong">0</strong></div>
+</div>
+
+<div class="question-card">
+<button class="bookmark-btn" id="bookmarkBtn" onclick="toggleCurrentBookmark()">☆</button>
+<div class="q-number" id="qNum"></div>
+<div class="q-section" id="qSection"></div>
+<div class="q-text" id="qText"></div>
+<div class="options" id="options"></div>
+</div>
+
+<div class="nav-buttons">
+<button onclick="prev()">← Назад</button>
+<div class="counter" id="counter"></div>
+<button onclick="next()">Далее →</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const user=sessionStorage.getItem('user');
+if(!user){window.location.href='index.html';}
+
+const isDemo=user==='demo';
+
+if(isDemo){
+document.getElementById('demoBanner').style.display='block';
+document.getElementById('topbar').classList.add('with-demo');
+document.getElementById('sidebar').classList.add('with-demo');
+document.getElementById('sidebarOverlay').classList.add('with-demo');
+}
+
+document.getElementById('username').textContent=user;
+if(user==='admin')document.getElementById('adminBtn').style.display='inline-block';
+
+let DATA={ru:[],ky:[]},lang='ru',mode='study',cur=0,allQ=[],filtered=[],bookmarks=new Set(),errors=new Set(),answered={},correct=0,wrong=0,showingBookmarks=false,showingErrors=false,lastPosition=0;
+
+function showToast(msg){
+const t=document.getElementById('toast');
+t.textContent=msg;
+t.style.display='block';
+setTimeout(()=>t.style.display='none',3000);
+}
+
+function toggleMenu(){
+const sidebar=document.getElementById('sidebar');
+const overlay=document.getElementById('sidebarOverlay');
+const hamburger=document.getElementById('hamburger');
+sidebar.classList.toggle('open');
+overlay.classList.toggle('open');
+hamburger.classList.toggle('open');
+}
+
+function closeMobileMenu(){
+if(window.innerWidth<=768){
+document.getElementById('sidebar').classList.remove('open');
+document.getElementById('sidebarOverlay').classList.remove('open');
+document.getElementById('hamburger').classList.remove('open');
+}
+}
+
+function resetProgress(){
+if(!confirm('Удалить весь прогресс (избранное, ошибки, статистику)?'))return;
+bookmarks.clear();
+errors.clear();
+answered={};
+correct=0;
+wrong=0;
+lastPosition=0;
+localStorage.removeItem('advokat_'+user);
+updateCounts();
+showQ();
+showToast('✅ Прогресс сброшен');
+}
+
+function toggleCurrentBookmark(){
+const q=filtered[cur];
+if(!q)return;
+if(bookmarks.has(q.id)){
+bookmarks.delete(q.id);
+showToast('⭐ Удалено из избранного');
+}else{
+bookmarks.add(q.id);
+showToast('⭐ Добавлено в избранное');
+}
+saveData();
+updateBookmarkBtn();
+}
+
+function updateBookmarkBtn(){
+const q=filtered[cur];
+const btn=document.getElementById('bookmarkBtn');
+if(q && bookmarks.has(q.id)){
+btn.textContent='★';
+btn.classList.add('active');
+}else{
+btn.textContent='☆';
+btn.classList.remove('active');
+}
+}
+
+try{
+const saved=localStorage.getItem('advokat_'+user);
+if(saved){
+const data=JSON.parse(saved);
+bookmarks=new Set(data.bookmarks||[]);
+errors=new Set(data.errors||[]);
+lastPosition=data.lastPosition||0;
+}
+}catch(e){}
+
+function saveData(){
+lastPosition=cur;
+localStorage.setItem('advokat_'+user,JSON.stringify({
+bookmarks:Array.from(bookmarks),
+errors:Array.from(errors),
+lastPosition:lastPosition
+}));
+updateCounts();
+}
+
+function updateCounts(){
+document.getElementById('bookmarkCount').textContent=bookmarks.size;
+document.getElementById('errorCount').textContent=errors.size;
+}
+
+async function loadData(){
+try{
+const cached=localStorage.getItem('advokat_data_cache');
+const cacheTime=localStorage.getItem('advokat_data_cache_time');
+const now=Date.now();
+
+if(cached && cacheTime && (now-parseInt(cacheTime))<86400000){
+DATA=JSON.parse(cached);
+console.log('✅ Loaded from cache');
+initApp();
+return;
+}
+
+const res=await fetch('data.json');
+DATA=await res.json();
+console.log('✅ Loaded',DATA.ru.length,'RU,',DATA.ky.length,'KY sections');
+
+try{
+localStorage.setItem('advokat_data_cache',JSON.stringify(DATA));
+localStorage.setItem('advokat_data_cache_time',now.toString());
+}catch(e){console.warn('Cache save failed:',e);}
+
+initApp();
+}catch(e){
+console.error('❌ Load failed:',e);
+const cached=localStorage.getItem('advokat_data_cache');
+if(cached){
+DATA=JSON.parse(cached);
+console.log('✅ Using cached data (offline mode)');
+initApp();
+}else{
+document.querySelector('.loading-text').textContent='Ошибка загрузки. Проверьте подключение к интернету.';
+}
+}
+}
+
+function initApp(){
+buildQuestions();
+if(!isDemo && lastPosition>0 && lastPosition<filtered.length){
+const msg=`Продолжить с вопроса ${lastPosition+1}?`;
+if(confirm(msg)){
+cur=lastPosition;
+}
+}
+showQ();
+updateCounts();
+document.getElementById('loading').style.display='none';
+document.getElementById('app').style.display='block';
+}
+
+function buildQuestions(){
+const d=DATA[lang];
+allQ=[];
+d.forEach(sec=>{
+const questions=sec.questions;
+questions.forEach((q,i)=>{
+const id=sec.section+'_'+i;
+allQ.push({id,section:sec.section,text:q.text,options:q.options});
+});
+});
+if(isDemo){
+allQ=allQ.slice(0,10);
+}
+filtered=[...allQ];
+}
+
+function showQ(){
+const q=filtered[cur];
+if(!q)return;
+
+document.getElementById('qNum').textContent=`Вопрос ${cur+1} из ${filtered.length}`;
+document.getElementById('qSection').textContent=q.section;
+document.getElementById('qText').textContent=q.text;
+
+const opts=document.getElementById('options');
+if(mode==='study'){
+opts.innerHTML=q.options.map((o,i)=>`<div class="option ${o.correct?'correct':''}">${i+1}. ${o.text}</div>`).join('');
+}else{
+const ans=answered[q.id];
+opts.innerHTML=q.options.map((o,i)=>{
+let cls='option';
+if(ans!==undefined){
+if(ans===i)cls+=' selected';
+if(o.correct)cls+=' correct';
+else if(ans===i)cls+=' wrong';
+}
+return `<div class="${cls}" onclick="answerQuestion(${i},'${q.id}')">${i+1}. ${o.text}</div>`;
+}).join('');
+}
+
+document.getElementById('counter').textContent=`${cur+1} / ${filtered.length}`;
+document.getElementById('stats').style.display=mode==='test'?'flex':'none';
+if(mode==='test'){
+document.getElementById('statTotal').textContent=Object.keys(answered).length;
+document.getElementById('statCorrect').textContent=correct;
+document.getElementById('statWrong').textContent=wrong;
+}
+updateBookmarkBtn();
+saveData();
+window.scrollTo(0,0);
+}
+
+function answerQuestion(idx,qid){
+if(answered[qid]!==undefined)return;
+const q=filtered[cur];
+const isCorrect=q.options[idx].correct;
+answered[qid]=idx;
+if(isCorrect){
+correct++;
+showToast('✅ Правильно!');
+}else{
+wrong++;
+errors.add(qid);
+showToast('❌ Неправильно');
+}
+saveData();
+showQ();
+}
+
+function toggleBookmarks(){
+showingBookmarks=!showingBookmarks;
+showingErrors=false;
+if(showingBookmarks){
+filtered=allQ.filter(q=>bookmarks.has(q.id));
+if(filtered.length===0){showToast('Нет избранных вопросов');showingBookmarks=false;filtered=[...allQ];}
+else{showToast(`⭐ Избранное: ${filtered.length} вопросов`);}
+}else{
+filtered=[...allQ];
+}
+cur=0;
+showQ();
+}
+
+function showErrors(){
+showingErrors=!showingErrors;
+showingBookmarks=false;
+if(showingErrors){
+filtered=allQ.filter(q=>errors.has(q.id));
+if(filtered.length===0){showToast('Нет ошибок');showingErrors=false;filtered=[...allQ];}
+else{showToast(`❌ Ошибок: ${filtered.length}`);}
+}else{
+filtered=[...allQ];
+}
+cur=0;
+showQ();
+}
+
+function searchQuestions(){
+const term=document.getElementById('searchInput').value.toLowerCase().trim();
+showingBookmarks=false;
+showingErrors=false;
+if(!term){
+filtered=[...allQ];
+}else{
+filtered=allQ.filter(q=>q.text.toLowerCase().includes(term)||q.options.some(o=>o.text.toLowerCase().includes(term)));
+showToast(`🔍 Найдено: ${filtered.length} вопросов`);
+}
+cur=0;
+showQ();
+}
+
+function shuffleQuestions(){
+showingBookmarks=false;
+showingErrors=false;
+document.getElementById('searchInput').value='';
+filtered=[...allQ];
+for(let i=filtered.length-1;i>0;i--){
+const j=Math.floor(Math.random()*(i+1));
+[filtered[i],filtered[j]]=[filtered[j],filtered[i]];
+}
+cur=0;
+showQ();
+showToast('🔄 Вопросы перемешаны');
+}
+
+function prev(){if(cur>0){cur--;showQ();}}
+function next(){if(cur<filtered.length-1){cur++;showQ();}}
+
+function setMode(m){
+mode=m;
+answered={};
+correct=0;
+wrong=0;
+document.getElementById('modeStudy').classList.toggle('active',m==='study');
+document.getElementById('modeTest').classList.toggle('active',m==='test');
+showQ();
+}
+
+function setLang(l){
+lang=l;
+document.getElementById('langRu').classList.toggle('active',l==='ru');
+document.getElementById('langKy').classList.toggle('active',l==='ky');
+buildQuestions();
+cur=0;
+showQ();
+}
+
+if('serviceWorker' in navigator){
+navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW registration failed:',e));
+}
+
+loadData();
+</script>
+</body>
+</html>
