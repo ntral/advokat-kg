@@ -9,12 +9,14 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0a0e27;--surface:#1a1f3a;--surface2:#0f172a;--border:rgba(148,163,184,0.2);--text:#e2e8f0;--text-dim:#94a3b8;--accent:#3b82f6;--gold:#f59e0b;--success:#10b981}
 body{font-family:'Mulish',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-.demo-badge{position:fixed;top:80px;right:20px;background:rgba(245,158,11,0.9);color:#fff;padding:8px 16px;border-radius:8px;font-size:0.85rem;font-weight:700;z-index:200;box-shadow:0 4px 12px rgba(245,158,11,0.3)}
 .loading{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000}
 .loading-spinner{width:50px;height:50px;border:4px solid var(--surface2);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{margin-top:20px;color:var(--text-dim);font-size:0.9rem}
+.demo-banner{background:linear-gradient(135deg,#f59e0b,#d97706);color:white;padding:8px 16px;text-align:center;font-weight:700;font-size:0.9rem;position:sticky;top:0;z-index:101;box-shadow:0 2px 10px rgba(0,0,0,0.3)}
+.demo-banner a{color:white;text-decoration:underline;margin-left:8px}
 .topbar{background:var(--surface);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.topbar.with-demo{top:40px}
 .logo{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold);display:flex;align-items:center;gap:8px}
 .topbar-right{display:flex;align-items:center;gap:16px}
 .lang-btn{padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);cursor:pointer;font-size:0.85rem;transition:all 0.2s}
@@ -28,6 +30,7 @@ body{font-family:'Mulish',sans-serif;background:var(--bg);color:var(--text);min-
 .hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(8px,-8px)}
 .main{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 64px)}
 .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 16px;overflow-y:auto;max-height:calc(100vh - 64px);position:sticky;top:64px}
+.sidebar.with-demo{top:104px;max-height:calc(100vh - 104px)}
 .sidebar h3{font-size:0.75rem;text-transform:uppercase;color:var(--text-dim);letter-spacing:0.5px;margin:24px 0 12px}
 .mode-btn{width:100%;padding:12px 16px;background:var(--surface2);border:2px solid transparent;border-radius:10px;color:var(--text);font-size:0.9rem;cursor:pointer;margin:6px 0;transition:all 0.2s;display:flex;align-items:center;gap:8px;text-align:left}
 .mode-btn.active{border-color:var(--accent);background:rgba(59,130,246,0.1)}
@@ -60,13 +63,14 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 .stat.wrong{color:#ef4444}
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--gold);padding:16px 24px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:1000;display:none;animation:slideUp 0.3s}
 @keyframes slideUp{from{bottom:60px;opacity:0}to{bottom:80px;opacity:1}}
-
 @media(max-width:768px){
 .hamburger{display:flex}
 .main{grid-template-columns:1fr}
 .sidebar{position:fixed;left:-280px;top:64px;bottom:0;width:280px;z-index:99;transition:left 0.3s;box-shadow:2px 0 10px rgba(0,0,0,0.3)}
+.sidebar.with-demo{top:104px}
 .sidebar.open{left:0}
 .sidebar-overlay{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:98}
+.sidebar-overlay.with-demo{top:104px}
 .sidebar-overlay.open{display:block}
 .content{padding:16px;padding-bottom:100px}
 .topbar-right{gap:8px}
@@ -75,7 +79,6 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 .topbar-user{display:none}
 .bookmark-btn{width:36px;height:36px;top:16px;right:16px}
 .question-card{padding:20px;padding-top:60px}
-.demo-badge{top:70px;right:10px;padding:6px 12px;font-size:0.75rem}
 }
 </style>
 </head>
@@ -87,9 +90,11 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 </div>
 
 <div id="app" style="display:none">
-<div class="demo-badge" id="demoBadge" style="display:none">🎯 DEMO</div>
+<div class="demo-banner" id="demoBanner" style="display:none">
+🎓 ДЕМО-ВЕРСИЯ — Доступно 10 вопросов из 4866. <a href="demo.html">Купить полную версию →</a>
+</div>
 
-<div class="topbar">
+<div class="topbar" id="topbar">
 <div style="display:flex;align-items:center;gap:12px">
 <div class="hamburger" id="hamburger" onclick="toggleMenu()">
 <span></span>
@@ -157,10 +162,13 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 const user=sessionStorage.getItem('user');
 if(!user){window.location.href='index.html';}
 
-const IS_DEMO=user==='demo';
+const isDemo=user==='demo';
 
-if(IS_DEMO){
-document.getElementById('demoBadge').style.display='block';
+if(isDemo){
+document.getElementById('demoBanner').style.display='block';
+document.getElementById('topbar').classList.add('with-demo');
+document.getElementById('sidebar').classList.add('with-demo');
+document.getElementById('sidebarOverlay').classList.add('with-demo');
 }
 
 document.getElementById('username').textContent=user;
@@ -223,7 +231,7 @@ updateBookmarkBtn();
 function updateBookmarkBtn(){
 const q=filtered[cur];
 const btn=document.getElementById('bookmarkBtn');
-if(q&&bookmarks.has(q.id)){
+if(q && bookmarks.has(q.id)){
 btn.textContent='★';
 btn.classList.add('active');
 }else{
@@ -263,7 +271,7 @@ const cached=localStorage.getItem('advokat_data_cache');
 const cacheTime=localStorage.getItem('advokat_data_cache_time');
 const now=Date.now();
 
-if(cached&&cacheTime&&(now-parseInt(cacheTime))<86400000){
+if(cached && cacheTime && (now-parseInt(cacheTime))<86400000){
 DATA=JSON.parse(cached);
 console.log('✅ Loaded from cache');
 initApp();
@@ -295,7 +303,7 @@ document.querySelector('.loading-text').textContent='Ошибка загрузк
 
 function initApp(){
 buildQuestions();
-if(!IS_DEMO&&lastPosition>0&&lastPosition<filtered.length){
+if(!isDemo && lastPosition>0 && lastPosition<filtered.length){
 const msg=`Продолжить с вопроса ${lastPosition+1}?`;
 if(confirm(msg)){
 cur=lastPosition;
@@ -305,24 +313,19 @@ showQ();
 updateCounts();
 document.getElementById('loading').style.display='none';
 document.getElementById('app').style.display='block';
-
-if(IS_DEMO){
-showToast('🎯 DEMO: Доступно 10 вопросов. Для полного доступа свяжитесь с администратором.');
-}
 }
 
 function buildQuestions(){
 const d=DATA[lang];
 allQ=[];
-d.forEach(sec=>sec.questions.forEach((q,i)=>{
+d.forEach(sec=>{
+const questions=sec.questions;
+const limit=isDemo?10:questions.length;
+questions.slice(0,limit).forEach((q,i)=>{
 const id=sec.section+'_'+i;
 allQ.push({id,section:sec.section,text:q.text,options:q.options});
-}));
-
-if(IS_DEMO){
-allQ=allQ.slice(0,10);
-}
-
+});
+});
 filtered=[...allQ];
 }
 
@@ -358,7 +361,7 @@ document.getElementById('statCorrect').textContent=correct;
 document.getElementById('statWrong').textContent=wrong;
 }
 updateBookmarkBtn();
-if(!IS_DEMO)saveData();
+saveData();
 window.scrollTo(0,0);
 }
 
@@ -375,7 +378,7 @@ wrong++;
 errors.add(qid);
 showToast('❌ Неправильно');
 }
-if(!IS_DEMO)saveData();
+saveData();
 showQ();
 }
 
