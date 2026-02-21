@@ -641,6 +641,26 @@ endExam();
 }
 
 function setMode(m){
+// Если в режиме экзамена, спрашиваем подтверждение
+if(examMode){
+if(!confirm('Вы находитесь в режиме экзамена. Выйти из экзамена и переключиться на другой режим? Прогресс экзамена не будет сохранен.')){
+return;
+}
+// Выходим из экзамена
+clearInterval(examTimer);
+examMode=false;
+document.getElementById('examTimer').classList.remove('active');
+buildQuestions();
+cur=0;
+}
+
+// Если переключаемся на режим обучения из тестирования, спрашиваем
+if(mode==='test' && m==='study' && Object.keys(answered).length>0){
+if(!confirm('При переключении на режим обучения прогресс тестирования будет сброшен. Продолжить?')){
+return;
+}
+}
+
 mode=m;
 answered={};
 correct=0;
