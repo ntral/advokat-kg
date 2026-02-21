@@ -56,6 +56,8 @@ body{font-family:'Mulish',sans-serif;background:var(--bg);color:var(--text);min-
 button{padding:12px 24px;background:var(--accent);border:none;border-radius:12px;color:white;font-weight:700;cursor:pointer;transition:all 0.2s;font-size:0.9rem}
 button:hover{background:#2563eb;transform:translateY(-2px)}
 button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.btn-danger{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.btn-danger:hover{background:#dc2626;box-shadow:0 4px 15px rgba(239,68,68,0.4)}
 .counter{color:var(--text-dim);font-size:0.9rem;text-align:center;flex:1}
 .stats{display:flex;gap:16px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
 .stat{padding:8px 16px;background:var(--surface2);border-radius:8px;font-size:0.85rem}
@@ -160,6 +162,9 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 <div class="timer-label">📊 ПРОГРЕСС</div>
 <div class="timer-value" id="examProgress">0/110</div>
 </div>
+</div>
+<div style="text-align:center;margin-top:16px">
+<button class="btn btn-danger" onclick="cancelExam()" style="padding:8px 24px;font-size:0.9rem">🚪 Выйти из экзамена</button>
 </div>
 </div>
 
@@ -609,6 +614,20 @@ document.getElementById('examTimer').classList.remove('active');
 
 const msg=`${t('examResults')}\n\n${t('questionsAnswered')} ${answeredCount}/110\n✓ ${t('correct')}: ${correct}\n✗ ${t('wrong')}: ${wrong}\n${t('timeSpent')} ${timeStr}\n\n${elapsed>=examTotalTime?t('examTimeUp'):t('examFinished')}`;
 alert(msg);
+}
+
+function cancelExam(){
+if(!confirm('Вы уверены что хотите выйти из экзамена? Прогресс не будет сохранен.'))return;
+clearInterval(examTimer);
+examMode=false;
+document.getElementById('examTimer').classList.remove('active');
+buildQuestions();
+cur=0;
+answered={};
+correct=0;
+wrong=0;
+showQ();
+showToast('🚪 Вы вышли из режима экзамена');
 }
 
 function prev(){if(cur>0){cur--;showQ();}}
