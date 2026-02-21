@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Панель администратора — Адвокат КР</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Mulish:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Mulish',sans-serif;background:linear-gradient(135deg,#0a0e27 0%,#1a1f3a 100%);color:#e2e8f0;min-height:100vh}
+.header{background:rgba(26,31,58,0.8);border-bottom:1px solid rgba(148,163,184,0.2);padding:20px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.header-left{display:flex;align-items:center;gap:16px}
+.logo{width:50px;height:50px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px}
+.header-title h1{font-family:'Playfair Display',serif;font-size:1.5rem;color:#f59e0b;margin-bottom:4px}
+.header-title p{font-size:0.85rem;color:#94a3b8}
+.header-right{display:flex;align-items:center;gap:12px}
+.user-info{color:#cbd5e1;font-size:0.9rem}
+.btn{padding:10px 20px;background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;border-radius:8px;color:white;font-weight:600;cursor:pointer;transition:all 0.2s;font-size:0.9rem;text-decoration:none;display:inline-block}
+.btn:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(59,130,246,0.4)}
+.btn-danger{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.btn-danger:hover{box-shadow:0 4px 15px rgba(239,68,68,0.4)}
+.btn-secondary{background:rgba(148,163,184,0.2);color:#cbd5e1}
+.btn-secondary:hover{background:rgba(148,163,184,0.3);box-shadow:none}
+.container{max-width:1200px;margin:0 auto;padding:32px 24px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:32px}
+.stat-card{background:rgba(26,31,58,0.6);border:1px solid rgba(148,163,184,0.2);border-radius:16px;padding:24px;text-align:center}
+.stat-icon{font-size:2.5rem;margin-bottom:12px}
+.stat-value{font-size:2rem;font-weight:700;color:#3b82f6;margin-bottom:4px}
+.stat-label{font-size:0.85rem;color:#94a3b8}
+.card{background:rgba(26,31,58,0.6);border:1px solid rgba(148,163,184,0.2);border-radius:16px;padding:32px;margin-bottom:24px}
+.card h2{font-family:'Playfair Display',serif;font-size:1.5rem;color:#f59e0b;margin-bottom:24px;display:flex;align-items:center;gap:12px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-bottom:20px}
+.form-group{display:flex;flex-direction:column}
+.form-group label{color:#cbd5e1;margin-bottom:8px;font-weight:600;font-size:0.9rem}
+.form-group input{padding:12px 16px;background:rgba(15,23,42,0.6);border:2px solid rgba(148,163,184,0.2);border-radius:10px;color:#e2e8f0;font-size:1rem;transition:all 0.2s;font-family:'Mulish',sans-serif}
+.form-group input:focus{outline:none;border-color:#3b82f6;background:rgba(15,23,42,0.8)}
+.form-group input::placeholder{color:#64748b}
+.table-container{overflow-x:auto;margin-top:20px}
+table{width:100%;border-collapse:collapse}
+thead{background:rgba(15,23,42,0.6);border-bottom:2px solid rgba(148,163,184,0.2)}
+th{padding:16px;text-align:left;color:#cbd5e1;font-weight:700;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px}
+td{padding:16px;border-bottom:1px solid rgba(148,163,184,0.1);color:#e2e8f0}
+tbody tr{transition:background 0.2s}
+tbody tr:hover{background:rgba(59,130,246,0.05)}
+.badge{display:inline-block;padding:4px 12px;border-radius:12px;font-size:0.75rem;font-weight:700;text-transform:uppercase}
+.badge-admin{background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)}
+.badge-student{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)}
+.btn-small{padding:6px 12px;font-size:0.8rem;margin:0 4px}
+.success{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:12px 16px;border-radius:8px;color:#6ee7b7;margin-bottom:20px;display:none}
+.success.show{display:block}
+.error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:12px 16px;border-radius:8px;color:#fca5a5;margin-bottom:20px;display:none}
+.error.show{display:block}
+.empty-state{text-align:center;padding:60px 20px;color:#64748b}
+.empty-state-icon{font-size:4rem;margin-bottom:16px;opacity:0.5}
+@media(max-width:768px){
+.header{padding:16px}
+.header-title h1{font-size:1.25rem}
+.form-grid{grid-template-columns:1fr}
+.stats{grid-template-columns:1fr}
+table{font-size:0.85rem}
+th,td{padding:12px 8px}
+.btn-small{display:block;width:100%;margin:4px 0}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+<div class="header-left">
+<div class="logo">⚖️</div>
+<div class="header-title">
+<h1>Панель администратора</h1>
+<p>Управление учетными записями</p>
+</div>
+</div>
+<div class="header-right">
+<div class="user-info">👤 <span id="adminName"></span></div>
+<a href="app-with-demo.html" class="btn btn-secondary">📚 К приложению</a>
+<button class="btn btn-danger" onclick="logout()">🚪 Выход</button>
+</div>
+</div>
+
+<div class="container">
+<div class="stats">
+<div class="stat-card">
+<div class="stat-icon">👥</div>
+<div class="stat-value" id="totalUsers">0</div>
+<div class="stat-label">Всего пользователей</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon">🎓</div>
+<div class="stat-value" id="totalStudents">0</div>
+<div class="stat-label">Учеников</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon">⚙️</div>
+<div class="stat-value" id="totalAdmins">0</div>
+<div class="stat-label">Администраторов</div>
+</div>
+</div>
+
+<div class="card">
+<h2>➕ Создать нового пользователя</h2>
+
+<div class="success" id="successMsg"></div>
+<div class="error" id="errorMsg"></div>
+
+<form onsubmit="createUser(event)">
+<div class="form-grid">
+<div class="form-group">
+<label for="newUsername">👤 Логин</label>
+<input type="text" id="newUsername" placeholder="student001" required>
+</div>
+<div class="form-group">
+<label for="newName">📝 Полное имя</label>
+<input type="text" id="newName" placeholder="Иванов Иван Иванович" required>
+</div>
+<div class="form-group">
+<label for="newPassword">🔒 Пароль</label>
+<input type="text" id="newPassword" placeholder="Автогенерация или свой" value="">
+</div>
+<div class="form-group">
+<label for="newRole">🎭 Роль</label>
+<select id="newRole" style="padding:12px 16px;background:rgba(15,23,42,0.6);border:2px solid rgba(148,163,184,0.2);border-radius:10px;color:#e2e8f0;font-size:1rem;font-family:'Mulish',sans-serif;width:100%">
+<option value="student">🎓 Ученик</option>
+<option value="admin">⚙️ Администратор</option>
+</select>
+</div>
+</div>
+<button type="submit" class="btn" style="margin-top:12px">➕ Создать пользователя</button>
+</form>
+</div>
+
+<div class="card">
+<h2>👥 Список пользователей</h2>
+
+<div class="table-container">
+<table id="usersTable">
+<thead>
+<tr>
+<th>Логин</th>
+<th>Имя</th>
+<th>Пароль</th>
+<th>Роль</th>
+<th>Действия</th>
+</tr>
+</thead>
+<tbody id="usersTableBody">
+</tbody>
+</table>
+<div id="emptyState" class="empty-state" style="display:none">
+<div class="empty-state-icon">📭</div>
+<p>Пользователей пока нет</p>
+</div>
+</div>
+</div>
+
+</div>
+
+<script>
+// Проверка прав доступа
+const user=sessionStorage.getItem('user');
+const userRole=sessionStorage.getItem('userRole');
+const userName=sessionStorage.getItem('userName');
+
+if(!user || userRole!=='admin'){
+alert('⛔ Доступ запрещен! Только для администраторов.');
+window.location.href='login.html';
+}
+
+document.getElementById('adminName').textContent=userName || user;
+
+function getUsers(){
+const stored=localStorage.getItem('advokat_users');
+if(!stored){
+const defaultUsers={'admin':{password:'admin2024',role:'admin',name:'Администратор'}};
+localStorage.setItem('advokat_users',JSON.stringify(defaultUsers));
+return defaultUsers;
+}
+return JSON.parse(stored);
+}
+
+function saveUsers(users){
+localStorage.setItem('advokat_users',JSON.stringify(users));
+updateStats();
+loadUsers();
+}
+
+function generatePassword(){
+const chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+let password='';
+for(let i=0;i<8;i++){
+password+=chars.charAt(Math.floor(Math.random()*chars.length));
+}
+return password;
+}
+
+function createUser(event){
+event.preventDefault();
+const username=document.getElementById('newUsername').value.trim();
+const name=document.getElementById('newName').value.trim();
+let password=document.getElementById('newPassword').value.trim();
+const role=document.getElementById('newRole').value;
+
+const users=getUsers();
+
+if(users[username]){
+showError('❌ Пользователь с таким логином уже существует!');
+return;
+}
+
+if(!password){
+password=generatePassword();
+}
+
+users[username]={password,name,role,created:new Date().toISOString()};
+saveUsers(users);
+
+showSuccess(`✅ Пользователь создан!\n👤 Логин: ${username}\n🔒 Пароль: ${password}\n📝 Имя: ${name}`);
+
+document.getElementById('newUsername').value='';
+document.getElementById('newName').value='';
+document.getElementById('newPassword').value='';
+}
+
+function deleteUser(username){
+if(!confirm(`Удалить пользователя "${username}"?`)){
+return;
+}
+const users=getUsers();
+delete users[username];
+saveUsers(users);
+showSuccess(`🗑️ Пользователь "${username}" удален`);
+}
+
+function showSuccess(msg){
+const el=document.getElementById('successMsg');
+el.textContent=msg;
+el.classList.add('show');
+document.getElementById('errorMsg').classList.remove('show');
+setTimeout(()=>el.classList.remove('show'),5000);
+}
+
+function showError(msg){
+const el=document.getElementById('errorMsg');
+el.textContent=msg;
+el.classList.add('show');
+document.getElementById('successMsg').classList.remove('show');
+setTimeout(()=>el.classList.remove('show'),5000);
+}
+
+function loadUsers(){
+const users=getUsers();
+const tbody=document.getElementById('usersTableBody');
+const emptyState=document.getElementById('emptyState');
+tbody.innerHTML='';
+
+const usernames=Object.keys(users);
+if(usernames.length===0){
+emptyState.style.display='block';
+return;
+}
+
+emptyState.style.display='none';
+
+usernames.forEach(username=>{
+const user=users[username];
+const row=document.createElement('tr');
+row.innerHTML=`
+<td><strong>${username}</strong></td>
+<td>${user.name}</td>
+<td><code style="background:rgba(59,130,246,0.1);padding:4px 8px;border-radius:4px;font-family:monospace">${user.password}</code></td>
+<td><span class="badge ${user.role==='admin'?'badge-admin':'badge-student'}">${user.role==='admin'?'⚙️ Админ':'🎓 Ученик'}</span></td>
+<td>
+${username!=='admin'?`<button class="btn btn-danger btn-small" onclick="deleteUser('${username}')">🗑️ Удалить</button>`:
+'<span style="color:#64748b;font-size:0.85rem">Защищен</span>'}
+</td>
+`;
+tbody.appendChild(row);
+});
+}
+
+function updateStats(){
+const users=getUsers();
+const usernames=Object.keys(users);
+const students=usernames.filter(u=>users[u].role==='student').length;
+const admins=usernames.filter(u=>users[u].role==='admin').length;
+
+document.getElementById('totalUsers').textContent=usernames.length;
+document.getElementById('totalStudents').textContent=students;
+document.getElementById('totalAdmins').textContent=admins;
+}
+
+function logout(){
+sessionStorage.clear();
+window.location.href='login.html';
+}
+
+// Загрузка при старте
+loadUsers();
+updateStats();
+</script>
+
+</body>
+</html>
