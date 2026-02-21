@@ -216,7 +216,41 @@ password=generatePassword();
 users[username]={password,name,role,created:new Date().toISOString()};
 saveUsers(users);
 
-showSuccess(`✅ Пользователь создан!\n👤 Логин: ${username}\n🔒 Пароль: ${password}\n📝 Имя: ${name}`);
+// Автоматическое копирование данных
+const loginData=`🎓 Данные для входа в систему "Адвокат КР"
+
+👤 Логин: ${username}
+🔒 Пароль: ${password}
+📝 Имя: ${name}
+
+🌐 Ссылка для входа:
+https://ntral.github.io/advokat-kg/login.html
+
+📚 После входа доступно:
+✅ Все 4866 вопросов
+✅ Режим экзамена (110 вопросов, 110 минут)
+✅ Русский и кыргызский языки
+✅ Сохранение прогресса
+
+Удачи на экзамене! 🎓`;
+
+navigator.clipboard.writeText(loginData).then(()=>{
+showSuccess(`✅ Пользователь создан и данные скопированы в буфер обмена!
+
+👤 Логин: ${username}
+🔒 Пароль: ${password}
+📝 Имя: ${name}
+
+📋 Данные готовы для отправки ученику через Telegram/WhatsApp!`);
+}).catch(()=>{
+showSuccess(`✅ Пользователь создан!
+
+👤 Логин: ${username}
+🔒 Пароль: ${password}
+📝 Имя: ${name}
+
+💡 Нажмите "📋 Копировать данные" в таблице для отправки ученику.`);
+});
 
 document.getElementById('newUsername').value='';
 document.getElementById('newName').value='';
@@ -267,11 +301,18 @@ usernames.forEach(username=>{
 const user=users[username];
 const row=document.createElement('tr');
 row.innerHTML=`
-<td><strong>${username}</strong></td>
+<td>
+<strong>${username}</strong>
+<button class="btn btn-secondary btn-small" onclick="copyToClipboard('${username}','логин')" style="margin-left:8px">📋</button>
+</td>
 <td>${user.name}</td>
-<td><code style="background:rgba(59,130,246,0.1);padding:4px 8px;border-radius:4px;font-family:monospace">${user.password}</code></td>
+<td>
+<code style="background:rgba(59,130,246,0.1);padding:4px 8px;border-radius:4px;font-family:monospace">${user.password}</code>
+<button class="btn btn-secondary btn-small" onclick="copyToClipboard('${user.password}','пароль')" style="margin-left:8px">📋</button>
+</td>
 <td><span class="badge ${user.role==='admin'?'badge-admin':'badge-student'}">${user.role==='admin'?'⚙️ Админ':'🎓 Ученик'}</span></td>
 <td>
+<button class="btn btn-secondary btn-small" onclick="copyLoginData('${username}','${user.password}','${user.name}')">📋 Копировать данные</button>
 ${username!=='admin'?`<button class="btn btn-danger btn-small" onclick="deleteUser('${username}')">🗑️ Удалить</button>`:
 '<span style="color:#64748b;font-size:0.85rem">Защищен</span>'}
 </td>
@@ -294,6 +335,57 @@ document.getElementById('totalAdmins').textContent=admins;
 function logout(){
 sessionStorage.clear();
 window.location.href='login.html';
+}
+
+function copyToClipboard(text,label){
+navigator.clipboard.writeText(text).then(()=>{
+showSuccess(`📋 ${label.charAt(0).toUpperCase()+label.slice(1)} скопирован: ${text}`);
+}).catch(err=>{
+// Fallback для старых браузеров
+const textarea=document.createElement('textarea');
+textarea.value=text;
+textarea.style.position='fixed';
+textarea.style.opacity='0';
+document.body.appendChild(textarea);
+textarea.select();
+document.execCommand('copy');
+document.body.removeChild(textarea);
+showSuccess(`📋 ${label.charAt(0).toUpperCase()+label.slice(1)} скопирован: ${text}`);
+});
+}
+
+function copyLoginData(username,password,name){
+const text=`🎓 Данные для входа в систему "Адвокат КР"
+
+👤 Логин: ${username}
+🔒 Пароль: ${password}
+📝 Имя: ${name}
+
+🌐 Ссылка для входа:
+https://ntral.github.io/advokat-kg/login.html
+
+📚 После входа доступно:
+✅ Все 4866 вопросов
+✅ Режим экзамена (110 вопросов, 110 минут)
+✅ Русский и кыргызский языки
+✅ Сохранение прогресса
+
+Удачи на экзамене! 🎓`;
+
+navigator.clipboard.writeText(text).then(()=>{
+showSuccess(`📋 Данные для ученика скопированы! Отправьте через Telegram/WhatsApp`);
+}).catch(err=>{
+// Fallback
+const textarea=document.createElement('textarea');
+textarea.value=text;
+textarea.style.position='fixed';
+textarea.style.opacity='0';
+document.body.appendChild(textarea);
+textarea.select();
+document.execCommand('copy');
+document.body.removeChild(textarea);
+showSuccess(`📋 Данные для ученика скопированы! Отправьте через Telegram/WhatsApp`);
+});
 }
 
 // Загрузка при старте
