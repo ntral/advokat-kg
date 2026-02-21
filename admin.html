@@ -21,6 +21,7 @@ body{font-family:'Mulish',sans-serif;background:linear-gradient(135deg,#0a0e27 0
 .btn-danger:hover{box-shadow:0 4px 15px rgba(239,68,68,0.4)}
 .btn-secondary{background:rgba(148,163,184,0.2);color:#cbd5e1}
 .btn-secondary:hover{background:rgba(148,163,184,0.3);box-shadow:none}
+.btn-small{padding:6px 12px;font-size:0.8rem;margin:0 4px}
 .container{max-width:1200px;margin:0 auto;padding:32px 24px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:32px}
 .stat-card{background:rgba(26,31,58,0.6);border:1px solid rgba(148,163,184,0.2);border-radius:16px;padding:24px;text-align:center}
@@ -32,26 +33,30 @@ body{font-family:'Mulish',sans-serif;background:linear-gradient(135deg,#0a0e27 0
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-bottom:20px}
 .form-group{display:flex;flex-direction:column}
 .form-group label{color:#cbd5e1;margin-bottom:8px;font-weight:600;font-size:0.9rem}
-.form-group input{padding:12px 16px;background:rgba(15,23,42,0.6);border:2px solid rgba(148,163,184,0.2);border-radius:10px;color:#e2e8f0;font-size:1rem;transition:all 0.2s;font-family:'Mulish',sans-serif}
-.form-group input:focus{outline:none;border-color:#3b82f6;background:rgba(15,23,42,0.8)}
-.form-group input::placeholder{color:#64748b}
+.form-group input,.form-group select{padding:12px 16px;background:rgba(15,23,42,0.6);border:2px solid rgba(148,163,184,0.2);border-radius:10px;color:#e2e8f0;font-size:1rem;transition:all 0.2s;font-family:'Mulish',sans-serif}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:#3b82f6;background:rgba(15,23,42,0.8)}
 .table-container{overflow-x:auto;margin-top:20px}
 table{width:100%;border-collapse:collapse}
 thead{background:rgba(15,23,42,0.6);border-bottom:2px solid rgba(148,163,184,0.2)}
-th{padding:16px;text-align:left;color:#cbd5e1;font-weight:700;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px}
+th{padding:16px;text-align:left;color:#cbd5e1;font-weight:700;font-size:0.85rem;text-transform:uppercase}
 td{padding:16px;border-bottom:1px solid rgba(148,163,184,0.1);color:#e2e8f0}
 tbody tr{transition:background 0.2s}
 tbody tr:hover{background:rgba(59,130,246,0.05)}
 .badge{display:inline-block;padding:4px 12px;border-radius:12px;font-size:0.75rem;font-weight:700;text-transform:uppercase}
 .badge-admin{background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)}
 .badge-student{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)}
-.btn-small{padding:6px 12px;font-size:0.8rem;margin:0 4px}
+.badge-success{background:rgba(16,185,129,0.2);color:#6ee7b7;border:1px solid rgba(16,185,129,0.3)}
+.badge-error{background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.3)}
 .success{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:12px 16px;border-radius:8px;color:#6ee7b7;margin-bottom:20px;display:none}
 .success.show{display:block}
 .error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:12px 16px;border-radius:8px;color:#fca5a5;margin-bottom:20px;display:none}
 .error.show{display:block}
 .empty-state{text-align:center;padding:60px 20px;color:#64748b}
 .empty-state-icon{font-size:4rem;margin-bottom:16px;opacity:0.5}
+.loading{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,14,39,0.9);display:none;align-items:center;justify-content:center;z-index:1000}
+.loading.show{display:flex}
+.spinner{width:50px;height:50px;border:4px solid rgba(59,130,246,0.3);border-top-color:#3b82f6;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:768px){
 .header{padding:16px}
 .header-title h1{font-size:1.25rem}
@@ -59,11 +64,14 @@ tbody tr:hover{background:rgba(59,130,246,0.05)}
 .stats{grid-template-columns:1fr}
 table{font-size:0.85rem}
 th,td{padding:12px 8px}
-.btn-small{display:block;width:100%;margin:4px 0}
 }
 </style>
 </head>
 <body>
+
+<div class="loading" id="loading">
+<div class="spinner"></div>
+</div>
 
 <div class="header">
 <div class="header-left">
@@ -101,7 +109,6 @@ th,td{padding:12px 8px}
 
 <div class="card">
 <h2>➕ Создать нового пользователя</h2>
-
 <div class="success" id="successMsg"></div>
 <div class="error" id="errorMsg"></div>
 
@@ -117,36 +124,35 @@ th,td{padding:12px 8px}
 </div>
 <div class="form-group">
 <label for="newPassword">🔒 Пароль</label>
-<input type="text" id="newPassword" placeholder="Автогенерация или свой" value="">
+<input type="text" id="newPassword" placeholder="Автогенерация или свой">
 </div>
 <div class="form-group">
 <label for="newRole">🎭 Роль</label>
-<select id="newRole" style="padding:12px 16px;background:rgba(15,23,42,0.6);border:2px solid rgba(148,163,184,0.2);border-radius:10px;color:#e2e8f0;font-size:1rem;font-family:'Mulish',sans-serif;width:100%">
+<select id="newRole">
 <option value="student">🎓 Ученик</option>
 <option value="admin">⚙️ Администратор</option>
 </select>
 </div>
 </div>
-<button type="submit" class="btn" style="margin-top:12px">➕ Создать пользователя</button>
+<button type="submit" class="btn">➕ Создать пользователя</button>
 </form>
 </div>
 
 <div class="card">
 <h2>👥 Список пользователей</h2>
-
 <div class="table-container">
-<table id="usersTable">
+<table>
 <thead>
 <tr>
 <th>Логин</th>
 <th>Имя</th>
 <th>Пароль</th>
 <th>Роль</th>
+<th>Последний вход</th>
 <th>Действия</th>
 </tr>
 </thead>
-<tbody id="usersTableBody">
-</tbody>
+<tbody id="usersTableBody"></tbody>
 </table>
 <div id="emptyState" class="empty-state" style="display:none">
 <div class="empty-state-icon">📭</div>
@@ -155,69 +161,115 @@ th,td{padding:12px 8px}
 </div>
 </div>
 
+<div class="card">
+<h2>📊 Логи входов (последние 20)</h2>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Пользователь</th>
+<th>Событие</th>
+<th>Детали</th>
+<th>Время</th>
+</tr>
+</thead>
+<tbody id="logsTableBody"></tbody>
+</table>
+<div id="emptyStateLogs" class="empty-state" style="display:none">
+<div class="empty-state-icon">📝</div>
+<p>Нет логов</p>
+</div>
+</div>
 </div>
 
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
 <script>
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBQD4IERaH6lW-TKs03giyUy9IL2UbT5OQ",
+  authDomain: "advokat-kg.firebaseapp.com",
+  projectId: "advokat-kg",
+  storageBucket: "advokat-kg.firebasestorage.app",
+  messagingSenderId: "13056866047",
+  appId: "1:13056866047:web:6ac7b7a7eb4f3c5326beca"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 // Проверка прав доступа
-const user=sessionStorage.getItem('user');
-const userRole=sessionStorage.getItem('userRole');
-const userName=sessionStorage.getItem('userName');
+const user = sessionStorage.getItem('user');
+const userRole = sessionStorage.getItem('userRole');
+const userName = sessionStorage.getItem('userName');
 
-if(!user || userRole!=='admin'){
+if(!user || userRole !== 'admin'){
 alert('⛔ Доступ запрещен! Только для администраторов.');
-window.location.href='login.html';
+window.location.href = 'login.html';
 }
 
-document.getElementById('adminName').textContent=userName || user;
+document.getElementById('adminName').textContent = userName || user;
 
-function getUsers(){
-const stored=localStorage.getItem('advokat_users');
-if(!stored){
-const defaultUsers={'admin':{password:'admin2024',role:'admin',name:'Администратор'}};
-localStorage.setItem('advokat_users',JSON.stringify(defaultUsers));
-return defaultUsers;
-}
-return JSON.parse(stored);
+function showLoading(show){
+document.getElementById('loading').classList.toggle('show', show);
 }
 
-function saveUsers(users){
-localStorage.setItem('advokat_users',JSON.stringify(users));
-updateStats();
-loadUsers();
+function showSuccess(msg){
+const el = document.getElementById('successMsg');
+el.textContent = msg;
+el.classList.add('show');
+document.getElementById('errorMsg').classList.remove('show');
+setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+function showError(msg){
+const el = document.getElementById('errorMsg');
+el.textContent = msg;
+el.classList.add('show');
+document.getElementById('successMsg').classList.remove('show');
+setTimeout(() => el.classList.remove('show'), 5000);
 }
 
 function generatePassword(){
-const chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-let password='';
-for(let i=0;i<8;i++){
-password+=chars.charAt(Math.floor(Math.random()*chars.length));
+const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+let password = '';
+for(let i = 0; i < 8; i++){
+password += chars.charAt(Math.floor(Math.random() * chars.length));
 }
 return password;
 }
 
-function createUser(event){
+async function createUser(event){
 event.preventDefault();
-const username=document.getElementById('newUsername').value.trim();
-const name=document.getElementById('newName').value.trim();
-let password=document.getElementById('newPassword').value.trim();
-const role=document.getElementById('newRole').value;
+const username = document.getElementById('newUsername').value.trim();
+const name = document.getElementById('newName').value.trim();
+let password = document.getElementById('newPassword').value.trim();
+const role = document.getElementById('newRole').value;
 
-const users=getUsers();
+if(!password) password = generatePassword();
 
-if(users[username]){
+showLoading(true);
+
+try {
+const userDoc = await db.collection('users').doc(username).get();
+if(userDoc.exists){
 showError('❌ Пользователь с таким логином уже существует!');
+showLoading(false);
 return;
 }
 
-if(!password){
-password=generatePassword();
-}
+await db.collection('users').doc(username).set({
+password,
+name,
+role,
+created: new Date().toISOString()
+});
 
-users[username]={password,name,role,created:new Date().toISOString()};
-saveUsers(users);
-
-// Автоматическое копирование данных
-const loginData=`🎓 Данные для входа в систему "Адвокат КР"
+const loginData = `🎓 Данные для входа в систему "Адвокат КР"
 
 👤 Логин: ${username}
 🔒 Пароль: ${password}
@@ -234,128 +286,65 @@ https://ntral.github.io/advokat-kg/login.html
 
 Удачи на экзамене! 🎓`;
 
-navigator.clipboard.writeText(loginData).then(()=>{
-showSuccess(`✅ Пользователь создан и данные скопированы в буфер обмена!
+try {
+await navigator.clipboard.writeText(loginData);
+showSuccess(`✅ Пользователь создан и данные скопированы!
 
 👤 Логин: ${username}
 🔒 Пароль: ${password}
 📝 Имя: ${name}
 
-📋 Данные готовы для отправки ученику через Telegram/WhatsApp!`);
-}).catch(()=>{
+📋 Данные готовы для отправки ученику!`);
+} catch {
 showSuccess(`✅ Пользователь создан!
 
 👤 Логин: ${username}
 🔒 Пароль: ${password}
-📝 Имя: ${name}
-
-💡 Нажмите "📋 Копировать данные" в таблице для отправки ученику.`);
-});
-
-document.getElementById('newUsername').value='';
-document.getElementById('newName').value='';
-document.getElementById('newPassword').value='';
+📝 Имя: ${name}`);
 }
 
-function deleteUser(username){
-if(!confirm(`Удалить пользователя "${username}"?`)){
-return;
+document.getElementById('newUsername').value = '';
+document.getElementById('newName').value = '';
+document.getElementById('newPassword').value = '';
+
+loadUsers();
+updateStats();
+
+} catch(error) {
+console.error('Ошибка:', error);
+showError('❌ Ошибка при создании пользователя');
+} finally {
+showLoading(false);
 }
-const users=getUsers();
-delete users[username];
-saveUsers(users);
+}
+
+async function deleteUser(username){
+if(!confirm(`Удалить пользователя "${username}"?`)) return;
+
+showLoading(true);
+try {
+await db.collection('users').doc(username).delete();
 showSuccess(`🗑️ Пользователь "${username}" удален`);
+loadUsers();
+updateStats();
+} catch(error) {
+console.error('Ошибка:', error);
+showError('❌ Ошибка при удалении');
+} finally {
+showLoading(false);
+}
 }
 
-function showSuccess(msg){
-const el=document.getElementById('successMsg');
-el.textContent=msg;
-el.classList.add('show');
-document.getElementById('errorMsg').classList.remove('show');
-setTimeout(()=>el.classList.remove('show'),5000);
-}
-
-function showError(msg){
-const el=document.getElementById('errorMsg');
-el.textContent=msg;
-el.classList.add('show');
-document.getElementById('successMsg').classList.remove('show');
-setTimeout(()=>el.classList.remove('show'),5000);
-}
-
-function loadUsers(){
-const users=getUsers();
-const tbody=document.getElementById('usersTableBody');
-const emptyState=document.getElementById('emptyState');
-tbody.innerHTML='';
-
-const usernames=Object.keys(users);
-if(usernames.length===0){
-emptyState.style.display='block';
-return;
-}
-
-emptyState.style.display='none';
-
-usernames.forEach(username=>{
-const user=users[username];
-const row=document.createElement('tr');
-row.innerHTML=`
-<td>
-<strong>${username}</strong>
-<button class="btn btn-secondary btn-small" onclick="copyToClipboard('${username}','логин')" style="margin-left:8px">📋</button>
-</td>
-<td>${user.name}</td>
-<td>
-<code style="background:rgba(59,130,246,0.1);padding:4px 8px;border-radius:4px;font-family:monospace">${user.password}</code>
-<button class="btn btn-secondary btn-small" onclick="copyToClipboard('${user.password}','пароль')" style="margin-left:8px">📋</button>
-</td>
-<td><span class="badge ${user.role==='admin'?'badge-admin':'badge-student'}">${user.role==='admin'?'⚙️ Админ':'🎓 Ученик'}</span></td>
-<td>
-<button class="btn btn-secondary btn-small" onclick="copyLoginData('${username}','${user.password}','${user.name}')">📋 Копировать данные</button>
-${username!=='admin'?`<button class="btn btn-danger btn-small" onclick="deleteUser('${username}')">🗑️ Удалить</button>`:
-'<span style="color:#64748b;font-size:0.85rem">Защищен</span>'}
-</td>
-`;
-tbody.appendChild(row);
+function copyToClipboard(text, label){
+navigator.clipboard.writeText(text).then(() => {
+showSuccess(`📋 ${label} скопирован: ${text}`);
+}).catch(() => {
+showSuccess(`${label}: ${text}`);
 });
 }
 
-function updateStats(){
-const users=getUsers();
-const usernames=Object.keys(users);
-const students=usernames.filter(u=>users[u].role==='student').length;
-const admins=usernames.filter(u=>users[u].role==='admin').length;
-
-document.getElementById('totalUsers').textContent=usernames.length;
-document.getElementById('totalStudents').textContent=students;
-document.getElementById('totalAdmins').textContent=admins;
-}
-
-function logout(){
-sessionStorage.clear();
-window.location.href='login.html';
-}
-
-function copyToClipboard(text,label){
-navigator.clipboard.writeText(text).then(()=>{
-showSuccess(`📋 ${label.charAt(0).toUpperCase()+label.slice(1)} скопирован: ${text}`);
-}).catch(err=>{
-// Fallback для старых браузеров
-const textarea=document.createElement('textarea');
-textarea.value=text;
-textarea.style.position='fixed';
-textarea.style.opacity='0';
-document.body.appendChild(textarea);
-textarea.select();
-document.execCommand('copy');
-document.body.removeChild(textarea);
-showSuccess(`📋 ${label.charAt(0).toUpperCase()+label.slice(1)} скопирован: ${text}`);
-});
-}
-
-function copyLoginData(username,password,name){
-const text=`🎓 Данные для входа в систему "Адвокат КР"
+function copyLoginData(username, password, name){
+const text = `🎓 Данные для входа в систему "Адвокат КР"
 
 👤 Логин: ${username}
 🔒 Пароль: ${password}
@@ -372,25 +361,127 @@ https://ntral.github.io/advokat-kg/login.html
 
 Удачи на экзамене! 🎓`;
 
-navigator.clipboard.writeText(text).then(()=>{
-showSuccess(`📋 Данные для ученика скопированы! Отправьте через Telegram/WhatsApp`);
-}).catch(err=>{
-// Fallback
-const textarea=document.createElement('textarea');
-textarea.value=text;
-textarea.style.position='fixed';
-textarea.style.opacity='0';
-document.body.appendChild(textarea);
-textarea.select();
-document.execCommand('copy');
-document.body.removeChild(textarea);
-showSuccess(`📋 Данные для ученика скопированы! Отправьте через Telegram/WhatsApp`);
+navigator.clipboard.writeText(text).then(() => {
+showSuccess('📋 Данные для ученика скопированы! Отправьте через Telegram/WhatsApp');
+}).catch(() => {
+alert(text);
 });
+}
+
+async function loadUsers(){
+try {
+const snapshot = await db.collection('users').get();
+const tbody = document.getElementById('usersTableBody');
+const emptyState = document.getElementById('emptyState');
+tbody.innerHTML = '';
+
+if(snapshot.empty){
+emptyState.style.display = 'block';
+return;
+}
+
+emptyState.style.display = 'none';
+
+snapshot.forEach(doc => {
+const username = doc.id;
+const user = doc.data();
+const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleString('ru-RU') : 'Никогда';
+
+const row = document.createElement('tr');
+row.innerHTML = `
+<td>
+<strong>${username}</strong>
+<button class="btn btn-secondary btn-small" onclick="copyToClipboard('${username}','Логин')">📋</button>
+</td>
+<td>${user.name}</td>
+<td>
+<code style="background:rgba(59,130,246,0.1);padding:4px 8px;border-radius:4px;font-family:monospace">${user.password}</code>
+<button class="btn btn-secondary btn-small" onclick="copyToClipboard('${user.password}','Пароль')">📋</button>
+</td>
+<td><span class="badge ${user.role === 'admin' ? 'badge-admin' : 'badge-student'}">${user.role === 'admin' ? '⚙️ Админ' : '🎓 Ученик'}</span></td>
+<td style="font-size:0.85rem">${lastLogin}</td>
+<td>
+<button class="btn btn-secondary btn-small" onclick="copyLoginData('${username}','${user.password}','${user.name}')">📋 Копировать</button>
+${username !== 'admin' ? `<button class="btn btn-danger btn-small" onclick="deleteUser('${username}')">🗑️</button>` : ''}
+</td>
+`;
+tbody.appendChild(row);
+});
+
+loadLogs();
+} catch(error) {
+console.error('Ошибка загрузки:', error);
+}
+}
+
+async function loadLogs(){
+try {
+const snapshot = await db.collection('logs')
+.orderBy('timestamp', 'desc')
+.limit(20)
+.get();
+
+const tbody = document.getElementById('logsTableBody');
+const emptyState = document.getElementById('emptyStateLogs');
+tbody.innerHTML = '';
+
+if(snapshot.empty){
+emptyState.style.display = 'block';
+return;
+}
+
+emptyState.style.display = 'none';
+
+snapshot.forEach(doc => {
+const log = doc.data();
+const eventBadge = log.event === 'login_success' ? 'badge-success' : 'badge-error';
+const eventText = log.event === 'login_success' ? '✅ Вход' : '❌ Ошибка';
+
+const row = document.createElement('tr');
+row.innerHTML = `
+<td><strong>${log.username}</strong></td>
+<td><span class="badge ${eventBadge}">${eventText}</span></td>
+<td style="font-size:0.85rem">${log.details || '-'}</td>
+<td style="font-size:0.85rem">${new Date(log.timestamp).toLocaleString('ru-RU')}</td>
+`;
+tbody.appendChild(row);
+});
+} catch(error) {
+console.error('Ошибка загрузки логов:', error);
+}
+}
+
+async function updateStats(){
+try {
+const snapshot = await db.collection('users').get();
+const users = [];
+snapshot.forEach(doc => users.push({id: doc.id, ...doc.data()}));
+
+const students = users.filter(u => u.role === 'student').length;
+const admins = users.filter(u => u.role === 'admin').length;
+
+document.getElementById('totalUsers').textContent = users.length;
+document.getElementById('totalStudents').textContent = students;
+document.getElementById('totalAdmins').textContent = admins;
+} catch(error) {
+console.error('Ошибка статистики:', error);
+}
+}
+
+function logout(){
+sessionStorage.clear();
+window.location.href = 'login.html';
 }
 
 // Загрузка при старте
 loadUsers();
 updateStats();
+
+// Автообновление каждые 30 секунд
+setInterval(() => {
+loadUsers();
+updateStats();
+}, 30000);
 </script>
 
 </body>
