@@ -80,6 +80,22 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 .bookmark-btn{width:36px;height:36px;top:16px;right:16px}
 .question-card{padding:20px;padding-top:60px}
 }
+.exam-timer{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px;display:none;text-align:center}
+.exam-timer.active{display:block}
+.timer-row{display:flex;justify-content:space-around;gap:16px;flex-wrap:wrap}
+.timer-box{flex:1;min-width:150px;padding:12px;background:var(--surface2);border-radius:12px;border:2px solid var(--border)}
+.timer-box.warning{border-color:#f59e0b;background:rgba(245,158,11,0.1)}
+.timer-box.danger{border-color:#ef4444;background:rgba(239,68,68,0.1);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+.timer-label{font-size:0.75rem;color:var(--text-dim);text-transform:uppercase;margin-bottom:4px}
+.timer-value{font-size:1.8rem;font-weight:700;color:var(--text);font-family:monospace}
+.timer-value.warning{color:#f59e0b}
+.timer-value.danger{color:#ef4444}
+@media(max-width:768px){
+.timer-row{flex-direction:column}
+.timer-box{min-width:100%}
+.timer-value{font-size:1.5rem}
+}
 </style>
 </head>
 <body>
@@ -126,13 +142,27 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 </div>
 
 <h3>ИНСТРУМЕНТЫ</h3>
-<button class="mode-btn" onclick="shuffleQuestions();closeMobileMenu()">🔄 Перемешать</button>
+<button class="mode-btn" id="examBtn" onclick="startExamMode();closeMobileMenu()" style="display:none">🎓 <span id="examBtnText">Режим экзамена</span></button>
+<button class="mode-btn" id="shuffleBtn" onclick="shuffleQuestions();closeMobileMenu()">🔄 Перемешать</button>
 <button class="mode-btn" onclick="toggleBookmarks();closeMobileMenu()">⭐ Избранное (<span id="bookmarkCount">0</span>)</button>
 <button class="mode-btn" onclick="showErrors();closeMobileMenu()">❌ Ошибки (<span id="errorCount">0</span>)</button>
 <button class="mode-btn" onclick="resetProgress();closeMobileMenu()">🔄 Сбросить прогресс</button>
 </div>
 
 <div class="content">
+<div class="exam-timer" id="examTimer">
+<div class="timer-row">
+<div class="timer-box" id="totalTimerBox">
+<div class="timer-label" id="totalTimeLabel">⏱️ ОБЩЕЕ ВРЕМЯ</div>
+<div class="timer-value" id="totalTimer">110:00</div>
+</div>
+<div class="timer-box" id="progressBox">
+<div class="timer-label">📊 ПРОГРЕСС</div>
+<div class="timer-value" id="examProgress">0/110</div>
+</div>
+</div>
+</div>
+
 <div class="stats" id="stats" style="display:none">
 <div class="stat">Всего: <strong id="statTotal">0</strong></div>
 <div class="stat correct">✓ Правильно: <strong id="statCorrect">0</strong></div>
@@ -150,7 +180,7 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 <div class="nav-buttons">
 <button onclick="prev()">← Назад</button>
 <div class="counter" id="counter"></div>
-<button onclick="next()">Далее →</button>
+<button onclick="next()" id="nextBtn">Далее →</button>
 </div>
 </div>
 </div>
@@ -169,12 +199,16 @@ document.getElementById('demoBanner').style.display='block';
 document.getElementById('topbar').classList.add('with-demo');
 document.getElementById('sidebar').classList.add('with-demo');
 document.getElementById('sidebarOverlay').classList.add('with-demo');
+}else{
+document.getElementById('examBtn').style.display='flex';
+document.getElementById('shuffleBtn').style.display='none';
 }
 
 document.getElementById('username').textContent=user;
 if(user==='admin')document.getElementById('adminBtn').style.display='inline-block';
 
 let DATA={ru:[],ky:[]},lang='ru',mode='study',cur=0,allQ=[],filtered=[],bookmarks=new Set(),errors=new Set(),answered={},correct=0,wrong=0,showingBookmarks=false,showingErrors=false,lastPosition=0;
+let examMode=false,examStartTime=0,examTotalTime=110*60,examTimer=null,examQuestionTime=60;
 
 const translations={
 ru:{
@@ -189,7 +223,17 @@ noErrors:'Нет ошибок',
 errorsCount:'❌ Ошибок:',
 foundCount:'🔍 Найдено:',
 questionsWord:'вопросов',
-shuffled:'🔄 Вопросы перемешаны'
+shuffled:'🔄 Вопросы перемешаны',
+examMode:'🎓 Режим экзамена (110 вопросов)',
+examStarted:'🎓 Экзамен начался! 110 вопросов за 110 минут',
+examFinished:'⏱️ Экзамен завершен!',
+examTimeUp:'⏰ Время истекло! Экзамен завершен',
+totalTime:'⏱️ Общее время:',
+timePerQuestion:'⏰ На вопрос:',
+examResults:'Результаты экзамена',
+questionsAnswered:'Отвечено вопросов:',
+timeSpent:'Затрачено времени:',
+examConfirm:'Начать экзамен? 110 случайных вопросов, 110 минут на все.'
 },
 ky:{
 correct:'✅ Туура!',
@@ -203,7 +247,17 @@ noErrors:'Каталар жок',
 errorsCount:'❌ Каталар:',
 foundCount:'🔍 Табылды:',
 questionsWord:'суроо',
-shuffled:'🔄 Суроолор аралаштырылды'
+shuffled:'🔄 Суроолор аралаштырылды',
+examMode:'🎓 Экзамен режими (110 суроо)',
+examStarted:'🎓 Экзамен башталды! 110 суроо үчүн 110 мүнөт',
+examFinished:'⏱️ Экзамен аякталды!',
+examTimeUp:'⏰ Убакыт бүттү! Экзамен аякталды',
+totalTime:'⏱️ Жалпы убакыт:',
+timePerQuestion:'⏰ Суроого:',
+examResults:'Экзамен жыйынтыктары',
+questionsAnswered:'Жооп берилген суроолор:',
+timeSpent:'Колдонулган убакыт:',
+examConfirm:'Экзаменди баштоо? 110 туш келди суроо, баарына 110 мүнөт.'
 }
 };
 
@@ -397,6 +451,13 @@ document.getElementById('statTotal').textContent=Object.keys(answered).length;
 document.getElementById('statCorrect').textContent=correct;
 document.getElementById('statWrong').textContent=wrong;
 }
+
+if(examMode && cur===filtered.length-1){
+document.getElementById('nextBtn').textContent='✓ Завершить экзамен';
+}else{
+document.getElementById('nextBtn').textContent='Далее →';
+}
+
 updateBookmarkBtn();
 saveData();
 window.scrollTo(0,0);
@@ -475,8 +536,90 @@ showQ();
 showToast(t('shuffled'));
 }
 
+function startExamMode(){
+if(!confirm(t('examConfirm')))return;
+examMode=true;
+mode='test';
+showingBookmarks=false;
+showingErrors=false;
+document.getElementById('searchInput').value='';
+answered={};
+correct=0;
+wrong=0;
+
+filtered=[...allQ];
+for(let i=filtered.length-1;i>0;i--){
+const j=Math.floor(Math.random()*(i+1));
+[filtered[i],filtered[j]]=[filtered[j],filtered[i]];
+}
+filtered=filtered.slice(0,110);
+
+examStartTime=Date.now();
+cur=0;
+document.getElementById('examTimer').classList.add('active');
+document.getElementById('modeStudy').classList.toggle('active',false);
+document.getElementById('modeTest').classList.toggle('active',true);
+updateExamTimer();
+examTimer=setInterval(updateExamTimer,1000);
+showQ();
+showToast(t('examStarted'));
+}
+
+function updateExamTimer(){
+if(!examMode)return;
+const elapsed=Math.floor((Date.now()-examStartTime)/1000);
+const remaining=Math.max(0,examTotalTime-elapsed);
+const answeredCount=Object.keys(answered).length;
+
+const totalMins=Math.floor(remaining/60);
+const totalSecs=remaining%60;
+const totalTimeStr=`${totalMins}:${totalSecs.toString().padStart(2,'0')}`;
+
+document.getElementById('totalTimer').textContent=totalTimeStr;
+document.getElementById('examProgress').textContent=`${answeredCount}/110`;
+
+const totalBox=document.getElementById('totalTimerBox');
+const totalValue=document.getElementById('totalTimer');
+totalBox.classList.remove('warning','danger');
+totalValue.classList.remove('warning','danger');
+if(remaining<=600){
+totalBox.classList.add('danger');
+totalValue.classList.add('danger');
+}else if(remaining<=1800){
+totalBox.classList.add('warning');
+totalValue.classList.add('warning');
+}
+
+if(remaining===0){
+endExam();
+}
+}
+
+function endExam(){
+if(!examMode)return;
+clearInterval(examTimer);
+examMode=false;
+const elapsed=Math.floor((Date.now()-examStartTime)/1000);
+const mins=Math.floor(elapsed/60);
+const secs=elapsed%60;
+const timeStr=`${mins}:${secs.toString().padStart(2,'0')}`;
+const answeredCount=Object.keys(answered).length;
+
+document.getElementById('examTimer').classList.remove('active');
+
+const msg=`${t('examResults')}\n\n${t('questionsAnswered')} ${answeredCount}/110\n✓ ${t('correct')}: ${correct}\n✗ ${t('wrong')}: ${wrong}\n${t('timeSpent')} ${timeStr}\n\n${elapsed>=examTotalTime?t('examTimeUp'):t('examFinished')}`;
+alert(msg);
+}
+
 function prev(){if(cur>0){cur--;showQ();}}
-function next(){if(cur<filtered.length-1){cur++;showQ();}}
+function next(){
+if(cur<filtered.length-1){
+cur++;
+showQ();
+}else if(examMode){
+endExam();
+}
+}
 
 function setMode(m){
 mode=m;
@@ -492,6 +635,8 @@ function setLang(l){
 lang=l;
 document.getElementById('langRu').classList.toggle('active',l==='ru');
 document.getElementById('langKy').classList.toggle('active',l==='ky');
+document.getElementById('examBtnText').textContent=l==='ru'?'Режим экзамена':'Экзамен режими';
+document.getElementById('totalTimeLabel').textContent=l==='ru'?'⏱️ ОБЩЕЕ ВРЕМЯ':'⏱️ ЖАЛПЫ УБАКЫТ';
 buildQuestions();
 cur=0;
 showQ();
