@@ -21,10 +21,13 @@ input::placeholder{color:#64748b}
 .btn{width:100%;padding:16px;background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;border-radius:12px;color:white;font-weight:700;font-size:1.1rem;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 20px rgba(59,130,246,0.4);margin-top:8px}
 .btn:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(59,130,246,0.5)}
 .btn:active{transform:translateY(0)}
+.btn:disabled{opacity:0.6;cursor:not-allowed}
 .btn-secondary{background:transparent;border:2px solid rgba(148,163,184,0.3);color:#cbd5e1;box-shadow:none;margin-top:12px}
 .btn-secondary:hover{border-color:#3b82f6;background:rgba(59,130,246,0.1);box-shadow:none}
 .error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:12px 16px;border-radius:8px;color:#fca5a5;font-size:0.9rem;margin-bottom:20px;display:none}
 .error.show{display:block}
+.success{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:12px 16px;border-radius:8px;color:#6ee7b7;font-size:0.9rem;margin-bottom:20px;display:none}
+.success.show{display:block}
 .divider{text-align:center;color:#64748b;margin:24px 0;position:relative}
 .divider:before,.divider:after{content:'';position:absolute;top:50%;width:40%;height:1px;background:rgba(148,163,184,0.2)}
 .divider:before{left:0}
@@ -32,6 +35,10 @@ input::placeholder{color:#64748b}
 .links{text-align:center;margin-top:24px;font-size:0.9rem}
 .links a{color:#3b82f6;text-decoration:none;font-weight:600}
 .links a:hover{text-decoration:underline}
+.loading{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,14,39,0.9);display:none;align-items:center;justify-content:center;z-index:1000}
+.loading.show{display:flex}
+.spinner{width:50px;height:50px;border:4px solid rgba(59,130,246,0.3);border-top-color:#3b82f6;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:768px){
 .card{padding:30px 24px}
 h1{font-size:1.75rem}
@@ -40,6 +47,10 @@ h1{font-size:1.75rem}
 </head>
 <body>
 
+<div class="loading" id="loading">
+<div class="spinner"></div>
+</div>
+
 <div class="container">
 <div class="logo">⚖️</div>
 <h1>Вход в систему</h1>
@@ -47,8 +58,9 @@ h1{font-size:1.75rem}
 
 <div class="card">
 <div class="error" id="error"></div>
+<div class="success" id="success"></div>
 
-<form onsubmit="handleLogin(event)">
+<form onsubmit="handleLogin(event)" id="loginForm">
 <div class="form-group">
 <label for="username">👤 Логин</label>
 <input type="text" id="username" placeholder="Введите ваш логин" required autocomplete="username">
@@ -59,12 +71,12 @@ h1{font-size:1.75rem}
 <input type="password" id="password" placeholder="Введите ваш пароль" required autocomplete="current-password">
 </div>
 
-<button type="submit" class="btn">🚀 Войти</button>
+<button type="submit" class="btn" id="loginBtn">🚀 Войти</button>
 </form>
 
 <div class="divider">или</div>
 
-<button class="btn btn-secondary" onclick="window.location.href='demo.html'">🎓 Попробовать демо-версию</button>
+<button class="btn btn-secondary" onclick="tryDemo()">🎓 Попробовать демо-версию</button>
 
 <div class="links">
 <a href="index.html">← Вернуться на главную</a>
@@ -72,67 +84,175 @@ h1{font-size:1.75rem}
 </div>
 </div>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
 <script>
-// Список пользователей (в реальном приложении это должно быть на сервере)
-function getUsers(){
-const stored=localStorage.getItem('advokat_users');
-if(!stored){
-// Создаем админа по умолчанию
-const defaultUsers={
-'admin':{password:'admin2024',role:'admin',name:'Администратор'}
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBQD4IERaH6lW-TKs03giyUy9IL2UbT5OQ",
+  authDomain: "advokat-kg.firebaseapp.com",
+  projectId: "advokat-kg",
+  storageBucket: "advokat-kg.firebasestorage.app",
+  messagingSenderId: "13056866047",
+  appId: "1:13056866047:web:6ac7b7a7eb4f3c5326beca"
 };
-localStorage.setItem('advokat_users',JSON.stringify(defaultUsers));
-return defaultUsers;
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Создаем админа при первом запуске
+async function initializeAdmin(){
+try{
+const adminDoc = await db.collection('users').doc('admin').get();
+if(!adminDoc.exists){
+await db.collection('users').doc('admin').set({
+password: 'admin2024',
+role: 'admin',
+name: 'Администратор',
+created: new Date().toISOString()
+});
+console.log('✅ Админ создан');
 }
-return JSON.parse(stored);
+}catch(e){
+console.error('Ошибка инициализации:', e);
+}
 }
 
-function handleLogin(event){
+initializeAdmin();
+
+function showLoading(show){
+document.getElementById('loading').classList.toggle('show', show);
+document.getElementById('loginBtn').disabled = show;
+}
+
+function showError(msg){
+const el = document.getElementById('error');
+el.textContent = msg;
+el.classList.add('show');
+document.getElementById('success').classList.remove('show');
+setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+function showSuccess(msg){
+const el = document.getElementById('success');
+el.textContent = msg;
+el.classList.add('show');
+document.getElementById('error').classList.remove('show');
+}
+
+function tryDemo(){
+sessionStorage.setItem('user', 'demo');
+// Логируем в Firebase
+db.collection('logs').add({
+username: 'demo',
+event: 'login_success',
+details: 'Демо-доступ',
+timestamp: new Date().toISOString(),
+userAgent: navigator.userAgent
+}).catch(e => console.error('Лог ошибка:', e));
+
+window.location.href = 'app-with-demo.html';
+}
+
+async function handleLogin(event){
 event.preventDefault();
-const username=document.getElementById('username').value.trim();
-const password=document.getElementById('password').value;
-const errorDiv=document.getElementById('error');
+const username = document.getElementById('username').value.trim();
+const password = document.getElementById('password').value;
 
-// Проверка демо-доступа
-if(username==='demo'){
-sessionStorage.setItem('user','demo');
-window.location.href='app-with-demo.html';
+if(!username || !password){
+showError('❌ Заполните все поля');
 return;
 }
 
-// Проверка пользователей
-const users=getUsers();
-const user=users[username];
-
-if(!user){
-errorDiv.textContent='❌ Пользователь не найден';
-errorDiv.classList.add('show');
+// Демо доступ
+if(username === 'demo'){
+tryDemo();
 return;
 }
 
-if(user.password!==password){
-errorDiv.textContent='❌ Неверный пароль';
-errorDiv.classList.add('show');
+showLoading(true);
+
+try {
+// Читаем пользователя из Firebase
+const userDoc = await db.collection('users').doc(username).get();
+
+if(!userDoc.exists){
+showError('❌ Пользователь не найден');
+// Логируем неудачную попытку
+await db.collection('logs').add({
+username,
+event: 'login_failed',
+details: 'Пользователь не найден',
+timestamp: new Date().toISOString(),
+userAgent: navigator.userAgent
+});
+showLoading(false);
 return;
 }
 
-// Успешный вход
-sessionStorage.setItem('user',username);
-sessionStorage.setItem('userRole',user.role);
-sessionStorage.setItem('userName',user.name);
+const user = userDoc.data();
 
-if(user.role==='admin'){
-window.location.href='admin.html';
-}else{
-window.location.href='app-with-demo.html';
+if(user.password !== password){
+showError('❌ Неверный пароль');
+// Логируем неудачную попытку
+await db.collection('logs').add({
+username,
+event: 'login_failed',
+details: 'Неверный пароль',
+timestamp: new Date().toISOString(),
+userAgent: navigator.userAgent
+});
+showLoading(false);
+return;
+}
+
+// Успешный вход - логируем
+await db.collection('logs').add({
+username,
+event: 'login_success',
+details: 'Вход выполнен',
+timestamp: new Date().toISOString(),
+userAgent: navigator.userAgent,
+deviceType: navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop'
+});
+
+// Обновляем lastLogin
+await db.collection('users').doc(username).update({
+lastLogin: new Date().toISOString(),
+lastDevice: navigator.userAgent.includes('Mobile') ? 'Мобильное устройство' : 'Компьютер'
+});
+
+// Сохраняем в session
+sessionStorage.setItem('user', username);
+sessionStorage.setItem('userRole', user.role);
+sessionStorage.setItem('userName', user.name);
+
+showSuccess('✅ Вход выполнен! Перенаправление...');
+
+// Перенаправляем
+setTimeout(() => {
+if(user.role === 'admin'){
+window.location.href = 'admin.html';
+} else {
+window.location.href = 'app-with-demo.html';
+}
+}, 1000);
+
+} catch(error) {
+console.error('Ошибка входа:', error);
+showError('❌ Ошибка подключения к серверу. Проверьте интернет.');
+showLoading(false);
 }
 }
 
 // Скрыть ошибку при вводе
-document.getElementById('username').addEventListener('input',()=>{
+document.getElementById('username').addEventListener('input', () => {
 document.getElementById('error').classList.remove('show');
 });
-document.getElementById('password').addEventListener('input',()=>{
+document.getElementById('password').addEventListener('input', () => {
 document.getElementById('error').classList.remove('show');
 });
 </script>
