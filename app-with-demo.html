@@ -176,6 +176,41 @@ if(user==='admin')document.getElementById('adminBtn').style.display='inline-bloc
 
 let DATA={ru:[],ky:[]},lang='ru',mode='study',cur=0,allQ=[],filtered=[],bookmarks=new Set(),errors=new Set(),answered={},correct=0,wrong=0,showingBookmarks=false,showingErrors=false,lastPosition=0;
 
+const translations={
+ru:{
+correct:'✅ Правильно!',
+wrong:'❌ Неправильно',
+progressReset:'✅ Прогресс сброшен',
+bookmarkRemoved:'⭐ Удалено из избранного',
+bookmarkAdded:'⭐ Добавлено в избранное',
+noBookmarks:'Нет избранных вопросов',
+bookmarksCount:'⭐ Избранное:',
+noErrors:'Нет ошибок',
+errorsCount:'❌ Ошибок:',
+foundCount:'🔍 Найдено:',
+questionsWord:'вопросов',
+shuffled:'🔄 Вопросы перемешаны'
+},
+ky:{
+correct:'✅ Туура!',
+wrong:'❌ Туура эмес',
+progressReset:'✅ Прогресс тазаланды',
+bookmarkRemoved:'⭐ Тандалгандардан алынды',
+bookmarkAdded:'⭐ Тандалгандарга кошулду',
+noBookmarks:'Тандалган суроолор жок',
+bookmarksCount:'⭐ Тандалгандар:',
+noErrors:'Каталар жок',
+errorsCount:'❌ Каталар:',
+foundCount:'🔍 Табылды:',
+questionsWord:'суроо',
+shuffled:'🔄 Суроолор аралаштырылды'
+}
+};
+
+function t(key){
+return translations[lang][key]||key;
+}
+
 function showToast(msg){
 const t=document.getElementById('toast');
 t.textContent=msg;
@@ -211,7 +246,7 @@ lastPosition=0;
 localStorage.removeItem('advokat_'+user);
 updateCounts();
 showQ();
-showToast('✅ Прогресс сброшен');
+showToast(t('progressReset'));
 }
 
 function toggleCurrentBookmark(){
@@ -219,10 +254,10 @@ const q=filtered[cur];
 if(!q)return;
 if(bookmarks.has(q.id)){
 bookmarks.delete(q.id);
-showToast('⭐ Удалено из избранного');
+showToast(t('bookmarkRemoved'));
 }else{
 bookmarks.add(q.id);
-showToast('⭐ Добавлено в избранное');
+showToast(t('bookmarkAdded'));
 }
 saveData();
 updateBookmarkBtn();
@@ -374,11 +409,11 @@ const isCorrect=q.options[idx].correct;
 answered[qid]=idx;
 if(isCorrect){
 correct++;
-showToast('✅ Правильно!');
+showToast(t('correct'));
 }else{
 wrong++;
 errors.add(qid);
-showToast('❌ Неправильно');
+showToast(t('wrong'));
 }
 saveData();
 showQ();
@@ -389,8 +424,8 @@ showingBookmarks=!showingBookmarks;
 showingErrors=false;
 if(showingBookmarks){
 filtered=allQ.filter(q=>bookmarks.has(q.id));
-if(filtered.length===0){showToast('Нет избранных вопросов');showingBookmarks=false;filtered=[...allQ];}
-else{showToast(`⭐ Избранное: ${filtered.length} вопросов`);}
+if(filtered.length===0){showToast(t('noBookmarks'));showingBookmarks=false;filtered=[...allQ];}
+else{showToast(`${t('bookmarksCount')} ${filtered.length} ${t('questionsWord')}`);}
 }else{
 filtered=[...allQ];
 }
@@ -403,8 +438,8 @@ showingErrors=!showingErrors;
 showingBookmarks=false;
 if(showingErrors){
 filtered=allQ.filter(q=>errors.has(q.id));
-if(filtered.length===0){showToast('Нет ошибок');showingErrors=false;filtered=[...allQ];}
-else{showToast(`❌ Ошибок: ${filtered.length}`);}
+if(filtered.length===0){showToast(t('noErrors'));showingErrors=false;filtered=[...allQ];}
+else{showToast(`${t('errorsCount')} ${filtered.length}`);}
 }else{
 filtered=[...allQ];
 }
@@ -420,7 +455,7 @@ if(!term){
 filtered=[...allQ];
 }else{
 filtered=allQ.filter(q=>q.text.toLowerCase().includes(term)||q.options.some(o=>o.text.toLowerCase().includes(term)));
-showToast(`🔍 Найдено: ${filtered.length} вопросов`);
+showToast(`${t('foundCount')} ${filtered.length} ${t('questionsWord')}`);
 }
 cur=0;
 showQ();
@@ -437,7 +472,7 @@ const j=Math.floor(Math.random()*(i+1));
 }
 cur=0;
 showQ();
-showToast('🔄 Вопросы перемешаны');
+showToast(t('shuffled'));
 }
 
 function prev(){if(cur>0){cur--;showQ();}}
