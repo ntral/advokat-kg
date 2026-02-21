@@ -3,266 +3,360 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Адвокат КР — Вход</title>
+<title>Адвокат КР — Подготовка к экзамену</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Mulish:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Mulish',sans-serif;background:linear-gradient(135deg,#0a0e27 0%,#1a1f3a 100%);color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-.login-box{background:rgba(26,31,58,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:48px 40px;width:480px;max-width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
-.logo{width:80px;height:80px;margin:0 auto 16px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px}
-h1{font-family:'Playfair Display',serif;font-size:2rem;color:#f59e0b;text-align:center;margin-bottom:8px}
-.subtitle{text-align:center;color:#94a3b8;font-size:0.9rem;margin-bottom:32px}
-h2{font-size:1.4rem;text-align:center;margin-bottom:24px;color:#f1f5f9}
-label{display:block;color:#cbd5e1;font-size:0.85rem;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
-input{width:100%;padding:14px 18px;background:rgba(15,23,42,0.6);border:2px solid rgba(148,163,184,0.2);border-radius:12px;color:#f1f5f9;font-size:1rem;font-family:'Mulish',sans-serif;margin-bottom:20px;transition:all 0.3s}
-input:focus{outline:none;border-color:#3b82f6;background:rgba(15,23,42,0.8)}
-button{width:100%;padding:16px;background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;border-radius:12px;color:white;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.3s;text-transform:uppercase;letter-spacing:1px}
-button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(59,130,246,0.4)}
-button:disabled{opacity:0.5;cursor:not-allowed}
-.error{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:12px;border-radius:10px;margin-top:16px;display:none;font-size:0.9rem}
-.warning{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);padding:20px;border-radius:12px;margin-top:24px;font-size:0.85rem;color:#fbbf24}
-.warning h3{font-size:1rem;margin-bottom:12px;color:#f59e0b;display:flex;align-items:center;gap:8px}
-.warning ul{padding-left:20px;line-height:1.8}
-.warning li{margin:6px 0}
-.info-link{text-align:center;margin-top:16px;font-size:0.85rem}
-.info-link a{color:#3b82f6;text-decoration:none;cursor:pointer}
-.info-link a:hover{text-decoration:underline}
-.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:1000;padding:20px;overflow-y:auto}
-.modal.open{display:flex;align-items:center;justify-content:center}
-.modal-content{background:rgba(26,31,58,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;position:relative}
-.modal-close{position:absolute;top:16px;right:16px;background:transparent;border:none;color:#94a3b8;font-size:28px;cursor:pointer;padding:8px;line-height:1}
-.modal-close:hover{color:#f1f5f9}
-.modal h2{color:#f59e0b;margin-bottom:20px;font-size:1.5rem}
-.modal h3{color:#3b82f6;margin-top:24px;margin-bottom:12px;font-size:1.1rem}
-.modal p{line-height:1.7;margin-bottom:12px;color:#cbd5e1}
-.modal ul,.modal ol{padding-left:24px;line-height:1.8;color:#cbd5e1;margin-bottom:16px}
-.modal li{margin:8px 0}
-.modal strong{color:#f59e0b}
-.danger-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:16px;border-radius:10px;margin:16px 0;color:#fca5a5}
-.loading{display:none;text-align:center;color:#94a3b8;font-size:0.9rem;margin-top:8px}
+body{font-family:'Mulish',sans-serif;background:linear-gradient(135deg,#0a0e27 0%,#1a1f3a 100%);color:#e2e8f0;min-height:100vh}
+.container{max-width:1200px;margin:0 auto;padding:40px 20px}
+.header{text-align:center;padding:60px 20px}
+.logo{width:120px;height:120px;margin:0 auto 24px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:30px;display:flex;align-items:center;justify-content:center;font-size:64px;box-shadow:0 10px 40px rgba(245,158,11,0.3)}
+h1{font-family:'Playfair Display',serif;font-size:3rem;color:#f59e0b;margin-bottom:16px;line-height:1.2}
+.subtitle{font-size:1.3rem;color:#cbd5e1;margin-bottom:40px;line-height:1.6}
+.lang-switch{display:flex;justify-content:center;gap:16px;margin:40px 0}
+.lang-btn{padding:12px 32px;background:rgba(26,31,58,0.8);border:2px solid rgba(148,163,184,0.2);border-radius:12px;color:#cbd5e1;cursor:pointer;font-weight:700;font-size:1rem;transition:all 0.3s}
+.lang-btn.active{background:linear-gradient(135deg,#3b82f6,#2563eb);border-color:#3b82f6;color:white}
+.lang-btn:hover{border-color:#3b82f6}
+.content-section{display:none}
+.content-section.active{display:block}
+.section{background:rgba(26,31,58,0.6);border:1px solid rgba(148,163,184,0.2);border-radius:20px;padding:40px;margin-bottom:32px}
+.section h2{font-family:'Playfair Display',serif;font-size:2rem;color:#f59e0b;margin-bottom:24px;display:flex;align-items:center;gap:12px}
+.section h3{color:#3b82f6;font-size:1.3rem;margin:32px 0 16px;display:flex;align-items:center;gap:8px}
+.section p{color:#cbd5e1;line-height:1.8;margin-bottom:16px}
+.section ul{list-style:none;padding-left:0}
+.section li{color:#cbd5e1;line-height:2;padding-left:32px;position:relative;margin-bottom:12px}
+.section li:before{content:"•";position:absolute;left:12px;color:#3b82f6;font-size:1.5rem}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin:32px 0}
+.feature-card{background:rgba(15,23,42,0.6);padding:24px;border-radius:16px;border:1px solid rgba(148,163,184,0.15)}
+.feature-icon{font-size:2.5rem;margin-bottom:12px}
+.feature-title{font-weight:700;color:#3b82f6;margin-bottom:8px;font-size:1.1rem}
+.feature-text{color:#94a3b8;font-size:0.9rem;line-height:1.6}
+.steps{counter-reset:step;margin:24px 0}
+.step{counter-increment:step;padding:16px;padding-left:56px;position:relative;margin-bottom:16px;background:rgba(15,23,42,0.4);border-radius:12px;border-left:3px solid #3b82f6}
+.step:before{content:counter(step);position:absolute;left:16px;top:50%;transform:translateY(-50%);background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
+.tips{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:24px;border-radius:12px;margin:24px 0}
+.tips h4{color:#fbbf24;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.tips li{color:#fcd34d}
+.highlight{background:rgba(59,130,246,0.15);border-left:4px solid #3b82f6;padding:20px;border-radius:8px;margin:24px 0}
+.highlight strong{color:#60a5fa}
+.cta-section{text-align:center;padding:60px 20px;background:rgba(26,31,58,0.8);border-radius:20px;margin:40px 0}
+.btn{padding:18px 48px;font-size:1.1rem;font-weight:700;border-radius:12px;cursor:pointer;transition:all 0.3s;text-decoration:none;display:inline-block;border:none;margin:8px}
+.btn-primary{background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;box-shadow:0 8px 30px rgba(59,130,246,0.4)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(59,130,246,0.5)}
+.btn-secondary{background:transparent;color:#f59e0b;border:2px solid #f59e0b}
+.btn-secondary:hover{background:rgba(245,158,11,0.1)}
+.contact{text-align:center;padding:40px 20px;color:#94a3b8}
+.contact a{color:#3b82f6;text-decoration:none;font-weight:700}
+.contact a:hover{text-decoration:underline}
+@media(max-width:768px){
+h1{font-size:2rem}
+.subtitle{font-size:1.1rem}
+.section h2{font-size:1.5rem}
+.features-grid{grid-template-columns:1fr}
+.btn{padding:16px 32px;font-size:1rem;display:block;margin:8px auto}
+.lang-btn{padding:10px 24px;font-size:0.9rem}
+}
 </style>
 </head>
 <body>
 
-<div class="login-box">
+<div class="header">
 <div class="logo">⚖️</div>
 <h1>Адвокат КР</h1>
-<p class="subtitle">Подготовка к квалификационному экзамену</p>
-<h2>Вход в систему</h2>
+<p class="subtitle">Профессиональная подготовка к квалификационному экзамену адвоката Кыргызской Республики</p>
 
-<label>ИМЯ ПОЛЬЗОВАТЕЛЯ</label>
-<input type="text" id="username" placeholder="Введите логин">
+<div class="lang-switch">
+<button class="lang-btn active" onclick="switchLang('ru')">🇷🇺 Русский</button>
+<button class="lang-btn" onclick="switchLang('ky')">🇰🇬 Кыргызча</button>
+</div>
+</div>
 
-<label>ПАРОЛЬ</label>
-<input type="password" id="password" placeholder="Введите пароль" onkeypress="if(event.key==='Enter')login()">
+<div class="container">
 
-<button id="loginBtn" onclick="login()">ВОЙТИ</button>
-<div class="loading" id="loading">Проверка данных...</div>
+<!-- Русская версия -->
+<div class="content-section active" id="content-ru">
 
-<div class="error" id="error"></div>
+<div class="section">
+<h2>📚 Полная версия приложения</h2>
 
-<div class="warning">
-<h3>⚠️ ПРАВИЛА ИСПОЛЬЗОВАНИЯ</h3>
+<h3>✨ Возможности</h3>
+
+<div class="features-grid">
+<div class="feature-card">
+<div class="feature-icon">📖</div>
+<div class="feature-title">Режим обучения</div>
+<div class="feature-text">Изучайте вопросы с правильными ответами. Подробные объяснения помогут глубже понять материал.</div>
+</div>
+<div class="feature-card">
+<div class="feature-icon">📝</div>
+<div class="feature-title">Режим тестирования</div>
+<div class="feature-text">Проверьте свои знания. Система отслеживает правильные и неправильные ответы.</div>
+</div>
+<div class="feature-card">
+<div class="feature-icon">🎓</div>
+<div class="feature-title">Режим экзамена</div>
+<div class="feature-text">Реальная симуляция экзамена с таймером и случайными вопросами.</div>
+</div>
+</div>
+</div>
+
+<div class="section">
+<h2>🎓 Режим экзамена (НОВАЯ ФУНКЦИЯ)</h2>
+
+<div class="highlight">
+<strong>Симуляция реального экзамена:</strong> 110 случайных вопросов из всей базы, как на настоящем экзамене адвоката КР.
+</div>
+
+<h3>⏱️ Таймер и контроль времени</h3>
 <ul>
-<li><strong>Один аккаунт = одно устройство</strong></li>
-<li>Передача доступа третьим лицам строго запрещена</li>
-<li>При нарушении — блокировка без возврата средств</li>
-<li>Все действия логируются</li>
+<li>110 минут на весь экзамен (обратный отсчет)</li>
+<li>Общее оставшееся время отображается постоянно</li>
+<li>Прогресс выполнения (сколько вопросов отвечено)</li>
+</ul>
+
+<h3>🎨 Цветовая индикация времени</h3>
+<ul>
+<li>🟢 <strong>Зеленый:</strong> более 30 минут — спокойно работайте</li>
+<li>🟡 <strong>Желтый:</strong> 10-30 минут — следите за временем</li>
+<li>🔴 <strong>Красный:</strong> менее 10 минут — торопитесь (мигает)</li>
+</ul>
+
+<h3>📊 Результаты экзамена</h3>
+<ul>
+<li>Количество правильных и неправильных ответов</li>
+<li>Затраченное время</li>
+<li>Процент успешности</li>
+<li>Автоматическое завершение при истечении времени</li>
 </ul>
 </div>
 
-<div class="info-link">
-<a onclick="openInstructions()">📖 Как пользоваться приложением?</a>
-</div>
-</div>
-
-<div class="modal" id="instructionsModal" onclick="if(event.target===this)closeInstructions()">
-<div class="modal-content">
-<button class="modal-close" onclick="closeInstructions()">×</button>
-<h2>📖 Инструкция по использованию</h2>
-
-<h3>🔐 Получение доступа</h3>
-<p>Для получения доступа к приложению:</p>
-<ol>
-<li>Свяжитесь с администратором</li>
-<li>Оплатите обучение</li>
-<li>Получите персональные логин и пароль</li>
-<li>Войдите в систему с вашего устройства</li>
-</ol>
-
-<div class="danger-box">
-<strong>⚠️ ВАЖНО!</strong><br>
-Ваш аккаунт привязывается к первому устройству, с которого вы вошли. Вход с другого устройства будет заблокирован. Если вам нужно сменить устройство — обратитесь к администратору.
-</div>
-
-<h3>📚 Режимы работы</h3>
-<p><strong>Обучение:</strong> Правильные ответы сразу выделены зеленым. Используйте для изучения материала.</p>
-<p><strong>Тестирование:</strong> Выбирайте ответ — система покажет правильно ли вы ответили и посчитает статистику.</p>
-
-<h3>🔍 Поиск вопросов</h3>
-<p>Введите ключевое слово в поле поиска — система найдет все вопросы, содержащие это слово.</p>
-
-<h3>⭐ Избранное</h3>
-<p>Нажмите на звёздочку ★ справа вверху вопроса чтобы добавить в избранное. Нажмите кнопку "Избранное" в меню чтобы просмотреть сохраненные вопросы.</p>
-
-<h3>❌ Ошибки</h3>
-<p>Все вопросы на которые вы ответили неправильно в режиме <strong>Тестирование</strong> автоматически сохраняются. Повторите их позже!</p>
-
-<h3>🔄 Перемешать</h3>
-<p>Случайный порядок вопросов для лучшего запоминания.</p>
-
-<h3>🌐 Офлайн режим</h3>
-<p>После первой загрузки приложение работает без интернета. Все данные сохраняются на вашем устройстве.</p>
-
-<h3>🚫 Запрещено</h3>
+<div class="section">
+<h2>🛠️ Инструменты для обучения</h2>
 <ul>
-<li>Передавать логин и пароль другим лицам</li>
-<li>Использовать аккаунт на нескольких устройствах одновременно</li>
-<li>Копировать или распространять вопросы</li>
-<li>Продавать или передавать доступ</li>
+<li>⭐ <strong>Избранное</strong> — сохраняйте сложные вопросы для повторения</li>
+<li>❌ <strong>Ошибки</strong> — повторяйте вопросы, на которые ответили неправильно</li>
+<li>🔍 <strong>Поиск</strong> — находите вопросы по ключевым словам</li>
+<li>🔄 <strong>Сброс прогресса</strong> — начните подготовку заново</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>📖 База вопросов</h2>
+<div class="features-grid">
+<div class="feature-card">
+<div class="feature-icon">🇷🇺</div>
+<div class="feature-title">Русский язык</div>
+<div class="feature-text">4866 вопросов на русском языке по всем разделам законодательства КР</div>
+</div>
+<div class="feature-card">
+<div class="feature-icon">🇰🇬</div>
+<div class="feature-title">Кыргызский язык</div>
+<div class="feature-text">4866 вопросов на кыргызском языке — полный перевод базы</div>
+</div>
+<div class="feature-card">
+<div class="feature-icon">🔄</div>
+<div class="feature-title">Регулярные обновления</div>
+<div class="feature-text">База вопросов обновляется при изменении законодательства</div>
+</div>
+</div>
+</div>
+
+<div class="section">
+<h2>📱 Дополнительные возможности</h2>
+<ul>
+<li>📱 <strong>Кроссплатформенность</strong> — работает на телефоне, планшете и компьютере</li>
+<li>🌐 <strong>Офлайн режим</strong> — работает без интернета после первой загрузки</li>
+<li>💾 <strong>Автосохранение</strong> — ваш прогресс сохраняется автоматически</li>
+<li>🔄 <strong>Синхронизация</strong> — продолжайте обучение на любом устройстве</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>📝 Как использовать режим экзамена</h2>
+
+<div class="steps">
+<div class="step">Переключитесь на режим "📝 Тестирование"</div>
+<div class="step">Нажмите кнопку "🎓 Режим экзамена"</div>
+<div class="step">Подтвердите начало экзамена</div>
+<div class="step">Приложение выберет 110 случайных вопросов</div>
+<div class="step">Начнется обратный отсчет 110 минут</div>
+<div class="step">Отвечайте на вопросы последовательно</div>
+<div class="step">Следите за таймером вверху экрана</div>
+<div class="step">По завершении увидите подробные результаты</div>
+</div>
+
+<div class="tips">
+<h4>💡 Советы для успешной сдачи</h4>
+<ul>
+<li>Используйте режим экзамена для финальной подготовки</li>
+<li>Старайтесь уложиться в отведенное время</li>
+<li>Не торопитесь — у вас есть 1 минута на каждый вопрос</li>
+<li>Сначала пройдите обучение, потом переходите к экзамену</li>
+<li>Повторяйте вопросы из раздела "Ошибки"</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+<!-- Кыргызская версия -->
+<div class="content-section" id="content-ky">
+
+<div class="section">
+<h2>📚 Толук версиясы</h2>
+
+<h3>✨ Мүмкүнчүлүктөр</h3>
+
+<div class="features-grid">
+<div class="feature-card">
+<div class="feature-icon">📖</div>
+<div class="feature-title">Окуу режими</div>
+<div class="feature-text">Туура жооптор менен суроолорду үйрөнүңүз. Кеңири түшүндүрмөлөр материалды терең түшүнүүгө жардам берет.</div>
+</div>
+<div class="feature-card">
+<div class="feature-icon">📝</div>
+<div class="feature-title">Тестирлөө режими</div>
+<div class="feature-text">Билимиңизди текшериңиз. Система туура жана туура эмес жоонттордун эсебин алат.</div>
+</div>
+<div class="feature-card">
+<div class="feature-icon">🎓</div>
+<div class="feature-title">Экзамен режими</div>
+<div class="feature-text">Таймер жана туш келди суроолор менен чыныгы экзамендин симуляциясы.</div>
+</div>
+</div>
+</div>
+
+<div class="section">
+<h2>🎓 Экзамен режими (ЖАҢЫ ФУНКЦИЯ)</h2>
+
+<div class="highlight">
+<strong>Чыныгы экзамендин симуляциясы:</strong> Бүт базадан 110 туш келди суроо, КРдын адвокатынын чыныгы экзаменидегидей.
+</div>
+
+<h3>⏱️ Таймер жана убакытты контролдоо</h3>
+<ul>
+<li>Бүт экзаменге 110 мүнөт (тескери эсептөө)</li>
+<li>Калган жалпы убакыт дайыма көрсөтүлөт</li>
+<li>Аткаруу прогресси (канча суроого жооп берилди)</li>
 </ul>
 
-<div class="danger-box">
-<strong>⚠️ За нарушение правил:</strong><br>
-Немедленная блокировка аккаунта без возврата оплаты.
+<h3>🎨 Убакыттын түстүү индикациясы</h3>
+<ul>
+<li>🟢 <strong>Жашыл:</strong> 30 мүнөттөн көп — тынч иштеңиз</li>
+<li>🟡 <strong>Сары:</strong> 10-30 мүнөт — убакытты көзөмөлдөңүз</li>
+<li>🔴 <strong>Кызыл:</strong> 10 мүнөттөн аз — шашыңыз (жыпылыктайт)</li>
+</ul>
+
+<h3>📊 Экзамендин жыйынтыктары</h3>
+<ul>
+<li>Туура жана туура эмес жоонттордун саны</li>
+<li>Колдонулган убакыт</li>
+<li>Ийгилик пайызы</li>
+<li>Убакыт бүткөндө автоматтык түрдө аяктоо</li>
+</ul>
 </div>
 
-<h3>📞 Поддержка</h3>
-<p>Если у вас возникли технические проблемы или вопросы — обратитесь к администратору.</p>
+<div class="section">
+<h2>🛠️ Окуу үчүн куралдар</h2>
+<ul>
+<li>⭐ <strong>Тандалгандар</strong> — кайталоо үчүн татаал суроолорду сактаңыз</li>
+<li>❌ <strong>Каталар</strong> — туура эмес жооп берген суроолорду кайталаңыз</li>
+<li>🔍 <strong>Издөө</strong> — ачкыч сөздөр боюнча суроолорду табыңыз</li>
+<li>🔄 <strong>Прогрессти тазалоо</strong> — даярдыкты башынан баштаңыз</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>📖 Суроолор базасы</h2>
+<div class="features-grid">
+<div class="feature-card">
+<div class="feature-icon">🇷🇺</div>
+<div class="feature-title">Орус тили</div>
+<div class="feature-text">КРнын мыйзамдарынын бардык бөлүмдөрү боюнча орусча 4866 суроо</div>
+</div>
+<div class="feature-card">
+<div class="feature-icon">🇰🇬</div>
+<div class="feature-title">Кыргыз тили</div>
+<div class="feature-text">Кыргызча 4866 суроо — базанын толук котормосу</div>
+</div>
+<div class="feature-card">
+<div class="feature-icon">🔄</div>
+<div class="feature-title">Үзгүлтүксүз жаңыртуулар</div>
+<div class="feature-text">Мыйзам өзгөргөндө суроолор базасы жаңыртылат</div>
+</div>
+</div>
+</div>
+
+<div class="section">
+<h2>📱 Кошумча мүмкүнчүлүктөр</h2>
+<ul>
+<li>📱 <strong>Кроссплатформалуулук</strong> — телефон, планшет жана компьютерде иштейт</li>
+<li>🌐 <strong>Оффлайн режим</strong> — биринчи жүктөөдөн кийин интернетсиз иштейт</li>
+<li>💾 <strong>Автосакталыш</strong> — прогрессиңиз автоматтык түрдө сакталат</li>
+<li>🔄 <strong>Синхрондоштуруу</strong> — каалаган түзмөктө окууну улантыңыз</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>📝 Экзамен режимин кантип колдонуу керек</h2>
+
+<div class="steps">
+<div class="step">"📝 Тестирлөө" режимине өтүңүз</div>
+<div class="step">"🎓 Экзамен режими" баскычын басыңыз</div>
+<div class="step">Экзаменди баштоону ырастаңыз</div>
+<div class="step">Тиркеме 110 туш келди суроону тандайт</div>
+<div class="step">110 мүнөттүн тескери эсептөөсү башталат</div>
+<div class="step">Суроолорго ырааттуу жооп бериңиз</div>
+<div class="step">Экрандын үстүңдөгү таймерди көзөмөлдөңүз</div>
+<div class="step">Аягында толук жыйынтыктарды көрөсүз</div>
+</div>
+
+<div class="tips">
+<h4>💡 Ийгиликтүү тапшыруу үчүн кеңештер</h4>
+<ul>
+<li>Акыркы даярдык үчүн экзамен режимин колдонуңуз</li>
+<li>Бөлүнгөн убакытка жетүүгө аракет кылыңыз</li>
+<li>Шашпаңыз — ар бир суроого 1 мүнөт бар</li>
+<li>Адегенде окуңуз, андан кийин экзаменге өтүңүз</li>
+<li>"Каталар" бөлүмүнөн суроолорду кайталаңыз</li>
+</ul>
 </div>
 </div>
 
-<script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import{getDatabase,ref,get,set}from'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+</div>
 
-const firebaseConfig={
-apiKey:"AIzaSyBLCjON8ap7Mi0OKL1WYfKhIUuRPNgXEqQ",
-authDomain:"advokat-kg.firebaseapp.com",
-databaseURL:"https://advokat-kg-default-rtdb.firebaseio.com",
-projectId:"advokat-kg",
-storageBucket:"advokat-kg.firebasestorage.app",
-messagingSenderId:"142941867206",
-appId:"1:142941867206:web:f46e90d1c5b4c8ea6e0f0d"
-};
+<div class="cta-section">
+<h2 style="color:#f59e0b;margin-bottom:32px">🚀 Начните подготовку сегодня!</h2>
+<a href="demo.html" class="btn btn-primary">🎓 Попробовать бесплатно (10 вопросов)</a>
+<a href="demo.html#pricing" class="btn btn-secondary">💰 Купить полную версию (4866 вопросов)</a>
+</div>
 
-const app=initializeApp(firebaseConfig);
-const db=getDatabase(app);
-window.db=db;
-window.dbRef=ref;
-window.dbGet=get;
-window.dbSet=set;
-</script>
+<div class="contact">
+<p style="font-size:1.1rem;margin-bottom:20px">📞 Для покупки полной версии свяжитесь с нами:</p>
+<p style="font-size:1.2rem">
+<strong>Telegram/WhatsApp:</strong> <a href="https://wa.me/996706957417">+996 (706) 957417</a><br>
+<strong>Email:</strong> <a href="mailto:inv5245@gmail.com">inv5245@gmail.com</a>
+</p>
+<p style="margin-top:24px;font-size:0.9rem;color:#64748b">
+© 2026 Адвокат КР. Профессиональная подготовка к квалификационному экзамену.
+</p>
+</div>
+
+</div>
 
 <script>
-function openInstructions(){
-document.getElementById('instructionsModal').classList.add('open');
-document.body.style.overflow='hidden';
-}
-
-function closeInstructions(){
-document.getElementById('instructionsModal').classList.remove('open');
-document.body.style.overflow='';
-}
-
-function getDeviceId(){
-let id=localStorage.getItem('__device_id__');
-if(!id){
-id='device_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);
-localStorage.setItem('__device_id__',id);
-}
-return id;
-}
-
-async function login(){
-const btn=document.getElementById('loginBtn');
-const loading=document.getElementById('loading');
-const u=document.getElementById('username').value.toLowerCase().trim();
-const p=document.getElementById('password').value;
-const err=document.getElementById('error');
-
-if(!u||!p){
-err.textContent='❌ Введите логин и пароль';
-err.style.display='block';
-return;
-}
-
-btn.disabled=true;
-loading.style.display='block';
-err.style.display='none';
-
-try{
-// Проверка admin локально
-if(u==='admin'&&p==='advokat2025'){
-sessionStorage.setItem('user',u);
-window.location.href='app.html';
-return;
-}
-
-// Проверка в Firebase
-const userRef=window.dbRef(window.db,'users/'+u);
-const snapshot=await window.dbGet(userRef);
-
-if(!snapshot.exists()){
-err.textContent='❌ Неверный логин или пароль';
-err.style.display='block';
-btn.disabled=false;
-loading.style.display='none';
-return;
-}
-
-const userData=snapshot.val();
-
-if(userData.password!==p){
-err.textContent='❌ Неверный логин или пароль';
-err.style.display='block';
-btn.disabled=false;
-loading.style.display='none';
-return;
-}
-
-if(userData.blocked){
-err.innerHTML='🚫 Этот аккаунт заблокирован.<br><small>Обратитесь к администратору.</small>';
-err.style.display='block';
-btn.disabled=false;
-loading.style.display='none';
-return;
-}
-
-// Проверка устройства
-const deviceId=getDeviceId();
-if(userData.device&&userData.device!==deviceId){
-err.innerHTML='🔒 Этот аккаунт привязан к другому устройству.<br><small>Для смены устройства обратитесь к администратору.</small>';
-err.style.display='block';
-btn.disabled=false;
-loading.style.display='none';
-return;
-}
-
-// Привязка устройства
-if(!userData.device){
-await window.dbSet(userRef,{...userData,device:deviceId,lastLogin:new Date().toISOString()});
-}else{
-await window.dbSet(window.dbRef(window.db,'users/'+u+'/lastLogin'),new Date().toISOString());
-}
-
-sessionStorage.setItem('user',u);
-window.location.href='app.html';
-
-}catch(e){
-console.error('Login error:',e);
-err.textContent='❌ Ошибка подключения. Проверьте интернет.';
-err.style.display='block';
-btn.disabled=false;
-loading.style.display='none';
-}
-}
-
-document.getElementById('username').addEventListener('keypress',function(e){
-if(e.key==='Enter'){
-document.getElementById('password').focus();
-}
+function switchLang(lang) {
+document.querySelectorAll('.lang-btn').forEach(btn => {
+btn.classList.remove('active');
 });
+event.target.classList.add('active');
+
+document.querySelectorAll('.content-section').forEach(section => {
+section.classList.remove('active');
+});
+document.getElementById('content-' + lang).classList.add('active');
+}
 </script>
+
 </body>
 </html>
