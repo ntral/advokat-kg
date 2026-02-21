@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Вход — Адвокат КР</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Mulish:wght@400;700&display=swap" rel="stylesheet">
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Mulish',sans-serif;background:linear-gradient(135deg,#0a0e27 0%,#1a1f3a 100%);color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
@@ -28,6 +30,8 @@ input::placeholder{color:#64748b}
 .error.show{display:block}
 .success{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:12px 16px;border-radius:8px;color:#6ee7b7;font-size:0.9rem;margin-bottom:20px;display:none}
 .success.show{display:block}
+.info{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);padding:12px 16px;border-radius:8px;color:#60a5fa;font-size:0.9rem;margin-bottom:20px;display:none}
+.info.show{display:block}
 .divider{text-align:center;color:#64748b;margin:24px 0;position:relative}
 .divider:before,.divider:after{content:'';position:absolute;top:50%;width:40%;height:1px;background:rgba(148,163,184,0.2)}
 .divider:before{left:0}
@@ -35,10 +39,12 @@ input::placeholder{color:#64748b}
 .links{text-align:center;margin-top:24px;font-size:0.9rem}
 .links a{color:#3b82f6;text-decoration:none;font-weight:600}
 .links a:hover{text-decoration:underline}
-.loading{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,14,39,0.9);display:none;align-items:center;justify-content:center;z-index:1000}
+.loading{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,14,39,0.9);display:none;align-items:center;justify-content:center;z-index:1000;flex-direction:column;gap:16px}
 .loading.show{display:flex}
 .spinner{width:50px;height:50px;border:4px solid rgba(59,130,246,0.3);border-top-color:#3b82f6;border-radius:50%;animation:spin 1s linear infinite}
+.loading-text{color:#60a5fa;font-size:0.9rem}
 @keyframes spin{to{transform:rotate(360deg)}}
+.hidden{display:none}
 @media(max-width:768px){
 .card{padding:30px 24px}
 h1{font-size:1.75rem}
@@ -49,6 +55,7 @@ h1{font-size:1.75rem}
 
 <div class="loading" id="loading">
 <div class="spinner"></div>
+<div class="loading-text" id="loadingText">Загрузка...</div>
 </div>
 
 <div class="container">
@@ -59,7 +66,9 @@ h1{font-size:1.75rem}
 <div class="card">
 <div class="error" id="error"></div>
 <div class="success" id="success"></div>
+<div class="info" id="info"></div>
 
+<!-- Форма входа логин/пароль -->
 <form onsubmit="handleLogin(event)" id="loginForm">
 <div class="form-group">
 <label for="username">👤 Логин</label>
@@ -72,6 +81,32 @@ h1{font-size:1.75rem}
 </div>
 
 <button type="submit" class="btn" id="loginBtn">🚀 Войти</button>
+</form>
+
+<!-- Форма ввода email (скрыта по умолчанию) -->
+<form onsubmit="handleEmailSubmit(event)" id="emailForm" class="hidden">
+<div class="form-group">
+<label for="email">📧 Ваш Email</label>
+<input type="email" id="email" placeholder="example@mail.com" required>
+<small style="color:#94a3b8;font-size:0.85rem;display:block;margin-top:8px">
+Для безопасности привяжите ваш email к аккаунту
+</small>
+</div>
+<button type="submit" class="btn">📧 Получить код</button>
+<button type="button" class="btn btn-secondary" onclick="cancelEmail()">← Назад</button>
+</form>
+
+<!-- Форма ввода кода (скрыта по умолчанию) -->
+<form onsubmit="handleCodeSubmit(event)" id="codeForm" class="hidden">
+<div class="form-group">
+<label for="code">🔑 Код из email</label>
+<input type="text" id="code" placeholder="123456" required maxlength="6" pattern="[0-9]{6}">
+<small style="color:#94a3b8;font-size:0.85rem;display:block;margin-top:8px">
+Проверьте папку "Спам" если не пришло
+</small>
+</div>
+<button type="submit" class="btn">✅ Подтвердить</button>
+<button type="button" class="btn btn-secondary" onclick="resendCode()">🔄 Отправить снова</button>
 </form>
 
 <div class="divider">или</div>
@@ -99,11 +134,22 @@ const firebaseConfig = {
   appId: "1:13056866047:web:6ac7b7a7eb4f3c5326beca"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Создаем админа при первом запуске
+// EmailJS Configuration
+emailjs.init("4o9oaqcXweWG-g78O"); // Public Key
+
+const EMAILJS_SERVICE_ID = "service_lbv5xmw";
+const EMAILJS_TEMPLATE_ID = "template_8b3nma1";
+
+// Глобальные переменные
+let currentUsername = '';
+let currentUserData = null;
+let generatedCode = '';
+let codeExpiry = 0;
+
+// Инициализация админа
 async function initializeAdmin(){
 try{
 const adminDoc = await db.collection('users').doc('admin').get();
@@ -114,7 +160,6 @@ role: 'admin',
 name: 'Администратор',
 created: new Date().toISOString()
 });
-console.log('✅ Админ создан');
 }
 }catch(e){
 console.error('Ошибка инициализации:', e);
@@ -123,8 +168,9 @@ console.error('Ошибка инициализации:', e);
 
 initializeAdmin();
 
-function showLoading(show){
+function showLoading(show, text = 'Загрузка...'){
 document.getElementById('loading').classList.toggle('show', show);
+document.getElementById('loadingText').textContent = text;
 document.getElementById('loginBtn').disabled = show;
 }
 
@@ -133,6 +179,7 @@ const el = document.getElementById('error');
 el.textContent = msg;
 el.classList.add('show');
 document.getElementById('success').classList.remove('show');
+document.getElementById('info').classList.remove('show');
 setTimeout(() => el.classList.remove('show'), 5000);
 }
 
@@ -141,11 +188,26 @@ const el = document.getElementById('success');
 el.textContent = msg;
 el.classList.add('show');
 document.getElementById('error').classList.remove('show');
+document.getElementById('info').classList.remove('show');
+}
+
+function showInfo(msg){
+const el = document.getElementById('info');
+el.textContent = msg;
+el.classList.add('show');
+document.getElementById('error').classList.remove('show');
+document.getElementById('success').classList.remove('show');
+}
+
+function showForm(formId){
+['loginForm','emailForm','codeForm'].forEach(id => {
+document.getElementById(id).classList.add('hidden');
+});
+document.getElementById(formId).classList.remove('hidden');
 }
 
 function tryDemo(){
 sessionStorage.setItem('user', 'demo');
-// Логируем в Firebase
 db.collection('logs').add({
 username: 'demo',
 event: 'login_success',
@@ -153,7 +215,6 @@ details: 'Демо-доступ',
 timestamp: new Date().toISOString(),
 userAgent: navigator.userAgent
 }).catch(e => console.error('Лог ошибка:', e));
-
 window.location.href = 'app-with-demo.html';
 }
 
@@ -162,12 +223,6 @@ event.preventDefault();
 const username = document.getElementById('username').value.trim();
 const password = document.getElementById('password').value;
 
-if(!username || !password){
-showError('❌ Заполните все поля');
-return;
-}
-
-// Демо доступ
 if(username === 'demo'){
 tryDemo();
 return;
@@ -176,12 +231,10 @@ return;
 showLoading(true);
 
 try {
-// Читаем пользователя из Firebase
 const userDoc = await db.collection('users').doc(username).get();
 
 if(!userDoc.exists){
 showError('❌ Пользователь не найден');
-// Логируем неудачную попытку
 await db.collection('logs').add({
 username,
 event: 'login_failed',
@@ -197,7 +250,6 @@ const user = userDoc.data();
 
 if(user.password !== password){
 showError('❌ Неверный пароль');
-// Логируем неудачную попытку
 await db.collection('logs').add({
 username,
 event: 'login_failed',
@@ -209,9 +261,120 @@ showLoading(false);
 return;
 }
 
-// Успешный вход - логируем
+currentUsername = username;
+currentUserData = user;
+
+// Проверяем есть ли привязанный email
+if(!user.email){
+// Первый вход - нужно привязать email
+showInfo('📧 Для безопасности привяжите email к аккаунту');
+showForm('emailForm');
+showLoading(false);
+} else {
+// Email уже привязан - проверяем устройство
+const deviceFingerprint = getDeviceFingerprint();
+if(user.devices && user.devices.includes(deviceFingerprint)){
+// Знакомое устройство - входим сразу
+await completeLogin();
+} else {
+// Новое устройство - требуем код
+showInfo('🔐 Обнаружено новое устройство. Код отправлен на ' + maskEmail(user.email));
+await sendVerificationCode(user.email);
+showForm('codeForm');
+showLoading(false);
+}
+}
+
+} catch(error) {
+console.error('Ошибка входа:', error);
+showError('❌ Ошибка подключения к серверу');
+showLoading(false);
+}
+}
+
+async function handleEmailSubmit(event){
+event.preventDefault();
+const email = document.getElementById('email').value.trim();
+
+showLoading(true, 'Отправка кода...');
+
+try {
+await sendVerificationCode(email);
+currentUserData.email = email; // Сохраняем временно
+showInfo('📧 Код отправлен на ' + email);
+showForm('codeForm');
+} catch(error) {
+showError('❌ Ошибка отправки кода');
+}
+
+showLoading(false);
+}
+
+async function sendVerificationCode(email){
+// Генерируем 6-значный код
+generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+codeExpiry = Date.now() + 10 * 60 * 1000; // 10 минут
+
+try {
+await emailjs.send(
+EMAILJS_SERVICE_ID,
+EMAILJS_TEMPLATE_ID,
+{
+user_email: email,
+code: generatedCode
+}
+);
+return true;
+} catch(error) {
+console.error('EmailJS error:', error);
+throw error;
+}
+}
+
+async function handleCodeSubmit(event){
+event.preventDefault();
+const code = document.getElementById('code').value.trim();
+
+if(Date.now() > codeExpiry){
+showError('❌ Код истек. Запросите новый код');
+return;
+}
+
+if(code !== generatedCode){
+showError('❌ Неверный код');
+return;
+}
+
+showLoading(true, 'Проверка кода...');
+
+try {
+const deviceFingerprint = getDeviceFingerprint();
+const devices = currentUserData.devices || [];
+if(!devices.includes(deviceFingerprint)){
+devices.push(deviceFingerprint);
+}
+
+// Сохраняем email и устройство в Firebase
+await db.collection('users').doc(currentUsername).update({
+email: currentUserData.email,
+devices: devices,
+lastLogin: new Date().toISOString(),
+lastDevice: navigator.userAgent.includes('Mobile') ? 'Мобильное устройство' : 'Компьютер'
+});
+
+await completeLogin();
+
+} catch(error) {
+console.error('Ошибка сохранения:', error);
+showError('❌ Ошибка сохранения данных');
+showLoading(false);
+}
+}
+
+async function completeLogin(){
+// Логируем успешный вход
 await db.collection('logs').add({
-username,
+username: currentUsername,
 event: 'login_success',
 details: 'Вход выполнен',
 timestamp: new Date().toISOString(),
@@ -219,41 +382,70 @@ userAgent: navigator.userAgent,
 deviceType: navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop'
 });
 
-// Обновляем lastLogin
-await db.collection('users').doc(username).update({
-lastLogin: new Date().toISOString(),
-lastDevice: navigator.userAgent.includes('Mobile') ? 'Мобильное устройство' : 'Компьютер'
-});
-
-// Сохраняем в session
-sessionStorage.setItem('user', username);
-sessionStorage.setItem('userRole', user.role);
-sessionStorage.setItem('userName', user.name);
+sessionStorage.setItem('user', currentUsername);
+sessionStorage.setItem('userRole', currentUserData.role);
+sessionStorage.setItem('userName', currentUserData.name);
 
 showSuccess('✅ Вход выполнен! Перенаправление...');
 
-// Перенаправляем
 setTimeout(() => {
-if(user.role === 'admin'){
+if(currentUserData.role === 'admin'){
 window.location.href = 'admin.html';
 } else {
 window.location.href = 'app-with-demo.html';
 }
 }, 1000);
+}
 
+function cancelEmail(){
+showForm('loginForm');
+document.getElementById('info').classList.remove('show');
+}
+
+async function resendCode(){
+if(!currentUserData.email){
+showError('❌ Email не указан');
+return;
+}
+
+showLoading(true, 'Отправка кода...');
+
+try {
+await sendVerificationCode(currentUserData.email);
+showSuccess('✅ Код отправлен повторно на ' + maskEmail(currentUserData.email));
+document.getElementById('code').value = '';
 } catch(error) {
-console.error('Ошибка входа:', error);
-showError('❌ Ошибка подключения к серверу. Проверьте интернет.');
+showError('❌ Ошибка отправки кода');
+}
+
 showLoading(false);
 }
+
+function getDeviceFingerprint(){
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+ctx.textBaseline = 'top';
+ctx.font = '14px Arial';
+ctx.fillText('fingerprint', 2, 2);
+const canvasData = canvas.toDataURL();
+const hash = canvasData.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+return Math.abs(hash).toString(36) + '-' + navigator.userAgent.length + '-' + screen.width + 'x' + screen.height;
 }
 
-// Скрыть ошибку при вводе
-document.getElementById('username').addEventListener('input', () => {
+function maskEmail(email){
+const [name, domain] = email.split('@');
+if(name.length <= 2) return email;
+return name[0] + '***' + name[name.length-1] + '@' + domain;
+}
+
+// Скрыть ошибки при вводе
+['username','password','email','code'].forEach(id => {
+const el = document.getElementById(id);
+if(el){
+el.addEventListener('input', () => {
 document.getElementById('error').classList.remove('show');
 });
-document.getElementById('password').addEventListener('input', () => {
-document.getElementById('error').classList.remove('show');
+}
 });
 </script>
 
