@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Вход — Адвокат КР</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Mulish:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Mulish',sans-serif;background:linear-gradient(135deg,#0a0e27 0%,#1a1f3a 100%);color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.container{max-width:450px;width:100%}
+.logo{width:100px;height:100px;margin:0 auto 24px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:25px;display:flex;align-items:center;justify-content:center;font-size:48px;box-shadow:0 10px 40px rgba(245,158,11,0.3)}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#f59e0b;margin-bottom:8px;text-align:center}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:40px;font-size:0.9rem}
+.card{background:rgba(26,31,58,0.8);border:1px solid rgba(148,163,184,0.2);border-radius:20px;padding:40px;box-shadow:0 10px 40px rgba(0,0,0,0.3)}
+.form-group{margin-bottom:24px}
+label{display:block;color:#cbd5e1;margin-bottom:8px;font-weight:600;font-size:0.9rem}
+input{width:100%;padding:14px 16px;background:rgba(15,23,42,0.6);border:2px solid rgba(148,163,184,0.2);border-radius:12px;color:#e2e8f0;font-size:1rem;transition:all 0.2s;font-family:'Mulish',sans-serif}
+input:focus{outline:none;border-color:#3b82f6;background:rgba(15,23,42,0.8)}
+input::placeholder{color:#64748b}
+.btn{width:100%;padding:16px;background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;border-radius:12px;color:white;font-weight:700;font-size:1.1rem;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 20px rgba(59,130,246,0.4);margin-top:8px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(59,130,246,0.5)}
+.btn:active{transform:translateY(0)}
+.btn-secondary{background:transparent;border:2px solid rgba(148,163,184,0.3);color:#cbd5e1;box-shadow:none;margin-top:12px}
+.btn-secondary:hover{border-color:#3b82f6;background:rgba(59,130,246,0.1);box-shadow:none}
+.error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:12px 16px;border-radius:8px;color:#fca5a5;font-size:0.9rem;margin-bottom:20px;display:none}
+.error.show{display:block}
+.divider{text-align:center;color:#64748b;margin:24px 0;position:relative}
+.divider:before,.divider:after{content:'';position:absolute;top:50%;width:40%;height:1px;background:rgba(148,163,184,0.2)}
+.divider:before{left:0}
+.divider:after{right:0}
+.links{text-align:center;margin-top:24px;font-size:0.9rem}
+.links a{color:#3b82f6;text-decoration:none;font-weight:600}
+.links a:hover{text-decoration:underline}
+@media(max-width:768px){
+.card{padding:30px 24px}
+h1{font-size:1.75rem}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<div class="logo">⚖️</div>
+<h1>Вход в систему</h1>
+<p class="subtitle">Адвокат КР — Подготовка к экзамену</p>
+
+<div class="card">
+<div class="error" id="error"></div>
+
+<form onsubmit="handleLogin(event)">
+<div class="form-group">
+<label for="username">👤 Логин</label>
+<input type="text" id="username" placeholder="Введите ваш логин" required autocomplete="username">
+</div>
+
+<div class="form-group">
+<label for="password">🔒 Пароль</label>
+<input type="password" id="password" placeholder="Введите ваш пароль" required autocomplete="current-password">
+</div>
+
+<button type="submit" class="btn">🚀 Войти</button>
+</form>
+
+<div class="divider">или</div>
+
+<button class="btn btn-secondary" onclick="window.location.href='demo.html'">🎓 Попробовать демо-версию</button>
+
+<div class="links">
+<a href="index.html">← Вернуться на главную</a>
+</div>
+</div>
+</div>
+
+<script>
+// Список пользователей (в реальном приложении это должно быть на сервере)
+function getUsers(){
+const stored=localStorage.getItem('advokat_users');
+if(!stored){
+// Создаем админа по умолчанию
+const defaultUsers={
+'admin':{password:'admin2024',role:'admin',name:'Администратор'}
+};
+localStorage.setItem('advokat_users',JSON.stringify(defaultUsers));
+return defaultUsers;
+}
+return JSON.parse(stored);
+}
+
+function handleLogin(event){
+event.preventDefault();
+const username=document.getElementById('username').value.trim();
+const password=document.getElementById('password').value;
+const errorDiv=document.getElementById('error');
+
+// Проверка демо-доступа
+if(username==='demo'){
+sessionStorage.setItem('user','demo');
+window.location.href='app-with-demo.html';
+return;
+}
+
+// Проверка пользователей
+const users=getUsers();
+const user=users[username];
+
+if(!user){
+errorDiv.textContent='❌ Пользователь не найден';
+errorDiv.classList.add('show');
+return;
+}
+
+if(user.password!==password){
+errorDiv.textContent='❌ Неверный пароль';
+errorDiv.classList.add('show');
+return;
+}
+
+// Успешный вход
+sessionStorage.setItem('user',username);
+sessionStorage.setItem('userRole',user.role);
+sessionStorage.setItem('userName',user.name);
+
+if(user.role==='admin'){
+window.location.href='admin.html';
+}else{
+window.location.href='app-with-demo.html';
+}
+}
+
+// Скрыть ошибку при вводе
+document.getElementById('username').addEventListener('input',()=>{
+document.getElementById('error').classList.remove('show');
+});
+document.getElementById('password').addEventListener('input',()=>{
+document.getElementById('error').classList.remove('show');
+});
+</script>
+
+</body>
+</html>
