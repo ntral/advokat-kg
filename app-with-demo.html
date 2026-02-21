@@ -650,24 +650,34 @@ return;
 clearInterval(examTimer);
 examMode=false;
 document.getElementById('examTimer').classList.remove('active');
-buildQuestions();
-cur=0;
 }
 
-// Если переключаемся на режим обучения из тестирования, спрашиваем
+// Если переключаемся из тестирования в обучение, спрашиваем
 if(mode==='test' && m==='study' && Object.keys(answered).length>0){
 if(!confirm('При переключении на режим обучения прогресс тестирования будет сброшен. Продолжить?')){
 return;
 }
 }
 
+// Полный сброс состояния
 mode=m;
 answered={};
 correct=0;
 wrong=0;
+showingBookmarks=false;
+showingErrors=false;
+document.getElementById('searchInput').value='';
+
+// Восстанавливаем все вопросы
+buildQuestions();
+cur=0;
+
+// Обновляем активные кнопки режимов
 document.getElementById('modeStudy').classList.toggle('active',m==='study');
 document.getElementById('modeTest').classList.toggle('active',m==='test');
+
 showQ();
+showToast(m==='study'?'📖 Режим обучения':'📝 Режим тестирования');
 }
 
 function setLang(l){
