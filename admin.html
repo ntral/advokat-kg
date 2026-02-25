@@ -243,6 +243,15 @@ password += chars.charAt(Math.floor(Math.random() * chars.length));
 return password;
 }
 
+function generateActivationCode(){
+const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+let code = 'ACT-';
+for(let i = 0; i < 5; i++){
+code += chars.charAt(Math.floor(Math.random() * chars.length));
+}
+return code;
+}
+
 async function createUser(event){
 event.preventDefault();
 const username = document.getElementById('newUsername').value.trim();
@@ -262,45 +271,79 @@ showLoading(false);
 return;
 }
 
+// Создаем пользователя
 await db.collection('users').doc(username).set({
 password,
 name,
 role,
-created: new Date().toISOString()
+created: new Date().toISOString(),
+devices: [] // Пустой массив устройств
 });
 
-const loginData = `🎓 Данные для входа в систему "Адвокат КР"
+let loginData = '';
+
+// Для учеников генерируем код активации
+if(role === 'student'){
+const activationCode = generateActivationCode();
+
+// Сохраняем код активации в Firebase
+await db.collection('activation_codes').doc(activationCode).set({
+username: username,
+created: new Date().toISOString(),
+used: false,
+expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 дней
+});
+
+loginData = `🎓 Данные для входа в систему "Адвокат КР"
 
 👤 Логин: ${username}
 🔒 Пароль: ${password}
+🔑 Код активации: ${activationCode}
 📝 Имя: ${name}
 
 🌐 Ссылка для входа:
 https://ntral.github.io/advokat-kg/login.html
 
+📝 Инструкция:
+1. Откройте ссылку
+2. Введите логин и пароль
+3. При первом входе введите код активации
+4. Готово!
+
 📚 После входа доступно:
 ✅ Все 4866 вопросов
 ✅ Режим экзамена (110 вопросов, 110 минут)
 ✅ Русский и кыргызский языки
-✅ Сохранение прогресса
+✅ Можете использовать на 2 устройствах
 
 Удачи на экзамене! 🎓`;
 
 try {
 await navigator.clipboard.writeText(loginData);
-showSuccess(`✅ Пользователь создан и данные скопированы!
+showSuccess(`✅ Ученик создан! Данные скопированы!
 
 👤 Логин: ${username}
 🔒 Пароль: ${password}
-📝 Имя: ${name}
+🔑 Код: ${activationCode}
 
-📋 Данные готовы для отправки ученику!`);
+📋 Готово для отправки!`);
 } catch {
-showSuccess(`✅ Пользователь создан!
+showSuccess(`✅ Ученик создан!
 
 👤 Логин: ${username}
 🔒 Пароль: ${password}
-📝 Имя: ${name}`);
+🔑 Код: ${activationCode}`);
+}
+
+} else {
+// Для админов код не нужен
+loginData = `👤 Логин: ${username}
+🔒 Пароль: ${password}
+⚙️ Роль: Администратор`;
+
+showSuccess(`✅ Администратор создан!
+
+${loginData}`);
 }
 
 document.getElementById('newUsername').value = '';
