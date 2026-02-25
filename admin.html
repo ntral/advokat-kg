@@ -259,6 +259,8 @@ const name = document.getElementById('newName').value.trim();
 let password = document.getElementById('newPassword').value.trim();
 const role = document.getElementById('newRole').value;
 
+console.log('Создание пользователя:', {username, name, role});
+
 if(!password) password = generatePassword();
 
 showLoading(true);
@@ -280,11 +282,16 @@ created: new Date().toISOString(),
 devices: [] // Пустой массив устройств
 });
 
+console.log('Пользователь создан, роль:', role);
+
 let loginData = '';
+let activationCode = '';
 
 // Для учеников генерируем код активации
 if(role === 'student'){
-const activationCode = generateActivationCode();
+console.log('Генерация кода для ученика...');
+activationCode = generateActivationCode();
+console.log('Код сгенерирован:', activationCode);
 
 // Сохраняем код активации в Firebase
 await db.collection('activation_codes').doc(activationCode).set({
@@ -293,6 +300,8 @@ created: new Date().toISOString(),
 used: false,
 expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 дней
 });
+
+console.log('Код сохранен в Firebase');
 
 loginData = `🎓 Данные для входа в систему "Адвокат КР"
 
@@ -336,6 +345,7 @@ showSuccess(`✅ Ученик создан!
 }
 
 } else {
+console.log('Роль НЕ student, код не генерируется');
 // Для админов код не нужен
 loginData = `👤 Логин: ${username}
 🔒 Пароль: ${password}
@@ -355,7 +365,7 @@ updateStats();
 
 } catch(error) {
 console.error('Ошибка:', error);
-showError('❌ Ошибка при создании пользователя');
+showError('❌ Ошибка при создании пользователя: ' + error.message);
 } finally {
 showLoading(false);
 }
