@@ -117,7 +117,7 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 
 <div id="app" style="display:none">
 <div class="demo-banner" id="demoBanner" style="display:none">
-🎓 ДЕМО-ВЕРСИЯ — Доступно 10 вопросов из 4866. <a href="demo.html">Купить полную версию →</a>
+🎓 ДЕМО-ВЕРСИЯ — Доступно 10 вопросов из 4866. <a href="#" onclick="openPaymentModal(); return false;">Купить полную версию →</a>
 </div>
 
 <div class="topbar" id="topbar">
@@ -705,5 +705,60 @@ navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW registration 
 
 loadData();
 </script>
+</body>
+</html>
+
+<!-- МОДАЛЬНОЕ ОКНО С QR-КОДОМ -->
+<div id="paymentModal" class="payment-modal">
+  <div class="payment-modal-content">
+    <span class="payment-modal-close" onclick="closePaymentModal()">&times;</span>
+    <h2 class="payment-modal-title">Оформление доступа полной версии</h2>
+    <div class="payment-modal-body">
+      <p class="payment-instruction">
+        Оплатите <strong>2500 сом</strong> по QR-коду ниже<br>
+        (Мбанк, ДемирБанк, Банк Компаньон)
+      </p>
+      <div class="qr-code-container">
+        <img src="QR__DemirBank.png" alt="QR код для оплаты" class="qr-code">
+        <p class="qr-code-label">Отсканируйте в приложении банка</p>
+        <p class="qr-code-hint">Мбанк, ДемирБанк, Банк Компаньон</p>
+      </div>
+      <p class="payment-step">Нажмите ниже кнопку подтверждения</p>
+      <button class="payment-confirm-btn" onclick="confirmPayment()">📱 Я оплатил, получить код в WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.payment-modal{display:none;position:fixed;z-index:10000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.6);animation:fadeIn 0.3s ease;overflow-y:auto}
+.payment-modal.show{display:flex;align-items:center;justify-content:center;padding:20px}
+.payment-modal-content{background-color:#fff;border:3px solid #1e3a8a;border-radius:16px;padding:30px 25px;max-width:420px;width:90%;position:relative;box-shadow:0 10px 40px rgba(0,0,0,0.3);animation:slideIn 0.3s ease;max-height:90vh;overflow-y:auto}
+.payment-modal-close{position:absolute;top:10px;right:15px;color:#1e3a8a;font-size:28px;font-weight:bold;cursor:pointer;transition:color 0.2s;line-height:1}
+.payment-modal-close:hover{color:#dc2626}
+.payment-modal-title{color:#1e3a8a;font-size:1.3rem;font-weight:700;text-align:center;margin-bottom:20px;font-family:'Playfair Display',serif;padding-right:30px}
+.payment-modal-body{text-align:center}
+.payment-instruction{color:#1f2937;font-size:1rem;margin-bottom:20px;line-height:1.5}
+.payment-instruction strong{color:#1e3a8a;font-size:1.2rem}
+.qr-code-container{background:#f3f4f6;padding:15px;border-radius:12px;margin-bottom:20px;border:2px solid #e5e7eb}
+.qr-code{width:200px;height:200px;margin:0 auto;display:block;border:3px solid #1e3a8a;border-radius:8px;background:white;padding:8px}
+.qr-code-label{margin-top:12px;color:#1e3a8a;font-weight:600;font-size:1rem}
+.qr-code-hint{margin-top:6px;color:#6b7280;font-size:0.85rem}
+.payment-step{color:#374151;font-size:0.95rem;margin-bottom:15px;font-weight:500}
+.payment-confirm-btn{background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;padding:14px 28px;font-size:1rem;font-weight:700;border-radius:12px;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 15px rgba(16,185,129,0.4);width:100%}
+.payment-confirm-btn:hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(16,185,129,0.5)}
+.payment-confirm-btn:active{transform:translateY(0)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{transform:translateY(-30px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media(max-width:768px){.payment-modal-content{padding:25px 20px;max-width:95%}.payment-modal-title{font-size:1.2rem}.qr-code{width:180px;height:180px}.payment-instruction{font-size:0.95rem}}
+</style>
+
+<script>
+function openPaymentModal(){document.getElementById('paymentModal').classList.add('show');document.body.style.overflow='hidden';if(typeof gtag!=='undefined'){gtag('event','begin_checkout',{currency:'KGS',value:2500,items:[{item_id:'advokat_full',item_name:'Полная версия Адвокат КР',price:2500,quantity:1}]})}}
+function closePaymentModal(){document.getElementById('paymentModal').classList.remove('show');document.body.style.overflow=''}
+function confirmPayment(){if(typeof gtag!=='undefined'){gtag('event','generate_lead',{currency:'KGS',value:2500})}const message=encodeURIComponent('Здравствуйте! Я оплатил доступ к полной версии "Адвокат КР". Пришлите, пожалуйста, код активации!');const phone='996555579970';const whatsappUrl=`https://wa.me/${phone}?text=${message}`;window.open(whatsappUrl,'_blank')}
+window.addEventListener('click',function(event){const modal=document.getElementById('paymentModal');if(event.target===modal){closePaymentModal()}});
+document.addEventListener('keydown',function(event){if(event.key==='Escape'){closePaymentModal()}});
+</script>
+
 </body>
 </html>
