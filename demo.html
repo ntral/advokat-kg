@@ -353,4 +353,63 @@ document.getElementById('content-ky').style.display='block';
 }
 }
 
-function try
+function tryDemo(){
+sessionStorage.setItem('user','demo');
+window.location.href='app-with-demo.html';
+}
+</script>
+
+<!-- МОДАЛЬНОЕ ОКНО С QR-КОДОМ -->
+<div id="paymentModal" class="payment-modal">
+  <div class="payment-modal-content">
+    <span class="payment-modal-close" onclick="closePaymentModal()">&times;</span>
+    <h2 class="payment-modal-title">Оформление доступа полной версии</h2>
+    <div class="payment-modal-body">
+      <p class="payment-instruction">
+        Оплатите <strong>2500 сом</strong> по QR-коду ниже<br>
+        (Мбанк, ДемирБанк, Банк Компаньон)
+      </p>
+      <div class="qr-code-container">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=tel:+996555579970" alt="QR код для оплаты" class="qr-code">
+        <p class="qr-code-label">Номер: +996 555 579 970</p>
+        <p class="qr-code-hint">Отсканируйте QR-код в приложении банка</p>
+      </div>
+      <p class="payment-step">Нажмите ниже кнопку подтверждения</p>
+      <button class="payment-confirm-btn" onclick="confirmPayment()">📱 Я оплатил, получить код в WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.payment-modal{display:none;position:fixed;z-index:10000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.6);animation:fadeIn 0.3s ease}
+.payment-modal.show{display:flex;align-items:center;justify-content:center}
+.payment-modal-content{background-color:#fff;border:3px solid #1e3a8a;border-radius:16px;padding:40px;max-width:500px;width:90%;position:relative;box-shadow:0 10px 40px rgba(0,0,0,0.3);animation:slideIn 0.3s ease}
+.payment-modal-close{position:absolute;top:15px;right:20px;color:#1e3a8a;font-size:32px;font-weight:bold;cursor:pointer;transition:color 0.2s}
+.payment-modal-close:hover{color:#dc2626}
+.payment-modal-title{color:#1e3a8a;font-size:1.5rem;font-weight:700;text-align:center;margin-bottom:30px;font-family:'Playfair Display',serif}
+.payment-modal-body{text-align:center}
+.payment-instruction{color:#1f2937;font-size:1.1rem;margin-bottom:30px;line-height:1.6}
+.payment-instruction strong{color:#1e3a8a;font-size:1.3rem}
+.qr-code-container{background:#f3f4f6;padding:20px;border-radius:12px;margin-bottom:25px;border:2px solid #e5e7eb}
+.qr-code{width:250px;height:250px;margin:0 auto;display:block;border:3px solid #1e3a8a;border-radius:8px;background:white;padding:10px}
+.qr-code-label{margin-top:15px;color:#1e3a8a;font-weight:600;font-size:1.1rem}
+.qr-code-hint{margin-top:8px;color:#6b7280;font-size:0.9rem}
+.payment-step{color:#374151;font-size:1rem;margin-bottom:20px;font-weight:500}
+.payment-confirm-btn{background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;padding:16px 32px;font-size:1.1rem;font-weight:700;border-radius:12px;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 15px rgba(16,185,129,0.4);width:100%}
+.payment-confirm-btn:hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(16,185,129,0.5)}
+.payment-confirm-btn:active{transform:translateY(0)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{transform:translateY(-50px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media(max-width:768px){.payment-modal-content{padding:30px 20px}.payment-modal-title{font-size:1.3rem}.qr-code{width:200px;height:200px}.payment-instruction{font-size:1rem}}
+</style>
+
+<script>
+function openPaymentModal(){document.getElementById('paymentModal').classList.add('show');document.body.style.overflow='hidden';if(typeof gtag!=='undefined'){gtag('event','begin_checkout',{currency:'KGS',value:2500,items:[{item_id:'advokat_full',item_name:'Полная версия Адвокат КР',price:2500,quantity:1}]})}}
+function closePaymentModal(){document.getElementById('paymentModal').classList.remove('show');document.body.style.overflow=''}
+function confirmPayment(){if(typeof gtag!=='undefined'){gtag('event','generate_lead',{currency:'KGS',value:2500})}const message=encodeURIComponent('Здравствуйте! Я оплатил доступ к полной версии "Адвокат КР". Пришлите, пожалуйста, код активации!');const phone='996555579970';const whatsappUrl=`https://wa.me/${phone}?text=${message}`;window.open(whatsappUrl,'_blank')}
+window.addEventListener('click',function(event){const modal=document.getElementById('paymentModal');if(event.target===modal){closePaymentModal()}});
+document.addEventListener('keydown',function(event){if(event.key==='Escape'){closePaymentModal()}});
+</script>
+
+</body>
+</html>
