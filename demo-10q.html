@@ -1,126 +1,356 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YDZT9L2SKC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-YDZT9L2SKC');
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Адвокат КР</title>
+<title>Адвокат КР — Подготовка к экзамену</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Mulish:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0a0e27;--surface:#1a1f3a;--surface2:#0f172a;--border:rgba(148,163,184,0.2);--text:#e2e8f0;--text-dim:#94a3b8;--accent:#3b82f6;--gold:#f59e0b;--success:#10b981}
-body{font-family:'Mulish',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-.topbar{background:var(--surface);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-.logo{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold);display:flex;align-items:center;gap:8px}
-.topbar-right{display:flex;align-items:center;gap:16px}
-.lang-btn{padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);cursor:pointer;font-size:0.85rem;transition:all 0.2s}
-.lang-btn.active{background:var(--accent);border-color:var(--accent);color:white}
-.btn-admin{padding:8px 16px;background:linear-gradient(135deg,var(--gold),#d97706);border:none;border-radius:8px;color:white;font-weight:700;cursor:pointer;font-size:0.85rem}
-.topbar-user{color:var(--text-dim);font-size:0.9rem}
-.main{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 64px)}
-.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 16px;overflow-y:auto;max-height:calc(100vh - 64px);position:sticky;top:64px}
-.sidebar h3{font-size:0.75rem;text-transform:uppercase;color:var(--text-dim);letter-spacing:0.5px;margin:24px 0 12px}
-.mode-btn{width:100%;padding:12px 16px;background:var(--surface2);border:2px solid transparent;border-radius:10px;color:var(--text);font-size:0.9rem;cursor:pointer;margin:6px 0;transition:all 0.2s;display:flex;align-items:center;gap:8px}
-.mode-btn.active{border-color:var(--accent);background:rgba(59,130,246,0.1)}
-.content{padding:32px;max-width:800px;margin:0 auto;width:100%}
-.question-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:24px;box-shadow:0 4px 30px rgba(0,0,0,0.3)}
-.q-number{color:var(--text-dim);font-size:0.85rem;margin-bottom:12px}
-.q-section{color:var(--accent);font-size:0.85rem;margin-bottom:8px}
-.q-text{font-size:1.1rem;margin-bottom:24px;padding:20px;background:rgba(236,72,153,0.1);border:2px solid rgba(236,72,153,0.3);border-radius:14px;color:#fce7f3;line-height:1.6}
-.options{display:flex;flex-direction:column;gap:10px}
-.option{padding:16px 20px;background:var(--surface2);border:2px solid transparent;border-radius:14px;cursor:pointer;font-size:0.95rem;line-height:1.55;transition:all 0.2s}
-.option:hover{border-color:var(--accent);background:#1e293b}
-.option.correct{border-color:var(--success);background:rgba(16,185,129,0.1)}
-.nav-buttons{display:flex;justify-content:space-between;margin-top:24px;align-items:center}
-button{padding:12px 24px;background:var(--accent);border:none;border-radius:12px;color:white;font-weight:700;cursor:pointer;transition:all 0.2s;font-size:0.9rem}
-button:hover{background:#2563eb;transform:translateY(-2px)}
-.counter{color:var(--text-dim);font-size:0.9rem}
-@media(max-width:768px){.main{grid-template-columns:1fr}.sidebar{display:none}.content{padding:16px}}
+body{font-family:'Mulish',sans-serif;background:linear-gradient(135deg,#0a0e27 0%,#1a1f3a 100%);color:#e2e8f0;min-height:100vh;overflow-x:hidden}
+.nav{background:rgba(26,31,58,0.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(148,163,184,0.2);padding:16px 24px;position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-icon{width:40px;height:40px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px}
+.nav-text{font-family:'Playfair Display',serif;font-size:1.3rem;color:#f59e0b}
+.nav-buttons{display:flex;gap:12px;align-items:center}
+.lang-switch{display:flex;gap:8px;background:rgba(15,23,42,0.6);padding:4px;border-radius:8px}
+.lang-btn{padding:8px 16px;background:transparent;border:none;border-radius:6px;color:#94a3b8;cursor:pointer;font-weight:600;font-size:0.85rem;transition:all 0.2s}
+.lang-btn.active{background:linear-gradient(135deg,#3b82f6,#2563eb);color:white}
+.btn{padding:10px 24px;border-radius:8px;font-weight:700;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-block;border:none;font-size:0.9rem}
+.btn-login{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)}
+.btn-login:hover{background:rgba(59,130,246,0.3)}
+.hero{min-height:90vh;display:flex;align-items:center;justify-content:center;padding:60px 20px;text-align:center}
+.hero-content{max-width:900px}
+.logo{width:120px;height:120px;margin:0 auto 24px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:30px;display:flex;align-items:center;justify-content:center;font-size:64px;box-shadow:0 10px 40px rgba(245,158,11,0.3);animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+h1{font-family:'Playfair Display',serif;font-size:3.5rem;color:#f59e0b;margin-bottom:16px;line-height:1.2}
+.subtitle{font-size:1.4rem;color:#cbd5e1;margin-bottom:16px;line-height:1.6}
+.highlight{color:#60a5fa;font-weight:700}
+.hero-buttons{display:flex;gap:16px;justify-content:center;margin-top:40px;flex-wrap:wrap}
+.btn-hero{padding:18px 48px;font-size:1.2rem;font-weight:700;border-radius:12px;cursor:pointer;transition:all 0.3s;text-decoration:none;display:inline-block;border:none}
+.btn-primary{background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;box-shadow:0 8px 30px rgba(59,130,246,0.4)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(59,130,246,0.5)}
+.btn-secondary{background:transparent;color:#f59e0b;border:2px solid #f59e0b}
+.btn-secondary:hover{background:rgba(245,158,11,0.1)}
+.demo-badge{display:inline-block;background:rgba(245,158,11,0.2);color:#fbbf24;padding:8px 16px;border-radius:20px;font-size:0.9rem;margin-top:24px;border:1px solid rgba(245,158,11,0.3)}
+.section{padding:80px 20px;max-width:1200px;margin:0 auto}
+.section-title{font-family:'Playfair Display',serif;font-size:2.5rem;color:#f59e0b;text-align:center;margin-bottom:16px}
+.section-subtitle{text-align:center;color:#94a3b8;font-size:1.1rem;margin-bottom:60px;max-width:600px;margin-left:auto;margin-right:auto}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:32px;margin-top:60px}
+.feature-card{background:rgba(26,31,58,0.6);padding:32px;border-radius:20px;border:1px solid rgba(148,163,184,0.2);transition:all 0.3s;text-align:center}
+.feature-card:hover{transform:translateY(-5px);border-color:rgba(59,130,246,0.5);box-shadow:0 10px 40px rgba(0,0,0,0.3)}
+.feature-icon{font-size:3.5rem;margin-bottom:20px}
+.feature-title{font-weight:700;color:#3b82f6;margin-bottom:12px;font-size:1.3rem}
+.feature-text{color:#cbd5e1;line-height:1.8;font-size:0.95rem}
+.new-badge{display:inline-block;background:linear-gradient(135deg,#10b981,#059669);color:white;padding:4px 12px;border-radius:12px;font-size:0.75rem;font-weight:700;margin-left:8px;vertical-align:middle}
+.video-container{max-width:800px;margin:60px auto;background:rgba(26,31,58,0.6);border-radius:20px;padding:40px;border:1px solid rgba(148,163,184,0.2)}
+.video-wrapper{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;background:rgba(15,23,42,0.8)}
+.video-placeholder{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px}
+.play-button{width:80px;height:80px;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;cursor:pointer;transition:all 0.3s;box-shadow:0 8px 30px rgba(59,130,246,0.4)}
+.play-button:hover{transform:scale(1.1);box-shadow:0 12px 40px rgba(59,130,246,0.6)}
+.video-text{color:#94a3b8;font-size:1.1rem}
+.pricing-card{max-width:600px;margin:60px auto;background:rgba(26,31,58,0.8);border:2px solid rgba(59,130,246,0.3);border-radius:20px;padding:48px;text-align:center}
+.price{font-size:4rem;color:#10b981;font-weight:700;margin:24px 0}
+.price-label{color:#94a3b8;font-size:1rem;margin-bottom:32px}
+.price-features{text-align:left;margin:32px 0}
+.price-features li{color:#cbd5e1;padding:12px 0;border-bottom:1px solid rgba(148,163,184,0.1);list-style:none;display:flex;align-items:center;gap:12px}
+.price-features li:before{content:'✅';font-size:1.2rem}
+.contact{text-align:center;padding:60px 20px;background:rgba(15,23,42,0.6);margin-top:60px}
+.contact-title{font-size:1.5rem;color:#f59e0b;margin-bottom:24px}
+.contact-info{font-size:1.1rem;color:#cbd5e1;margin-bottom:32px}
+.contact-links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.contact-btn{padding:14px 32px;background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);border-radius:10px;text-decoration:none;font-weight:600;transition:all 0.2s}
+.contact-btn:hover{background:rgba(59,130,246,0.3);transform:translateY(-2px)}
+.footer{text-align:center;padding:40px 20px;color:#64748b;font-size:0.9rem}
+@media(max-width:768px){
+h1{font-size:2.2rem}
+.subtitle{font-size:1.1rem}
+.section-title{font-size:1.8rem}
+.features-grid{grid-template-columns:1fr}
+.btn-hero{padding:16px 32px;font-size:1rem;width:100%}
+.hero-buttons{flex-direction:column}
+.nav-buttons{flex-direction:column;gap:8px}
+.price{font-size:3rem}
+}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-<div class="logo">⚖️ Адвокат КР</div>
-<div class="topbar-right">
-<button class="lang-btn active" onclick="setLang('ru')">РУС</button>
-<button class="lang-btn" onclick="setLang('ky')">КЫР</button>
-<button class="btn-admin" onclick="if(sessionStorage.getItem('user')==='admin')alert('Админ панель в разработке');else alert('Доступ только для admin')" style="display:none" id="adminBtn">⚙️ Админ</button>
-<span class="topbar-user">👤 <span id="username">Demo</span></span>
-<a href="index.html" onclick="sessionStorage.clear()" style="color:var(--gold);text-decoration:none;font-size:0.85rem">Выход</a>
-</div>
-</div>
-
-<div class="main">
-<div class="sidebar">
-<h3>РЕЖИМ</h3>
-<button class="mode-btn active" onclick="setMode('study')">📖 <span>Обучение</span></button>
-<button class="mode-btn" onclick="setMode('test')">📝 <span>Тестирование</span></button>
-<h3>ИНСТРУМЕНТЫ</h3>
-<button class="mode-btn" onclick="alert('Функция в разработке')">⭐ Избранное</button>
-<button class="mode-btn" onclick="alert('Функция в разработке')">🔄 Перемешать</button>
-<button class="mode-btn" onclick="alert('Функция в разработке')">❌ Ошибки</button>
-</div>
-
-<div class="content">
-<div class="question-card">
-<div class="q-number" id="qNum">Загрузка...</div>
-<div class="q-section" id="qSection"></div>
-<div class="q-text" id="qText">Загрузка вопросов...</div>
-<div class="options" id="options"></div>
-</div>
+<nav class="nav">
+<a href="index.html" class="nav-logo">
+<div class="nav-icon">⚖️</div>
+<div class="nav-text">Адвокат КР</div>
+</a>
 <div class="nav-buttons">
-<button onclick="prev()">← Назад</button>
-<div class="counter" id="counter"></div>
-<button onclick="next()">Далее →</button>
+<div class="lang-switch">
+<button class="lang-btn active" onclick="switchLang('ru')">🇷🇺 РУС</button>
+<button class="lang-btn" onclick="switchLang('ky')">🇰🇬 КЫР</button>
+</div>
+<a href="login.html" class="btn btn-login">🔐 Вход</a>
+</div>
+</nav>
+
+<!-- Русская версия -->
+<div id="content-ru" class="lang-content">
+
+<section class="hero">
+<div class="hero-content">
+<div class="logo">⚖️</div>
+<h1>Адвокат КР</h1>
+<p class="subtitle">Профессиональная подготовка к квалификационному экзамену адвоката Кыргызской Республики</p>
+<p class="subtitle"><span class="highlight">4866 вопросов</span> • <span class="highlight">2 языка</span> • <span class="highlight">Режим экзамена</span></p>
+<div class="hero-buttons">
+<a href="#" onclick="tryDemo()" class="btn-hero btn-primary">🎓 Попробовать бесплатно</a>
+<a href="login.html" class="btn-hero btn-secondary">🔐 Войти в систему</a>
+</div>
+<div class="demo-badge">✨ Демо: 10 вопросов бесплатно</div>
+</div>
+</section>
+
+<section class="section">
+<h2 class="section-title">Возможности приложения</h2>
+<p class="section-subtitle">Все что нужно для успешной подготовки к экзамену</p>
+
+<div class="features-grid">
+<div class="feature-card">
+<div class="feature-icon">📖</div>
+<div class="feature-title">Режим обучения</div>
+<div class="feature-text">Изучайте вопросы с правильными ответами. Все ответы сразу видны для быстрого запоминания.</div>
+</div>
+
+<div class="feature-card">
+<div class="feature-icon">📝</div>
+<div class="feature-title">Режим тестирования</div>
+<div class="feature-text">Проверьте свои знания. Статистика правильных и неправильных ответов в реальном времени.</div>
+</div>
+
+<div class="feature-card">
+<div class="feature-icon">🎓</div>
+<div class="feature-title">Режим экзамена<span class="new-badge">НОВИНКА</span></div>
+<div class="feature-text">110 случайных вопросов за 110 минут. Полная симуляция реального экзамена с таймером!</div>
+</div>
+
+<div class="feature-card">
+<div class="feature-icon">🇷🇺🇰🇬</div>
+<div class="feature-title">Два языка</div>
+<div class="feature-text">Полная база на русском и кыргызском языках. Переключайтесь одной кнопкой!</div>
+</div>
+
+<div class="feature-card">
+<div class="feature-icon">⭐</div>
+<div class="feature-title">Избранное и ошибки</div>
+<div class="feature-text">Сохраняйте сложные вопросы. Повторяйте вопросы с ошибками для лучшего запоминания.</div>
+</div>
+
+<div class="feature-card">
+<div class="feature-icon">📱</div>
+<div class="feature-title">Работает везде</div>
+<div class="feature-text">Телефон, планшет, компьютер. Прогресс сохраняется автоматически!</div>
 </div>
 </div>
+</section>
+
+<section class="section">
+<h2 class="section-title">Как это работает</h2>
+<p class="section-subtitle">Краткий обзор приложения</p>
+
+<div class="video-container">
+<div class="video-wrapper">
+<div class="video-placeholder">
+<div class="play-button" onclick="showVideoInfo()">▶</div>
+<p class="video-text">Смотреть видео-обзор (скоро)</p>
+</div>
+</div>
+<div style="margin-top:24px;text-align:center;color:#94a3b8">
+<p><strong>В приложении вы найдете:</strong></p>
+<p style="margin-top:12px">✓ Простой и понятный интерфейс</p>
+<p>✓ Переключение между режимами одной кнопкой</p>
+<p>✓ Таймер экзамена с цветовой индикацией</p>
+<p>✓ Автосохранение прогресса</p>
+</div>
+</div>
+</section>
+
+<section class="section" id="pricing">
+<h2 class="section-title">Полная версия</h2>
+
+<div class="pricing-card">
+<div class="price">2500 сом</div>
+<div class="price-label">Единоразовый платеж • Доступ навсегда</div>
+
+<ul class="price-features">
+<li>Все 4866 вопросов</li>
+<li>Режим экзамена (110 вопросов, 110 минут)</li>
+<li>Русский и кыргызский языки</li>
+<li>Режим обучения и тестирования</li>
+<li>Избранное и повтор ошибок</li>
+<li>Работает на всех устройствах</li>
+<li>Офлайн режим</li>
+<li>Все обновления бесплатно</li>
+<li>Техническая поддержка</li>
+</ul>
+
+<a href="#contact" class="btn-hero btn-primary" style="margin-top:32px">💰 Купить сейчас</a>
+</div>
+</section>
+
+<div class="contact" id="contact">
+<h3 class="contact-title">📞 Свяжитесь с нами</h3>
+<p class="contact-info">Для покупки полной версии или по любым вопросам</p>
+<div class="contact-links">
+<a href="https://wa.me/996706957417" class="contact-btn">📱 WhatsApp</a>
+<a href="https://t.me/+996706957417" class="contact-btn">💬 Telegram</a>
+<a href="/cdn-cgi/l/email-protection#365f58400304020376515b575f5a1855595b" class="contact-btn">✉️ Email</a>
+</div>
+<p style="margin-top:24px;color:#cbd5e1;font-size:1rem">+996 (706) 957417 • <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7c15120a494e48493c1b111d1510521f1311">[email&#160;protected]</a></p>
 </div>
 
-<script>
-// Check login
-const user = sessionStorage.getItem('user');
-if(!user){window.location.href='index.html';}
-document.getElementById('username').textContent=user;
-if(user==='admin')document.getElementById('adminBtn').style.display='inline-block';
+</div>
 
-// Sample data - replace with full data later
-const DATA={ru:[{section:"Конституционное право",questions:[
-{text:"Органы судебной власти",options:[{text:"Верховный суд и местные суды",correct:false},{text:"Конституционная палата, Верховный суд и местные суды",correct:false},{text:"Конституционный суд, Верховный суд и Бейтарап сот",correct:false},{text:"Конституционный суд, Верховный суд и местные суды",correct:true}]},
-{text:"Система органов государственной власти КР определяется",options:[{text:"Законом КР",correct:false},{text:"Указом Президента КР",correct:false},{text:"Конституционными законами КР",correct:false},{text:"Конституцией КР",correct:true}]},
-{text:"Органы законодательной власти КР",options:[{text:"Избираемые представительные и исполнительные учреждения",correct:false},{text:"Назначаемые представительные и законодательные учреждения",correct:false},{text:"Назначаемые представительные и исполнительные учреждения",correct:false},{text:"Избираемые представительные и законодательные учреждения",correct:true}]}
-]}],ky:[{section:"Конституциялык укук",questions:[
-{text:"Сот бийлигинин органдары",options:[{text:"Жогорку сот жана жергиликтүү соттор",correct:false},{text:"Конституциялык палата, Жогорку сот жана жергиликтүү соттор",correct:false},{text:"Конституциялык сот, Жогорку сот жана Бейтарап сот",correct:false},{text:"Конституциялык сот, Жогорку сот жана жергиликтүү соттор",correct:true}]},
-{text:"КР мамлекеттик бийлигинин органдарынын системасы ... белгиленет",options:[{text:"КР Мыйзамы менен",correct:false},{text:"КР Президентинин Жарлыгы менен",correct:false},{text:"КР конституциялык мыйзамдары менен",correct:false},{text:"КР Конституциясы менен",correct:true}]}
-]}]};
+<!-- Кыргызская версия -->
+<div id="content-ky" class="lang-content" style="display:none">
 
-let lang='ru',mode='study',cur=0,allQ=[],filtered=[];
+<section class="hero">
+<div class="hero-content">
+<div class="logo">⚖️</div>
+<h1>Адвокат КР</h1>
+<p class="subtitle">Кыргыз Республикасынын адвокатынын квалификациялык экзаменине кесиптик даярдануу</p>
+<p class="subtitle"><span class="highlight">4866 суроо</span> • <span class="highlight">2 тил</span> • <span class="highlight">Экзамен режими</span></p>
+<div class="hero-buttons">
+<a href="#" onclick="tryDemo()" class="btn-hero btn-primary">🎓 Акысыз сынап көрүү</a>
+<a href="login.html" class="btn-hero btn-secondary">🔐 Системага кирүү</a>
+</div>
+<div class="demo-badge">✨ Демо: 10 суроо акысыз</div>
+</div>
+</section>
 
-function buildQuestions(){
-const d=DATA[lang];
-allQ=[];
-d.forEach(sec=>sec.questions.forEach(q=>allQ.push({section:sec.section,text:q.text,options:q.options})));
-filtered=[...allQ];
+<section class="section">
+<h2 class="section-title">Тиркеменин мүмкүнчүлүктөрү</h2>
+<p class="section-subtitle">Экзаменге ийгиликтүү даярдануу үчүн баары бар</p>
+
+<div class="features-grid">
+<div class="feature-card">
+<div class="feature-icon">📖</div>
+<div class="feature-title">Окуу режими</div>
+<div class="feature-text">Туура жооптор менен суроолорду үйрөнүңүз. Бардык жооптор тез эстөө үчүн дароо көрүнөт.</div>
+</div>
+
+<div class="feature-card">
+<div class="feature-icon">📝</div>
+<div class="feature-title">Тестирлөө режими</div>
+<div class="feature-text">Билимиңизди текшериңиз. Туура жана туура эмес жоонттордун статистикасы реалдуу убакта.</div>
+</div>
+
+<div class="feature-card">
+<div class="feature-icon">🎓</div>
+<div class="feature-title">Экзамен режими<span class="new-badge">ЖАҢЫ</span></div>
+<div class="feature-text">110 мүнөткө 110 туш келди суроо. Таймер менен чыныгы экзамендин толук симуляциясы!</div>
+</div>
+
+<div class="feature-card">
+<div class="feature-icon">🇷🇺🇰🇬</div>
+<div class="feature-title">Эки тил</div>
+<div class="feature-text">Орус жана кыргыз тилдериндеги толук база. Бир баскыч менен которуңуз!</div>
+</div>
+
+<div class="feature-card">
+<div class="feature-icon">⭐</div>
+<div class="feature-title">Тандалгандар жана каталар</div>
+<div class="feature-text">Татаал суроолорду сактаңыз. Жакшы эстөө үчүн каталуу суроолорду кайталаңыз.</div>
+</div>
+
+<div class="feature-card">
+<div class="feature-icon">📱</div>
+<div class="feature-title">Бардык жерде иштейт</div>
+<div class="feature-text">Телефон, планшет, компьютер. Прогресс автоматтык түрдө сакталат!</div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<h2 class="section-title">Кантип иштейт</h2>
+<p class="section-subtitle">Тиркеменин кыска көрүнүшү</p>
+
+<div class="video-container">
+<div class="video-wrapper">
+<div class="video-placeholder">
+<div class="play-button" onclick="showVideoInfo()">▶</div>
+<p class="video-text">Видео-обзорду көрүү (жакында)</p>
+</div>
+</div>
+<div style="margin-top:24px;text-align:center;color:#94a3b8">
+<p><strong>Тиркемеде сиз табасыз:</strong></p>
+<p style="margin-top:12px">✓ Жөнөкөй жана түшүнүктүү интерфейс</p>
+<p>✓ Бир баскыч менен режимдерди которуу</p>
+<p>✓ Түстүү индикация менен экзамен таймери</p>
+<p>✓ Прогресстин автосакталышы</p>
+</div>
+</div>
+</section>
+
+<section class="section" id="pricing-ky">
+<h2 class="section-title">Толук версиясы</h2>
+
+<div class="pricing-card">
+<div class="price">2500 сом</div>
+<div class="price-label">Бир жолу төлөм • Түбөлүккө жеткиликтүү</div>
+
+<ul class="price-features">
+<li>Бардык 4866 суроо</li>
+<li>Экзамен режими (110 суроо, 110 мүнөт)</li>
+<li>Орус жана кыргыз тилдери</li>
+<li>Окуу жана тестирлөө режими</li>
+<li>Тандалгандар жана каталарды кайталоо</li>
+<li>Бардык түзмөктөрдө иштейт</li>
+<li>Оффлайн режим</li>
+<li>Бардык жаңыртуулар акысыз</li>
+<li>Техникалык колдоо</li>
+</ul>
+
+<a href="#contact-ky" class="btn-hero btn-primary" style="margin-top:32px">💰 Азыр сатып алуу</a>
+</div>
+</section>
+
+<div class="contact" id="contact-ky">
+<h3 class="contact-title">📞 Биз менен байланышыңыз</h3>
+<p class="contact-info">Толук версияны сатып алуу же башка суроолор боюнча</p>
+<div class="contact-links">
+<a href="https://wa.me/996706957417" class="contact-btn">📱 WhatsApp</a>
+<a href="https://t.me/+996706957417" class="contact-btn">💬 Telegram</a>
+<a href="/cdn-cgi/l/email-protection#bbd2d5cd8e898f8efbdcd6dad2d795d8d4d6" class="contact-btn">✉️ Email</a>
+</div>
+<p style="margin-top:24px;color:#cbd5e1;font-size:1rem">+996 (706) 957417 • <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d4bdbaa2e1e6e0e194b3b9b5bdb8fab7bbb9">[email&#160;protected]</a></p>
+</div>
+
+</div>
+
+<div class="footer">
+<p>© 2026 Адвокат КР • Профессиональная подготовка к квалификационному экзамену</p>
+<p style="margin-top:8px"><a href="index.html" style="color:#3b82f6;text-decoration:none">Подробная информация</a> • <a href="login.html" style="color:#3b82f6;text-decoration:none">Вход</a></p>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+function switchLang(lang){
+document.querySelectorAll('.lang-btn').forEach(btn=>{
+btn.classList.remove('active');
+});
+event.target.classList.add('active');
+
+if(lang==='ru'){
+document.getElementById('content-ru').style.display='block';
+document.getElementById('content-ky').style.display='none';
+}else{
+document.getElementById('content-ru').style.display='none';
+document.getElementById('content-ky').style.display='block';
+}
 }
 
-function showQ(){
-const q=filtered[cur];
-if(!q){document.getElementById('qText').textContent='Вопросы не найдены';return;}
-document.getElementById('qNum').textContent=`Вопрос ${cur+1} из ${filtered.length}`;
-document.getElementById('qSection').textContent=q.section;
-document.getElementById('qText').textContent=q.text;
-const opts=document.getElementById('options');
-opts.innerHTML=q.options.map((o,i)=>`<div class="option ${mode==='study'&&o.correct?'correct':''}">${i+1}. ${o.text}</div>`).join('');
-document.getElementById('counter').textContent=`${cur+1} / ${filtered.length}`;
-window.scrollTo(0,0);
-}
-
-function prev(){if(cur>0){cur--;showQ();}}
-function next(){if(cur<filtered.length-1){cur++;showQ();}}
-function setMode(m){mode=m;document.querySelectorAll('.mode-btn').forEach((b,i)=>b.classList.toggle('active',i===(m==='study'?0:1)));showQ();}
-function setLang(l){lang=l;document.querySelectorAll('.lang-btn').forEach((b,i)=>b.classList.toggle('active',i===(l==='ru'?0:1)));buildQuestions();cur=0;showQ();}
-
-buildQuestions();
-showQ();
-</script>
-</body>
-</html>
+function try
