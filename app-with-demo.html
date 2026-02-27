@@ -715,13 +715,12 @@ loadData();
     <h2 class="payment-modal-title">Оформление доступа полной версии</h2>
     <div class="payment-modal-body">
       <p class="payment-instruction">
-        Оплатите <strong>2500 сом</strong> по QR-коду ниже<br>
-        (Мбанк, ДемирБанк, Банк Компаньон)
+        Оплатите <strong>2500 сом</strong> по QR-коду ниже
       </p>
       <div class="qr-code-container">
+        <p class="qr-code-hint-top">Отсканируйте в приложении любого банка Кыргызстана</p>
         <img src="./QR__DemirBank.png" alt="QR код для оплаты" class="qr-code" onerror="this.onerror=null; this.src='https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=+996555579970';">
-        <p class="qr-code-label">Отсканируйте в приложении банка</p>
-        <p class="qr-code-hint">Мбанк, ДемирБанк, Банк Компаньон</p>
+        <p class="qr-code-hint">Отсканируйте в приложении любого банка Кыргызстана</p>
       </div>
       <p class="payment-step">Нажмите ниже кнопку подтверждения</p>
       <button class="payment-confirm-btn" onclick="confirmPayment()">📱 Я оплатил, получить код в WhatsApp</button>
@@ -740,9 +739,10 @@ loadData();
 .payment-instruction{color:#1f2937;font-size:1rem;margin-bottom:20px;line-height:1.5}
 .payment-instruction strong{color:#1e3a8a;font-size:1.2rem}
 .qr-code-container{background:#f3f4f6;padding:15px;border-radius:12px;margin-bottom:20px;border:2px solid #e5e7eb}
-.qr-code{width:200px;height:200px;margin:0 auto;display:block;border:3px solid #1e3a8a;border-radius:8px;background:white;padding:8px}
+.qr-code{width:200px;height:200px;margin:15px auto;display:block;border:3px solid #1e3a8a;border-radius:8px;background:white;padding:8px}
 .qr-code-label{margin-top:12px;color:#1e3a8a;font-weight:600;font-size:1rem}
-.qr-code-hint{margin-top:6px;color:#6b7280;font-size:0.85rem}
+.qr-code-hint-top{margin-bottom:10px;color:#1e3a8a;font-size:0.9rem;font-weight:600}
+.qr-code-hint{margin-top:10px;color:#6b7280;font-size:0.85rem}
 .payment-step{color:#374151;font-size:0.95rem;margin-bottom:15px;font-weight:500}
 .payment-confirm-btn{background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;padding:14px 28px;font-size:1rem;font-weight:700;border-radius:12px;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 15px rgba(16,185,129,0.4);width:100%}
 .payment-confirm-btn:hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(16,185,129,0.5)}
