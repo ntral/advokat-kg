@@ -370,9 +370,9 @@ window.location.href='app-with-demo.html';
         (Мбанк, ДемирБанк, Банк Компаньон)
       </p>
       <div class="qr-code-container">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=tel:+996555579970" alt="QR код для оплаты" class="qr-code">
-        <p class="qr-code-label">Номер: +996 555 579 970</p>
-        <p class="qr-code-hint">Отсканируйте QR-код в приложении банка</p>
+        <img src="QR__DemirBank.png" alt="QR код для оплаты" class="qr-code">
+        <p class="qr-code-label">Отсканируйте в приложении банка</p>
+        <p class="qr-code-hint">Мбанк, ДемирБанк, Банк Компаньон</p>
       </div>
       <p class="payment-step">Нажмите ниже кнопку подтверждения</p>
       <button class="payment-confirm-btn" onclick="confirmPayment()">📱 Я оплатил, получить код в WhatsApp</button>
@@ -381,26 +381,26 @@ window.location.href='app-with-demo.html';
 </div>
 
 <style>
-.payment-modal{display:none;position:fixed;z-index:10000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.6);animation:fadeIn 0.3s ease}
-.payment-modal.show{display:flex;align-items:center;justify-content:center}
-.payment-modal-content{background-color:#fff;border:3px solid #1e3a8a;border-radius:16px;padding:40px;max-width:500px;width:90%;position:relative;box-shadow:0 10px 40px rgba(0,0,0,0.3);animation:slideIn 0.3s ease}
-.payment-modal-close{position:absolute;top:15px;right:20px;color:#1e3a8a;font-size:32px;font-weight:bold;cursor:pointer;transition:color 0.2s}
+.payment-modal{display:none;position:fixed;z-index:10000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.6);animation:fadeIn 0.3s ease;overflow-y:auto}
+.payment-modal.show{display:flex;align-items:center;justify-content:center;padding:20px}
+.payment-modal-content{background-color:#fff;border:3px solid #1e3a8a;border-radius:16px;padding:30px 25px;max-width:420px;width:90%;position:relative;box-shadow:0 10px 40px rgba(0,0,0,0.3);animation:slideIn 0.3s ease;max-height:90vh;overflow-y:auto}
+.payment-modal-close{position:absolute;top:10px;right:15px;color:#1e3a8a;font-size:28px;font-weight:bold;cursor:pointer;transition:color 0.2s;line-height:1}
 .payment-modal-close:hover{color:#dc2626}
-.payment-modal-title{color:#1e3a8a;font-size:1.5rem;font-weight:700;text-align:center;margin-bottom:30px;font-family:'Playfair Display',serif}
+.payment-modal-title{color:#1e3a8a;font-size:1.3rem;font-weight:700;text-align:center;margin-bottom:20px;font-family:'Playfair Display',serif;padding-right:30px}
 .payment-modal-body{text-align:center}
-.payment-instruction{color:#1f2937;font-size:1.1rem;margin-bottom:30px;line-height:1.6}
-.payment-instruction strong{color:#1e3a8a;font-size:1.3rem}
-.qr-code-container{background:#f3f4f6;padding:20px;border-radius:12px;margin-bottom:25px;border:2px solid #e5e7eb}
-.qr-code{width:250px;height:250px;margin:0 auto;display:block;border:3px solid #1e3a8a;border-radius:8px;background:white;padding:10px}
-.qr-code-label{margin-top:15px;color:#1e3a8a;font-weight:600;font-size:1.1rem}
-.qr-code-hint{margin-top:8px;color:#6b7280;font-size:0.9rem}
-.payment-step{color:#374151;font-size:1rem;margin-bottom:20px;font-weight:500}
-.payment-confirm-btn{background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;padding:16px 32px;font-size:1.1rem;font-weight:700;border-radius:12px;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 15px rgba(16,185,129,0.4);width:100%}
+.payment-instruction{color:#1f2937;font-size:1rem;margin-bottom:20px;line-height:1.5}
+.payment-instruction strong{color:#1e3a8a;font-size:1.2rem}
+.qr-code-container{background:#f3f4f6;padding:15px;border-radius:12px;margin-bottom:20px;border:2px solid #e5e7eb}
+.qr-code{width:200px;height:200px;margin:0 auto;display:block;border:3px solid #1e3a8a;border-radius:8px;background:white;padding:8px}
+.qr-code-label{margin-top:12px;color:#1e3a8a;font-weight:600;font-size:1rem}
+.qr-code-hint{margin-top:6px;color:#6b7280;font-size:0.85rem}
+.payment-step{color:#374151;font-size:0.95rem;margin-bottom:15px;font-weight:500}
+.payment-confirm-btn{background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;padding:14px 28px;font-size:1rem;font-weight:700;border-radius:12px;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 15px rgba(16,185,129,0.4);width:100%}
 .payment-confirm-btn:hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(16,185,129,0.5)}
 .payment-confirm-btn:active{transform:translateY(0)}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes slideIn{from{transform:translateY(-50px);opacity:0}to{transform:translateY(0);opacity:1}}
-@media(max-width:768px){.payment-modal-content{padding:30px 20px}.payment-modal-title{font-size:1.3rem}.qr-code{width:200px;height:200px}.payment-instruction{font-size:1rem}}
+@keyframes slideIn{from{transform:translateY(-30px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media(max-width:768px){.payment-modal-content{padding:25px 20px;max-width:95%}.payment-modal-title{font-size:1.2rem}.qr-code{width:180px;height:180px}.payment-instruction{font-size:0.95rem}}
 </style>
 
 <script>
