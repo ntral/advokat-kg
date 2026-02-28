@@ -153,6 +153,7 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 
 <h3>ИНСТРУМЕНТЫ</h3>
 <button class="mode-btn" id="examBtn" onclick="startExamMode();closeMobileMenu()" style="display:none">🎓 <span id="examBtnText">Режим экзамена</span></button>
+<button class="mode-btn" onclick="showColorGuide();closeMobileMenu()">❓ <span id="colorGuideBtn">Подсказка по цветам</span></button>
 <button class="mode-btn" id="shuffleBtn" onclick="shuffleQuestions();closeMobileMenu()">🔄 Перемешать</button>
 <button class="mode-btn" onclick="toggleBookmarks();closeMobileMenu()">⭐ Избранное (<span id="bookmarkCount">0</span>)</button>
 <button class="mode-btn" onclick="showErrors();closeMobileMenu()">❌ Ошибки (<span id="errorCount">0</span>)</button>
@@ -220,7 +221,7 @@ document.getElementById('shuffleBtn').style.display='none';
 document.getElementById('username').textContent=user;
 if(user==='admin')document.getElementById('adminBtn').style.display='inline-block';
 
-let DATA={ru:[],ky:[]},lang='ru',mode='study',cur=0,allQ=[],filtered=[],bookmarks=new Set(),errors=new Set(),answered={},correct=0,wrong=0,showingBookmarks=false,showingErrors=false,lastPosition=0;
+let DATA={ru:[],ky:[]},lang='ru',currentLang='ru',mode='study',cur=0,allQ=[],filtered=[],bookmarks=new Set(),errors=new Set(),answered={},correct=0,wrong=0,showingBookmarks=false,showingErrors=false,lastPosition=0;
 let examMode=false,examStartTime=0,examTotalTime=110*60,examTimer=null,examQuestionTime=60;
 
 const translations={
@@ -690,9 +691,11 @@ showToast(m==='study'?'📖 Режим обучения':'📝 Режим тес
 
 function setLang(l){
 lang=l;
+currentLang=l;
 document.getElementById('langRu').classList.toggle('active',l==='ru');
 document.getElementById('langKy').classList.toggle('active',l==='ky');
 document.getElementById('examBtnText').textContent=l==='ru'?'Режим экзамена':'Экзамен режими';
+document.getElementById('colorGuideBtn').textContent=l==='ru'?'Подсказка по цветам':'Түстөр боюнча колдонмо';
 document.getElementById('totalTimeLabel').textContent=l==='ru'?'⏱️ ОБЩЕЕ ВРЕМЯ':'⏱️ ЖАЛПЫ УБАКЫТ';
 buildQuestions();
 cur=0;
@@ -758,6 +761,174 @@ function closePaymentModal(){document.getElementById('paymentModal').classList.r
 function confirmPayment(){if(typeof gtag!=='undefined'){gtag('event','generate_lead',{currency:'KGS',value:2500})}const message=encodeURIComponent('Здравствуйте! Я оплатил доступ к полной версии "Адвокат КР". Пришлите, пожалуйста, код активации!');const phone='996555579970';const whatsappUrl=`https://wa.me/${phone}?text=${message}`;window.open(whatsappUrl,'_blank')}
 window.addEventListener('click',function(event){const modal=document.getElementById('paymentModal');if(event.target===modal){closePaymentModal()}});
 document.addEventListener('keydown',function(event){if(event.key==='Escape'){closePaymentModal()}});
+
+// Функция показа подсказки по цветам
+function showColorGuide(){
+const isKyrgyz = currentLang === 'ky';
+
+const content = isKyrgyz ? `
+<div style="text-align:left">
+<h2 style="color:#1e3a8a;margin-bottom:20px;text-align:center">🎨 Түстөр боюнча колдонмо</h2>
+
+<div style="background:#f3f4f6;padding:20px;border-radius:12px;margin-bottom:20px">
+<h3 style="color:#7c3aed;margin-bottom:15px">📖 ОКУУ РЕЖИМИ</h3>
+<div style="margin-left:20px;line-height:2">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+<div style="width:30px;height:30px;background:#7c3aed;border-radius:6px"></div>
+<span><strong>Күлгүн</strong> - Суроо</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+<div style="width:30px;height:30px;background:#10b981;border-radius:6px"></div>
+<span><strong>Жашыл</strong> - Туура жооп</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px">
+<div style="width:30px;height:30px;background:#94a3b8;border-radius:6px"></div>
+<span><strong>Сур</strong> - Башка жооптор</span>
+</div>
+</div>
+</div>
+
+<div style="background:#f3f4f6;padding:20px;border-radius:12px;margin-bottom:20px">
+<h3 style="color:#7c3aed;margin-bottom:15px">📝 ТЕСТ РЕЖИМИ</h3>
+<div style="margin-left:20px;line-height:2">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+<div style="width:30px;height:30px;background:#7c3aed;border-radius:6px"></div>
+<span><strong>Күлгүн</strong> - Суроо</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+<div style="width:30px;height:30px;background:#92400e;border-radius:6px"></div>
+<span><strong>Күрөң</strong> - Сиз тандаган жооп</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+<div style="width:30px;height:30px;background:#10b981;border-radius:6px"></div>
+<span><strong>Жашыл</strong> - Туура жооп (жообу көрсөткөндөн кийин)</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px">
+<div style="width:30px;height:30px;background:#ef4444;border-radius:6px"></div>
+<span><strong>Кызыл</strong> - Туура эмес жооп</span>
+</div>
+</div>
+</div>
+
+<div style="background:#f3f4f6;padding:20px;border-radius:12px">
+<h3 style="color:#7c3aed;margin-bottom:15px">🎓 ЭКЗАМЕН РЕЖИМИ</h3>
+<div style="margin-left:20px;line-height:2">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+<div style="width:30px;height:30px;background:#7c3aed;border-radius:6px"></div>
+<span><strong>Күлгүн</strong> - Суроо</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+<div style="width:30px;height:30px;background:#92400e;border-radius:6px"></div>
+<span><strong>Күрөң</strong> - Сиз тандаган жооп</span>
+</div>
+<div style="color:#94a3b8;font-size:0.9rem;margin-top:15px">
+ℹ️ Экзаменди бүтүргөнгө чейин туура жооптор көрсөтүлбөйт
+</div>
+</div>
+</div>
+
+<div style="margin-top:20px;text-align:center">
+<button onclick="closeColorGuide()" class="btn" style="padding:12px 32px">Жабуу</button>
+</div>
+</div>
+` : `
+<div style="text-align:left">
+<h2 style="color:#1e3a8a;margin-bottom:20px;text-align:center">🎨 Подсказка по цветам</h2>
+
+<div style="background:#f3f4f6;padding:20px;border-radius:12px;margin-bottom:20px">
+<h3 style="color:#7c3aed;margin-bottom:15px">📖 РЕЖИМ ОБУЧЕНИЯ</h3>
+<div style="margin-left:20px;line-height:2">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+<div style="width:30px;height:30px;background:#7c3aed;border-radius:6px"></div>
+<span><strong>Фиолетовый</strong> - Вопрос</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+<div style="width:30px;height:30px;background:#10b981;border-radius:6px"></div>
+<span><strong>Зеленый</strong> - Правильный ответ</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px">
+<div style="width:30px;height:30px;background:#94a3b8;border-radius:6px"></div>
+<span><strong>Серый</strong> - Остальные варианты</span>
+</div>
+</div>
+</div>
+
+<div style="background:#f3f4f6;padding:20px;border-radius:12px;margin-bottom:20px">
+<h3 style="color:#7c3aed;margin-bottom:15px">📝 РЕЖИМ ТЕСТИРОВАНИЯ</h3>
+<div style="margin-left:20px;line-height:2">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+<div style="width:30px;height:30px;background:#7c3aed;border-radius:6px"></div>
+<span><strong>Фиолетовый</strong> - Вопрос</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+<div style="width:30px;height:30px;background:#92400e;border-radius:6px"></div>
+<span><strong>Коричневый</strong> - Ваш выбранный ответ</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+<div style="width:30px;height:30px;background:#10b981;border-radius:6px"></div>
+<span><strong>Зеленый</strong> - Правильный ответ (после показа ответа)</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px">
+<div style="width:30px;height:30px;background:#ef4444;border-radius:6px"></div>
+<span><strong>Красный</strong> - Неправильный ответ</span>
+</div>
+</div>
+</div>
+
+<div style="background:#f3f4f6;padding:20px;border-radius:12px">
+<h3 style="color:#7c3aed;margin-bottom:15px">🎓 РЕЖИМ ЭКЗАМЕНА</h3>
+<div style="margin-left:20px;line-height:2">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+<div style="width:30px;height:30px;background:#7c3aed;border-radius:6px"></div>
+<span><strong>Фиолетовый</strong> - Вопрос</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+<div style="width:30px;height:30px;background:#92400e;border-radius:6px"></div>
+<span><strong>Коричневый</strong> - Ваш выбранный ответ</span>
+</div>
+<div style="color:#94a3b8;font-size:0.9rem;margin-top:15px">
+ℹ️ Правильные ответы не показываются до завершения экзамена
+</div>
+</div>
+</div>
+
+<div style="margin-top:20px;text-align:center">
+<button onclick="closeColorGuide()" class="btn" style="padding:12px 32px">Закрыть</button>
+</div>
+</div>
+`;
+
+// Создаем модальное окно
+let modal = document.getElementById('colorGuideModal');
+if(!modal){
+modal = document.createElement('div');
+modal.id = 'colorGuideModal';
+modal.style.cssText = 'display:none;position:fixed;z-index:10000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.7);overflow:auto;padding:20px';
+document.body.appendChild(modal);
+}
+
+modal.innerHTML = `
+<div style="background:#fff;margin:30px auto;padding:30px;border-radius:16px;max-width:600px;box-shadow:0 10px 40px rgba(0,0,0,0.3);position:relative">
+<span onclick="closeColorGuide()" style="position:absolute;top:15px;right:20px;color:#1e3a8a;font-size:32px;font-weight:bold;cursor:pointer;line-height:1">&times;</span>
+${content}
+</div>
+`;
+
+modal.style.display = 'block';
+}
+
+function closeColorGuide(){
+const modal = document.getElementById('colorGuideModal');
+if(modal) modal.style.display = 'none';
+}
+
+// Закрытие по клику вне окна
+document.addEventListener('click', function(event){
+const modal = document.getElementById('colorGuideModal');
+if(event.target === modal){
+closeColorGuide();
+}
+});
 </script>
 
 </body>
