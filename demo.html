@@ -53,6 +53,7 @@ h1{font-family:'Playfair Display',serif;font-size:3.5rem;color:#f59e0b;margin-bo
 .new-badge{display:inline-block;background:linear-gradient(135deg,#10b981,#059669);color:white;padding:4px 12px;border-radius:12px;font-size:0.75rem;font-weight:700;margin-left:8px;vertical-align:middle}
 .video-container{max-width:800px;margin:60px auto;background:rgba(26,31,58,0.6);border-radius:20px;padding:40px;border:1px solid rgba(148,163,184,0.2)}
 .video-wrapper{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;background:rgba(15,23,42,0.8)}
+.video-wrapper iframe{position:absolute;top:0;left:0;width:100%;height:100%}
 .video-placeholder{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px}
 .play-button{width:80px;height:80px;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;cursor:pointer;transition:all 0.3s;box-shadow:0 8px 30px rgba(59,130,246,0.4)}
 .play-button:hover{transform:scale(1.1);box-shadow:0 12px 40px rgba(59,130,246,0.6)}
@@ -164,10 +165,7 @@ h1{font-size:2.2rem}
 
 <div class="video-container">
 <div class="video-wrapper">
-<div class="video-placeholder">
-<div class="play-button" onclick="showVideoInfo()">▶</div>
-<p class="video-text">Смотреть видео-обзор (скоро)</p>
-</div>
+<iframe width="100%" height="100%" src="https://www.youtube.com/embed/5Aehq5WZzO0" title="Адвокат КР - Обзор приложения" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="border-radius:12px"></iframe>
 </div>
 <div style="margin-top:24px;text-align:center;color:#94a3b8">
 <p><strong>В приложении вы найдете:</strong></p>
@@ -281,10 +279,7 @@ h1{font-size:2.2rem}
 
 <div class="video-container">
 <div class="video-wrapper">
-<div class="video-placeholder">
-<div class="play-button" onclick="showVideoInfo()">▶</div>
-<p class="video-text">Видео-обзорду көрүү (жакында)</p>
-</div>
+<iframe width="100%" height="100%" src="https://www.youtube.com/embed/bFb-355Y6JE" title="Адвокат КР - Тиркеме тууралуу" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="border-radius:12px"></iframe>
 </div>
 <div style="margin-top:24px;text-align:center;color:#94a3b8">
 <p><strong>Тиркемеде сиз табасыз:</strong></p>
