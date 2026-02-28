@@ -396,6 +396,39 @@ showLoading(false);
 }
 }
 
+async function generateNewActivationCode(username){
+showLoading(true, 'Генерация нового кода...');
+
+try {
+// Генерируем новый код
+const newCode = generateActivationCode();
+
+// Сохраняем в Firebase
+await db.collection('activation_codes').doc(newCode).set({
+username: username,
+created: new Date().toISOString(),
+used: false,
+expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+});
+
+// Копируем код
+await navigator.clipboard.writeText(newCode);
+
+showSuccess(`✅ Новый код создан и скопирован!
+
+🔑 Код: ${newCode}
+👤 Для: ${username}
+
+📋 Код скопирован в буфер обмена!`);
+
+} catch(error) {
+console.error('Ошибка:', error);
+showError('❌ Ошибка создания кода');
+} finally {
+showLoading(false);
+}
+}
+
 function copyToClipboard(text, label){
 navigator.clipboard.writeText(text).then(() => {
 showSuccess(`📋 ${label} скопирован: ${text}`);
@@ -462,7 +495,8 @@ row.innerHTML = `
 <td><span class="badge ${user.role === 'admin' ? 'badge-admin' : 'badge-student'}">${user.role === 'admin' ? '⚙️ Админ' : '🎓 Ученик'}</span></td>
 <td style="font-size:0.85rem">${lastLogin}</td>
 <td>
-<button class="btn btn-secondary btn-small" onclick="copyLoginData('${username}','${user.password}','${user.name}')">📋 Копировать</button>
+<button class="btn btn-secondary btn-small" onclick="copyLoginData('${username}','${user.password}','${user.name}')">📋 Данные</button>
+${user.role === 'student' ? `<button class="btn btn-secondary btn-small" onclick="generateNewActivationCode('${username}')">🔑 Новый код</button>` : ''}
 ${username !== 'admin' ? `<button class="btn btn-danger btn-small" onclick="deleteUser('${username}')">🗑️</button>` : ''}
 </td>
 `;
