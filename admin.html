@@ -429,6 +429,78 @@ showLoading(false);
 }
 }
 
+async function resetDevices(username){
+if(!confirm(`Сбросить все устройства для "${username}"?\n\nУченик должен будет активировать устройства заново с новыми кодами.`)) return;
+
+showLoading(true, 'Сброс устройств...');
+
+try {
+// Очищаем массив устройств
+await db.collection('users').doc(username).update({
+devices: []
+});
+
+// Логируем событие
+await db.collection('logs').add({
+username: username,
+event: 'devices_reset',
+details: 'Все устройства сброшены администратором',
+timestamp: new Date().toISOString()
+});
+
+showSuccess(`🔄 Устройства сброшены для "${username}"
+
+Ученик может заново активировать до 2-х устройств.
+Создайте новый код активации!`);
+
+loadUsers();
+
+} catch(error) {
+console.error('Ошибка:', error);
+showError('❌ Ошибка сброса устройств');
+} finally {
+showLoading(false);
+}
+}
+
+async function showDevices(username){
+showLoading(true, 'Загрузка информации...');
+
+try {
+const userDoc = await db.collection('users').doc(username).get();
+const user = userDoc.data();
+const devices = user.devices || [];
+
+if(devices.length === 0){
+showSuccess(`📱 Устройства пользователя "${username}"
+
+Нет активированных устройств.
+
+Ученик еще не активировал ни одного устройства.`);
+showLoading(false);
+return;
+}
+
+let devicesInfo = `📱 Устройства пользователя "${username}"\n\n`;
+devicesInfo += `Всего активировано: ${devices.length} из 2\n\n`;
+
+devices.forEach((device, index) => {
+devicesInfo += `${index + 1}. ${device.deviceInfo || 'Неизвестное устройство'}\n`;
+devicesInfo += `   Активировано: ${new Date(device.activatedAt).toLocaleString('ru-RU')}\n`;
+devicesInfo += `   Код: ${device.activationCode}\n`;
+devicesInfo += `   ID: ${device.fingerprint.substring(0, 12)}...\n\n`;
+});
+
+showSuccess(devicesInfo);
+
+} catch(error) {
+console.error('Ошибка:', error);
+showError('❌ Ошибка загрузки устройств');
+} finally {
+showLoading(false);
+}
+}
+
 function copyToClipboard(text, label){
 navigator.clipboard.writeText(text).then(() => {
 showSuccess(`📋 ${label} скопирован: ${text}`);
@@ -494,10 +566,14 @@ row.innerHTML = `
 </td>
 <td><span class="badge ${user.role === 'admin' ? 'badge-admin' : 'badge-student'}">${user.role === 'admin' ? '⚙️ Админ' : '🎓 Ученик'}</span></td>
 <td style="font-size:0.85rem">${lastLogin}</td>
-<td>
-<button class="btn btn-secondary btn-small" onclick="copyLoginData('${username}','${user.password}','${user.name}')">📋 Данные</button>
-${user.role === 'student' ? `<button class="btn btn-secondary btn-small" onclick="generateNewActivationCode('${username}')">🔑 Новый код</button>` : ''}
-${username !== 'admin' ? `<button class="btn btn-danger btn-small" onclick="deleteUser('${username}')">🗑️</button>` : ''}
+<td style="white-space:nowrap">
+<button class="btn btn-secondary btn-small" onclick="copyLoginData('${username}','${user.password}','${user.name}')" title="Копировать данные">📋</button>
+${user.role === 'student' ? `
+<button class="btn btn-secondary btn-small" onclick="generateNewActivationCode('${username}')" title="Создать новый код активации">🔑</button>
+<button class="btn btn-secondary btn-small" onclick="showDevices('${username}')" title="Показать устройства">📱</button>
+<button class="btn btn-secondary btn-small" onclick="resetDevices('${username}')" title="Сбросить все устройства">🔄</button>
+` : ''}
+${username !== 'admin' ? `<button class="btn btn-danger btn-small" onclick="deleteUser('${username}')" title="Удалить пользователя">🗑️</button>` : ''}
 </td>
 `;
 tbody.appendChild(row);
