@@ -206,9 +206,11 @@ h1{font-size:2.2rem}
 <div class="contact-links">
 <a href="https://wa.me/996706957417" class="contact-btn">📱 WhatsApp</a>
 <a href="https://t.me/+996706957417" class="contact-btn">💬 Telegram</a>
-<a href="/cdn-cgi/l/email-protection#365f58400304020376515b575f5a1855595b" class="contact-btn">✉️ Email</a>
+<a href="https://m.me/ejrus.kk/" class="contact-btn">💬 Facebook Messenger</a>
+<a href="https://www.instagram.com/cyberlawkg" class="contact-btn">📷 Instagram</a>
+<a href="mailto:aeyruskk@gmail.com" class="contact-btn">✉️ Email</a>
 </div>
-<p style="margin-top:24px;color:#cbd5e1;font-size:1rem">+996 (706) 957417 • <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7c15120a494e48493c1b111d1510521f1311">[email&#160;protected]</a></p>
+<p style="margin-top:24px;color:#cbd5e1;font-size:1rem">+996 (706) 957417 • aeyruskk@gmail.com</p>
 </div>
 
 </div>
@@ -320,9 +322,11 @@ h1{font-size:2.2rem}
 <div class="contact-links">
 <a href="https://wa.me/996706957417" class="contact-btn">📱 WhatsApp</a>
 <a href="https://t.me/+996706957417" class="contact-btn">💬 Telegram</a>
-<a href="/cdn-cgi/l/email-protection#bbd2d5cd8e898f8efbdcd6dad2d795d8d4d6" class="contact-btn">✉️ Email</a>
+<a href="https://m.me/ejrus.kk/" class="contact-btn">💬 Facebook Messenger</a>
+<a href="https://www.instagram.com/cyberlawkg" class="contact-btn">📷 Instagram</a>
+<a href="mailto:aeyruskk@gmail.com" class="contact-btn">✉️ Email</a>
 </div>
-<p style="margin-top:24px;color:#cbd5e1;font-size:1rem">+996 (706) 957417 • <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d4bdbaa2e1e6e0e194b3b9b5bdb8fab7bbb9">[email&#160;protected]</a></p>
+<p style="margin-top:24px;color:#cbd5e1;font-size:1rem">+996 (706) 957417 • aeyruskk@gmail.com</p>
 </div>
 
 </div>
@@ -442,7 +446,23 @@ function openPaymentModal(){
   }
 }
 function closePaymentModal(){document.getElementById('paymentModal').classList.remove('show');document.body.style.overflow=''}
-function confirmPayment(){if(typeof gtag!=='undefined'){gtag('event','generate_lead',{currency:'KGS',value:2500})}const message=encodeURIComponent('Здравствуйте! Я оплатил доступ к полной версии "Адвокат КР". Пришлите, пожалуйста, код активации!');const phone='996555579970';const whatsappUrl=`https://wa.me/${phone}?text=${message}`;window.open(whatsappUrl,'_blank')}
+function confirmPayment(){
+if(typeof gtag!=='undefined'){
+gtag('event','generate_lead',{currency:'KGS',value:2500})
+}
+
+// Определяем текущий язык
+const isKyrgyz = document.getElementById('content-ky') && document.getElementById('content-ky').style.display === 'block';
+
+// Текст сообщения в зависимости от языка
+const message = isKyrgyz 
+? encodeURIComponent('Саламатсызбы! Мен "Адвокат КР" толук версиясына кирүү үчүн төлөдүм. Активация кодун жөнөтүңүз!')
+: encodeURIComponent('Здравствуйте! Я оплатил доступ к полной версии "Адвокат КР". Пришлите, пожалуйста, код активации!');
+
+const phone='996555579970';
+const whatsappUrl=`https://wa.me/${phone}?text=${message}`;
+window.open(whatsappUrl,'_blank');
+}
 window.addEventListener('click',function(event){const modal=document.getElementById('paymentModal');if(event.target===modal){closePaymentModal()}});
 document.addEventListener('keydown',function(event){if(event.key==='Escape'){closePaymentModal()}});
 </script>
