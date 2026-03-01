@@ -758,7 +758,23 @@ loadData();
 <script>
 function openPaymentModal(){document.getElementById('paymentModal').classList.add('show');document.body.style.overflow='hidden';if(typeof gtag!=='undefined'){gtag('event','begin_checkout',{currency:'KGS',value:2500,items:[{item_id:'advokat_full',item_name:'Полная версия Адвокат КР',price:2500,quantity:1}]})}}
 function closePaymentModal(){document.getElementById('paymentModal').classList.remove('show');document.body.style.overflow=''}
-function confirmPayment(){if(typeof gtag!=='undefined'){gtag('event','generate_lead',{currency:'KGS',value:2500})}const message=encodeURIComponent('Здравствуйте! Я оплатил доступ к полной версии "Адвокат КР". Пришлите, пожалуйста, код активации!');const phone='996555579970';const whatsappUrl=`https://wa.me/${phone}?text=${message}`;window.open(whatsappUrl,'_blank')}
+function confirmPayment(){
+if(typeof gtag!=='undefined'){
+gtag('event','generate_lead',{currency:'KGS',value:2500})
+}
+
+// Определяем текущий язык (в приложении это переменная lang или currentLang)
+const isKyrgyz = (typeof currentLang !== 'undefined' && currentLang === 'ky') || (typeof lang !== 'undefined' && lang === 'ky');
+
+// Текст сообщения в зависимости от языка
+const message = isKyrgyz 
+? encodeURIComponent('Саламатсызбы! Мен "Адвокат КР" толук версиясына кирүү үчүн төлөдүм. Активация кодун жөнөтүңүз!')
+: encodeURIComponent('Здравствуйте! Я оплатил доступ к полной версии "Адвокат КР". Пришлите, пожалуйста, код активации!');
+
+const phone='996555579970';
+const whatsappUrl=`https://wa.me/${phone}?text=${message}`;
+window.open(whatsappUrl,'_blank');
+}
 window.addEventListener('click',function(event){const modal=document.getElementById('paymentModal');if(event.target===modal){closePaymentModal()}});
 document.addEventListener('keydown',function(event){if(event.key==='Escape'){closePaymentModal()}});
 
