@@ -210,17 +210,26 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// Включаем оффлайн persistence для надежности
+db.enablePersistence()
+  .catch((err) => {
+    console.warn('Persistence error:', err);
+  });
+
 // Проверка прав доступа
 const user = sessionStorage.getItem('user');
 const userRole = sessionStorage.getItem('userRole');
 const userName = sessionStorage.getItem('userName');
 
-if(!user || userRole !== 'admin'){
-alert('⛔ Доступ запрещен! Только для администраторов.');
-window.location.href = 'login.html';
-}
-
-document.getElementById('adminName').textContent = userName || user;
+// Даем время на загрузку страницы перед редиректом
+window.addEventListener('DOMContentLoaded', function() {
+  if(!user || userRole !== 'admin'){
+    alert('⛔ Доступ запрещен! Только для администраторов.');
+    window.location.href = 'login.html';
+  } else {
+    document.getElementById('adminName').textContent = userName || user;
+  }
+});
 
 function showLoading(show){
 document.getElementById('loading').classList.toggle('show', show);
