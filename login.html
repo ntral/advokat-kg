@@ -134,6 +134,26 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// Включаем оффлайн persistence для надежности
+db.enablePersistence()
+  .catch((err) => {
+    if (err.code == 'failed-precondition') {
+      console.warn('Persistence не может быть включен (несколько вкладок открыто)');
+    } else if (err.code == 'unimplemented') {
+      console.warn('Persistence не поддерживается браузером');
+    }
+  });
+
+// Проверка подключения к Firebase
+db.collection('users').limit(1).get()
+  .then(() => {
+    console.log('✅ Подключение к Firebase установлено');
+  })
+  .catch((error) => {
+    console.error('❌ Ошибка подключения к Firebase:', error);
+    showError('❌ Не удалось подключиться к серверу. Проверьте интернет-соединение.');
+  });
+
 let currentUsername = '';
 let currentUserData = null;
 
@@ -292,7 +312,20 @@ showLoading(false);
 
 } catch(error) {
 console.error('Ошибка входа:', error);
-showError('❌ Ошибка подключения к серверу');
+let errorMessage = '❌ Ошибка подключения к серверу';
+
+// Более детальные сообщения об ошибках
+if (error.code === 'unavailable') {
+errorMessage = '❌ Нет подключения к интернету. Проверьте соединение.';
+} else if (error.code === 'permission-denied') {
+errorMessage = '❌ Ошибка доступа к базе данных. Обратитесь к администратору.';
+} else if (error.code === 'not-found') {
+errorMessage = '❌ База данных не найдена. Обратитесь к администратору.';
+} else if (error.message) {
+console.log('Детали ошибки:', error.message);
+}
+
+showError(errorMessage);
 showLoading(false);
 }
 }
