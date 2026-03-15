@@ -117,7 +117,7 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 
 <div id="app" style="display:none">
 <div class="demo-banner" id="demoBanner" style="display:none">
-🎓 ДЕМО-ВЕРСИЯ — Доступно 10 вопросов из 4866. <a href="#" onclick="openPaymentModal(); return false;">Купить полную версию →</a>
+🎓 ДЕМО-ВЕРСИЯ — Доступно 10 вопросов из 4866. <a href="#" onclick="openPaymentModal('monthly'); return false;">Подписка от 500 сом/мес →</a>
 </div>
 
 <div class="topbar" id="topbar">
@@ -715,10 +715,19 @@ loadData();
 <div id="paymentModal" class="payment-modal">
   <div class="payment-modal-content">
     <span class="payment-modal-close" onclick="closePaymentModal()">&times;</span>
-    <h2 class="payment-modal-title">Оформление доступа полной версии</h2>
+    <h2 class="payment-modal-title">Оформление подписки</h2>
     <div class="payment-modal-body">
+      <div style="background:#f3f4f6;padding:15px;border-radius:8px;margin-bottom:20px">
+        <p style="color:#1e3a8a;font-weight:700;font-size:1.1rem;margin-bottom:8px">
+          Тариф: <span id="app-plan-name">Базовый</span>
+        </p>
+        <p style="color:#1f2937;font-weight:600;font-size:1.3rem">
+          <span id="app-plan-price">500</span> сом / <span id="app-plan-period">месяц</span>
+        </p>
+        <p style="color:#10b981;font-size:0.9rem;margin-top:8px">+ 7 дней бесплатно</p>
+      </div>
       <p class="payment-instruction">
-        Оплатите <strong>2500 сом</strong> по QR-коду ниже
+        Оплатите по QR-коду ниже
       </p>
       <div class="qr-code-container">
         <p class="qr-code-hint-top">Отсканируйте в приложении любого банка Кыргызстана</p>
@@ -756,7 +765,16 @@ loadData();
 </style>
 
 <script>
-function openPaymentModal(){document.getElementById('paymentModal').classList.add('show');document.body.style.overflow='hidden';if(typeof gtag!=='undefined'){gtag('event','begin_checkout',{currency:'KGS',value:2500,items:[{item_id:'advokat_full',item_name:'Полная версия Адвокат КР',price:2500,quantity:1}]})}}
+function openPaymentModal(plan='monthly'){
+const plans={monthly:{name:'Базовый',price:500,period:'месяц'},quarterly:{name:'Выгодный',price:1200,period:'3 месяца'}};
+const currentPlan=plans[plan];
+document.getElementById('app-plan-name').textContent=currentPlan.name;
+document.getElementById('app-plan-price').textContent=currentPlan.price;
+document.getElementById('app-plan-period').textContent=currentPlan.period;
+document.getElementById('paymentModal').classList.add('show');
+document.body.style.overflow='hidden';
+if(typeof gtag!=='undefined'){gtag('event','begin_checkout',{currency:'KGS',value:currentPlan.price,items:[{item_id:'advokat_'+plan,item_name:currentPlan.name+' подписка',price:currentPlan.price,quantity:1}]})}
+}
 function closePaymentModal(){document.getElementById('paymentModal').classList.remove('show');document.body.style.overflow=''}
 function confirmPayment(){
 if(typeof gtag!=='undefined'){
