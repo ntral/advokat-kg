@@ -242,6 +242,8 @@ if(user==='admin')document.getElementById('adminBtn').style.display='inline-bloc
 // Проверка подписки для не-демо пользователей
 if(!isDemo && user !== 'admin'){
 checkSubscription();
+// Проверяем подписку каждые 30 минут
+setInterval(checkSubscription, 30 * 60 * 1000);
 }
 
 let DATA={ru:[],ky:[]},lang='ru',currentLang='ru',mode='study',cur=0,allQ=[],filtered=[],bookmarks=new Set(),errors=new Set(),answered={},correct=0,wrong=0,showingBookmarks=false,showingErrors=false,lastPosition=0;
