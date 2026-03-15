@@ -163,6 +163,7 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 <button class="mode-btn" onclick="toggleBookmarks();closeMobileMenu()">⭐ Избранное (<span id="bookmarkCount">0</span>)</button>
 <button class="mode-btn" onclick="showErrors();closeMobileMenu()">❌ Ошибки (<span id="errorCount">0</span>)</button>
 <button class="mode-btn" onclick="resetProgress();closeMobileMenu()">🔄 Сбросить прогресс</button>
+<button class="mode-btn" onclick="openReviewForm();closeMobileMenu()" id="reviewBtn">💬 <span id="reviewBtnText">Оставить отзыв</span></button>
 </div>
 
 <div class="content">
@@ -835,6 +836,7 @@ document.getElementById('langRu').classList.toggle('active',l==='ru');
 document.getElementById('langKy').classList.toggle('active',l==='ky');
 document.getElementById('examBtnText').textContent=l==='ru'?'Режим экзамена':'Экзамен режими';
 document.getElementById('colorGuideBtn').textContent=l==='ru'?'Подсказка по цветам':'Түстөр боюнча колдонмо';
+document.getElementById('reviewBtnText').textContent=l==='ru'?'Оставить отзыв':'Пикир калтыруу';
 document.getElementById('totalTimeLabel').textContent=l==='ru'?'⏱️ ОБЩЕЕ ВРЕМЯ':'⏱️ ЖАЛПЫ УБАКЫТ';
 buildQuestions();
 cur=0;
@@ -1102,6 +1104,192 @@ if(event.target === modal){
 closeColorGuide();
 }
 });
+
+// Форма отзыва
+let currentRating = 5;
+
+function openReviewForm(){
+const isKyrgyz = currentLang === 'ky';
+const username = sessionStorage.getItem('user');
+const userName = sessionStorage.getItem('userName') || username;
+
+if(!username || username === 'demo'){
+showToast(isKyrgyz ? 'Войдите в систему чтобы оставить отзыв' : 'Войдите в систему чтобы оставить отзыв');
+return;
+}
+
+const content = isKyrgyz ? `
+<div style="text-align:left">
+<h2 style="color:#1e3a8a;margin-bottom:20px;text-align:center;font-weight:700">✍️ Тажрыйбаңыз менен бөлүшүңүз</h2>
+
+<div style="background:#f3f4f6;padding:15px;border-radius:8px;margin-bottom:20px">
+<p style="color:#6b7280;font-size:0.9rem;margin-bottom:5px">Колдонуучу:</p>
+<p style="color:#1f2937;font-weight:600;font-size:1.1rem">${userName}</p>
+</div>
+
+<div style="margin-bottom:20px">
+<label style="display:block;margin-bottom:10px;font-weight:600;color:#1f2937">Баа:</label>
+<div style="text-align:center;font-size:2.5rem">
+<span onclick="setRating(1)" id="star1" style="cursor:pointer;color:#fbbf24">⭐</span>
+<span onclick="setRating(2)" id="star2" style="cursor:pointer;color:#fbbf24">⭐</span>
+<span onclick="setRating(3)" id="star3" style="cursor:pointer;color:#fbbf24">⭐</span>
+<span onclick="setRating(4)" id="star4" style="cursor:pointer;color:#fbbf24">⭐</span>
+<span onclick="setRating(5)" id="star5" style="cursor:pointer;color:#fbbf24">⭐</span>
+</div>
+</div>
+
+<div style="margin-bottom:20px">
+<label style="display:block;margin-bottom:10px;font-weight:600;color:#1f2937">Сиздин пикириңиз:</label>
+<textarea id="reviewText" rows="5" style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px;font-size:1rem;font-family:inherit;resize:vertical" placeholder="Тиркеме тууралуу эмне ойлойсуз? Экзаменге даярдануу кандай болду?"></textarea>
+</div>
+
+<div style="margin-bottom:20px">
+<label style="display:block;margin-bottom:10px;font-weight:600;color:#1f2937">📹 YouTube видео (эгер болсо):</label>
+<input type="url" id="reviewYoutube" style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px;font-size:1rem" placeholder="https://youtu.be/xxx">
+<p style="color:#6b7280;font-size:0.85rem;margin-top:5px">Видео болбосо, бош калтырыңыз</p>
+</div>
+
+<div style="margin-top:25px;text-align:center;display:flex;gap:10px">
+<button onclick="closeReviewForm()" class="btn btn-secondary" style="flex:1;padding:14px">Жокко чыгаруу</button>
+<button onclick="submitReview()" class="btn" style="flex:1;padding:14px;font-weight:700">Жөнөтүү</button>
+</div>
+
+<p style="color:#94a3b8;font-size:0.85rem;margin-top:15px;text-align:center">
+📌 Пикир текшерүүдөн кийин көрсөтүлөт
+</p>
+</div>
+` : `
+<div style="text-align:left">
+<h2 style="color:#1e3a8a;margin-bottom:20px;text-align:center;font-weight:700">✍️ Поделитесь опытом подготовки</h2>
+
+<div style="background:#f3f4f6;padding:15px;border-radius:8px;margin-bottom:20px">
+<p style="color:#6b7280;font-size:0.9rem;margin-bottom:5px">Пользователь:</p>
+<p style="color:#1f2937;font-weight:600;font-size:1.1rem">${userName}</p>
+</div>
+
+<div style="margin-bottom:20px">
+<label style="display:block;margin-bottom:10px;font-weight:600;color:#1f2937">Оценка:</label>
+<div style="text-align:center;font-size:2.5rem">
+<span onclick="setRating(1)" id="star1" style="cursor:pointer;color:#fbbf24">⭐</span>
+<span onclick="setRating(2)" id="star2" style="cursor:pointer;color:#fbbf24">⭐</span>
+<span onclick="setRating(3)" id="star3" style="cursor:pointer;color:#fbbf24">⭐</span>
+<span onclick="setRating(4)" id="star4" style="cursor:pointer;color:#fbbf24">⭐</span>
+<span onclick="setRating(5)" id="star5" style="cursor:pointer;color:#fbbf24">⭐</span>
+</div>
+</div>
+
+<div style="margin-bottom:20px">
+<label style="display:block;margin-bottom:10px;font-weight:600;color:#1f2937">Ваш отзыв:</label>
+<textarea id="reviewText" rows="5" style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px;font-size:1rem;font-family:inherit;resize:vertical" placeholder="Что вы думаете о приложении? Как прошла подготовка к экзамену?"></textarea>
+</div>
+
+<div style="margin-bottom:20px">
+<label style="display:block;margin-bottom:10px;font-weight:600;color:#1f2937">📹 YouTube видео (если есть):</label>
+<input type="url" id="reviewYoutube" style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px;font-size:1rem" placeholder="https://youtu.be/xxx">
+<p style="color:#6b7280;font-size:0.85rem;margin-top:5px">Если нет видео, оставьте пустым</p>
+</div>
+
+<div style="margin-top:25px;text-align:center;display:flex;gap:10px">
+<button onclick="closeReviewForm()" class="btn btn-secondary" style="flex:1;padding:14px">Отмена</button>
+<button onclick="submitReview()" class="btn" style="flex:1;padding:14px;font-weight:700">Отправить</button>
+</div>
+
+<p style="color:#94a3b8;font-size:0.85rem;margin-top:15px;text-align:center">
+📌 Отзыв появится после проверки администратором
+</p>
+</div>
+`;
+
+let modal = document.getElementById('reviewModal');
+if(!modal){
+modal = document.createElement('div');
+modal.id = 'reviewModal';
+modal.style.cssText = 'display:none;position:fixed;z-index:10000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.7);overflow:auto;padding:20px';
+document.body.appendChild(modal);
+}
+
+modal.innerHTML = `
+<div style="background:#fff;margin:30px auto;padding:35px;border-radius:16px;max-width:600px;box-shadow:0 10px 40px rgba(0,0,0,0.3);position:relative">
+<span onclick="closeReviewForm()" style="position:absolute;top:15px;right:20px;color:#1e3a8a;font-size:36px;font-weight:bold;cursor:pointer;line-height:1">&times;</span>
+${content}
+</div>
+`;
+
+modal.style.display = 'block';
+currentRating = 5;
+updateStars();
+}
+
+function closeReviewForm(){
+const modal = document.getElementById('reviewModal');
+if(modal) modal.style.display = 'none';
+}
+
+function setRating(rating){
+currentRating = rating;
+updateStars();
+}
+
+function updateStars(){
+for(let i = 1; i <= 5; i++){
+const star = document.getElementById('star' + i);
+if(star){
+star.style.color = i <= currentRating ? '#fbbf24' : '#d1d5db';
+}
+}
+}
+
+async function submitReview(){
+const text = document.getElementById('reviewText').value.trim();
+const youtubeUrl = document.getElementById('reviewYoutube').value.trim();
+const username = sessionStorage.getItem('user');
+const userName = sessionStorage.getItem('userName') || username;
+const isKyrgyz = currentLang === 'ky';
+
+if(!text){
+showToast(isKyrgyz ? 'Пикир жазыңыз' : 'Напишите отзыв');
+return;
+}
+
+if(text.length < 10){
+showToast(isKyrgyz ? 'Пикир өтө кыска (мин. 10 символ)' : 'Отзыв слишком короткий (мин. 10 символов)');
+return;
+}
+
+showLoading(true, isKyrgyz ? 'Жөнөтүлүүдө...' : 'Отправка...');
+
+try {
+// Проверяем не оставлял ли уже отзыв
+const existingReview = await db.collection('reviews').where('username', '==', username).get();
+if(!existingReview.empty){
+showToast(isKyrgyz ? 'Сиз мурун пикир калтырдыңыз' : 'Вы уже оставляли отзыв');
+showLoading(false);
+return;
+}
+
+await db.collection('reviews').add({
+username: username,
+name: userName,
+rating: currentRating,
+text: text,
+youtubeUrl: youtubeUrl || null,
+status: 'pending',
+createdAt: new Date().toISOString(),
+approvedAt: null,
+approvedBy: null
+});
+
+closeReviewForm();
+showToast(isKyrgyz ? '✅ Рахмат! Пикир текшерүүдөн кийин жарыяланат' : '✅ Спасибо! Отзыв появится после проверки');
+
+} catch(error) {
+console.error('Ошибка:', error);
+showToast(isKyrgyz ? '❌ Ката' : '❌ Ошибка');
+} finally {
+showLoading(false);
+}
+}
+
 </script>
 
 </body>
