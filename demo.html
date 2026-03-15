@@ -59,11 +59,12 @@ h1{font-family:'Playfair Display',serif;font-size:3.5rem;color:#f59e0b;margin-bo
 .play-button:hover{transform:scale(1.1);box-shadow:0 12px 40px rgba(59,130,246,0.6)}
 .video-text{color:#94a3b8;font-size:1.1rem}
 .pricing-card{max-width:600px;margin:60px auto;background:rgba(26,31,58,0.8);border:2px solid rgba(59,130,246,0.3);border-radius:20px;padding:48px;text-align:center}
-.price{font-size:4rem;color:#10b981;font-weight:700;margin:24px 0}
+.plan-badge{display:inline-block;padding:8px 20px;border-radius:20px;color:#fff;font-weight:700;font-size:0.9rem;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px}
+.price{font-size:3rem;color:#fff;font-weight:700;margin:16px 0}
 .price-label{color:#94a3b8;font-size:1rem;margin-bottom:32px}
 .price-features{text-align:left;margin:32px 0}
-.price-features li{color:#cbd5e1;padding:12px 0;border-bottom:1px solid rgba(148,163,184,0.1);list-style:none;display:flex;align-items:center;gap:12px}
-.price-features li:before{content:'✅';font-size:1.2rem}
+.price-features li{color:#cbd5e1;padding:12px 0;border-bottom:1px solid rgba(148,163,184,0.1);list-style:none}
+.price-features li:before{content:'';font-size:1.2rem;margin-right:8px}
 .contact{text-align:center;padding:60px 20px;background:rgba(15,23,42,0.6);margin-top:60px}
 .contact-title{font-size:1.5rem;color:#f59e0b;margin-bottom:24px}
 .contact-info{font-size:1.1rem;color:#cbd5e1;margin-bottom:32px}
@@ -180,23 +181,71 @@ h1{font-size:2.2rem}
 <section class="section" id="pricing">
 <h2 class="section-title">Полная версия</h2>
 
+<h2 class="section-title">Тарифные планы</h2>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:1000px;margin:0 auto">
+
+<!-- БАЗОВЫЙ -->
 <div class="pricing-card">
-<div class="price">2500 сом</div>
-<div class="price-label">Единоразовый платеж • Доступ навсегда</div>
+<div class="plan-badge" style="background:#3b82f6">БАЗОВЫЙ</div>
+<div class="price">500 <span style="font-size:1.2rem;color:#94a3b8">сом/мес</span></div>
+<div class="price-label">+ 7 дней бесплатно</div>
 
 <ul class="price-features">
-<li>Все 4866 вопросов</li>
-<li>Режим экзамена (110 вопросов, 110 минут)</li>
-<li>Русский и кыргызский языки</li>
-<li>Режим обучения и тестирования</li>
-<li>Избранное и повтор ошибок</li>
-<li>Работает на всех устройствах</li>
-<li>Офлайн режим</li>
-<li>Все обновления бесплатно</li>
-<li>Техническая поддержка</li>
+<li>✅ Все 4866 вопросов</li>
+<li>✅ Режим экзамена</li>
+<li>✅ 2 языка (РУС/КЫР)</li>
+<li>✅ Режим обучения и теста</li>
+<li>✅ Избранное и ошибки</li>
+<li>✅ 2 устройства</li>
+<li>✅ Офлайн режим</li>
+<li>✅ Техподдержка</li>
 </ul>
 
-<button onclick="openPaymentModal()" class="btn-hero btn-primary" style="margin-top:32px;cursor:pointer">💰 Купить сейчас</button>
+<button onclick="openPaymentModal('monthly')" class="btn-hero btn-primary" style="margin-top:24px;cursor:pointer">Выбрать</button>
+</div>
+
+<!-- ВЫГОДНЫЙ -->
+<div class="pricing-card" style="border:3px solid #10b981;position:relative">
+<div class="plan-badge" style="background:#10b981">ВЫГОДНЫЙ 🔥</div>
+<div style="position:absolute;top:10px;right:10px;background:#fbbf24;color:#000;padding:4px 12px;border-radius:20px;font-size:0.85rem;font-weight:700">-300 сом</div>
+<div class="price">1200 <span style="font-size:1.2rem;color:#94a3b8">сом/3 мес</span></div>
+<div class="price-label">+ 7 дней бесплатно</div>
+
+<ul class="price-features">
+<li>✅ Всё из Базового</li>
+<li>💰 Экономия 300 сом</li>
+<li>💚 Вместо 1500 → 1200</li>
+<li>📅 3 месяца доступа</li>
+<li>⭐ Популярный выбор</li>
+<li style="opacity:0.3">—</li>
+<li style="opacity:0.3">—</li>
+<li style="opacity:0.3">—</li>
+</ul>
+
+<button onclick="openPaymentModal('quarterly')" class="btn-hero btn-primary" style="margin-top:24px;cursor:pointer;background:#10b981">Выбрать</button>
+</div>
+
+<!-- ПРЕМИУМ -->
+<div class="pricing-card" style="opacity:0.7;position:relative">
+<div class="plan-badge" style="background:#7c3aed">ПРЕМИУМ</div>
+<div class="price">1500 <span style="font-size:1.2rem;color:#94a3b8">сом/мес</span></div>
+<div class="price-label">+ 7 дней бесплатно</div>
+
+<ul class="price-features">
+<li>✅ Всё из Базового</li>
+<li>🤖 ИИ-объяснения</li>
+<li>👨‍🏫 Личный куратор</li>
+<li>⚡ Приоритет поддержки</li>
+<li>📚 Доп. материалы</li>
+<li style="opacity:0.3">—</li>
+<li style="opacity:0.3">—</li>
+<li style="opacity:0.3">—</li>
+</ul>
+
+<button class="btn-hero btn-secondary" style="margin-top:24px;cursor:not-allowed" disabled>Скоро</button>
+</div>
+
 </div>
 </section>
 
@@ -208,9 +257,9 @@ h1{font-size:2.2rem}
 <a href="https://t.me/+996706957417" class="contact-btn">💬 Telegram</a>
 <a href="https://m.me/ejrus.kk/" class="contact-btn">💬 Facebook Messenger</a>
 <a href="https://www.instagram.com/cyberlawkg" class="contact-btn">📷 Instagram</a>
-<a href="mailto:aeyruskk@gmail.com" class="contact-btn">✉️ Email</a>
+<a href="/cdn-cgi/l/email-protection#6a0b0f13181f1901012a0d070b030644090507" class="contact-btn">✉️ Email</a>
 </div>
-<p style="margin-top:24px;color:#cbd5e1;font-size:1rem">+996 (706) 957417 • aeyruskk@gmail.com</p>
+<p style="margin-top:24px;color:#cbd5e1;font-size:1rem">+996 (706) 957417 • <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="09686c707b7c7a6262496e64686065276a6664">[email&#160;protected]</a></p>
 </div>
 
 </div>
@@ -294,25 +343,71 @@ h1{font-size:2.2rem}
 </section>
 
 <section class="section" id="pricing-ky">
-<h2 class="section-title">Толук версиясы</h2>
+<h2 class="section-title">Тарифтик пландар</h2>
 
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:1000px;margin:0 auto">
+
+<!-- БАЗОВЫЙ -->
 <div class="pricing-card">
-<div class="price">2500 сом</div>
-<div class="price-label">Бир жолу төлөм • Түбөлүккө жеткиликтүү</div>
+<div class="plan-badge" style="background:#3b82f6">БАЗАЛЫК</div>
+<div class="price">500 <span style="font-size:1.2rem;color:#94a3b8">сом/ай</span></div>
+<div class="price-label">+ 7 күн акысыз</div>
 
 <ul class="price-features">
-<li>Бардык 4866 суроо</li>
-<li>Экзамен режими (110 суроо, 110 мүнөт)</li>
-<li>Орус жана кыргыз тилдери</li>
-<li>Окуу жана тестирлөө режими</li>
-<li>Тандалгандар жана каталарды кайталоо</li>
-<li>Бардык түзмөктөрдө иштейт</li>
-<li>Оффлайн режим</li>
-<li>Бардык жаңыртуулар акысыз</li>
-<li>Техникалык колдоо</li>
+<li>✅ Бардык 4866 суроо</li>
+<li>✅ Экзамен режими</li>
+<li>✅ 2 тил (РУС/КЫР)</li>
+<li>✅ Окуу жана тест режими</li>
+<li>✅ Тандалгандар жана каталар</li>
+<li>✅ 2 түзмөк</li>
+<li>✅ Оффлайн режим</li>
+<li>✅ Техникалык колдоо</li>
 </ul>
 
-<button onclick="openPaymentModal()" class="btn-hero btn-primary" style="margin-top:32px;cursor:pointer">💰 Азыр сатып алуу</button>
+<button onclick="openPaymentModal('monthly')" class="btn-hero btn-primary" style="margin-top:24px;cursor:pointer">Тандоо</button>
+</div>
+
+<!-- ВЫГОДНЫЙ -->
+<div class="pricing-card" style="border:3px solid #10b981;position:relative">
+<div class="plan-badge" style="background:#10b981">ПАЙДАЛУУ 🔥</div>
+<div style="position:absolute;top:10px;right:10px;background:#fbbf24;color:#000;padding:4px 12px;border-radius:20px;font-size:0.85rem;font-weight:700">-300 сом</div>
+<div class="price">1200 <span style="font-size:1.2rem;color:#94a3b8">сом/3 ай</span></div>
+<div class="price-label">+ 7 күн акысыз</div>
+
+<ul class="price-features">
+<li>✅ Базалыктын баары</li>
+<li>💰 Экономия 300 сом</li>
+<li>💚 1500 ордуна → 1200</li>
+<li>📅 3 ай жеткиликтүү</li>
+<li>⭐ Популярдуу тандоо</li>
+<li style="opacity:0.3">—</li>
+<li style="opacity:0.3">—</li>
+<li style="opacity:0.3">—</li>
+</ul>
+
+<button onclick="openPaymentModal('quarterly')" class="btn-hero btn-primary" style="margin-top:24px;cursor:pointer;background:#10b981">Тандоо</button>
+</div>
+
+<!-- ПРЕМИУМ -->
+<div class="pricing-card" style="opacity:0.7;position:relative">
+<div class="plan-badge" style="background:#7c3aed">ПРЕМИУМ</div>
+<div class="price">1500 <span style="font-size:1.2rem;color:#94a3b8">сом/ай</span></div>
+<div class="price-label">+ 7 күн акысыз</div>
+
+<ul class="price-features">
+<li>✅ Базалыктын баары</li>
+<li>🤖 ИИ түшүндүрмөлөр</li>
+<li>👨‍🏫 Жеке куратор</li>
+<li>⚡ Приоритет колдоо</li>
+<li>📚 Кошумча материалдар</li>
+<li style="opacity:0.3">—</li>
+<li style="opacity:0.3">—</li>
+<li style="opacity:0.3">—</li>
+</ul>
+
+<button class="btn-hero btn-secondary" style="margin-top:24px;cursor:not-allowed" disabled>Жакында</button>
+</div>
+
 </div>
 </section>
 
@@ -324,9 +419,9 @@ h1{font-size:2.2rem}
 <a href="https://t.me/+996706957417" class="contact-btn">💬 Telegram</a>
 <a href="https://m.me/ejrus.kk/" class="contact-btn">💬 Facebook Messenger</a>
 <a href="https://www.instagram.com/cyberlawkg" class="contact-btn">📷 Instagram</a>
-<a href="mailto:aeyruskk@gmail.com" class="contact-btn">✉️ Email</a>
+<a href="/cdn-cgi/l/email-protection#79181c000b0c0a1212391e14181015571a1614" class="contact-btn">✉️ Email</a>
 </div>
-<p style="margin-top:24px;color:#cbd5e1;font-size:1rem">+996 (706) 957417 • aeyruskk@gmail.com</p>
+<p style="margin-top:24px;color:#cbd5e1;font-size:1rem">+996 (706) 957417 • <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f8999d818a8d8b9393b89f95999194d69b9795">[email&#160;protected]</a></p>
 </div>
 
 </div>
@@ -336,7 +431,7 @@ h1{font-size:2.2rem}
 <p style="margin-top:8px"><a href="index.html" style="color:#3b82f6;text-decoration:none">Подробная информация</a> • <a href="login.html" style="color:#3b82f6;text-decoration:none">Вход</a></p>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 function switchLang(lang){
 document.querySelectorAll('.lang-btn').forEach(btn=>{
 btn.classList.remove('active');
@@ -365,10 +460,19 @@ window.location.href='app-with-demo.html';
     
     <!-- РУССКАЯ ВЕРСИЯ -->
     <div id="modal-ru" class="modal-lang">
-      <h2 class="payment-modal-title">Оформление доступа полной версии</h2>
+      <h2 class="payment-modal-title">Оформление подписки</h2>
       <div class="payment-modal-body">
+        <div style="background:#f3f4f6;padding:15px;border-radius:8px;margin-bottom:20px">
+          <p style="color:#1e3a8a;font-weight:700;font-size:1.1rem;margin-bottom:8px">
+            Тариф: <span id="plan-name-ru">Базовый</span>
+          </p>
+          <p style="color:#1f2937;font-weight:600;font-size:1.3rem">
+            <span id="plan-price-ru">500</span> сом / <span id="plan-period-ru">месяц</span>
+          </p>
+          <p style="color:#10b981;font-size:0.9rem;margin-top:8px">+ 7 дней бесплатно</p>
+        </div>
         <p class="payment-instruction">
-          Оплатите <strong>2500 сом</strong> по QR-коду ниже
+          Оплатите по QR-коду ниже
         </p>
         <div class="qr-code-container">
           <p class="qr-code-hint-top">Отсканируйте в приложении любого банка Кыргызстана</p>
@@ -382,10 +486,19 @@ window.location.href='app-with-demo.html';
     
     <!-- КЫРГЫЗСКАЯ ВЕРСИЯ -->
     <div id="modal-ky" class="modal-lang" style="display:none">
-      <h2 class="payment-modal-title">Толук версияга жеткиликтикти тариздөө</h2>
+      <h2 class="payment-modal-title">Жазылууну тариздөө</h2>
       <div class="payment-modal-body">
+        <div style="background:#f3f4f6;padding:15px;border-radius:8px;margin-bottom:20px">
+          <p style="color:#1e3a8a;font-weight:700;font-size:1.1rem;margin-bottom:8px">
+            Тариф: <span id="plan-name-ky">Базалык</span>
+          </p>
+          <p style="color:#1f2937;font-weight:600;font-size:1.3rem">
+            <span id="plan-price-ky">500</span> сом / <span id="plan-period-ky">ай</span>
+          </p>
+          <p style="color:#10b981;font-size:0.9rem;margin-top:8px">+ 7 күн акысыз</p>
+        </div>
         <p class="payment-instruction">
-          <strong>2500 сом</strong> QR-коддун жардамы менен төлөңүз
+          QR-коддун жардамы менен төлөңүз
         </p>
         <div class="qr-code-container">
           <p class="qr-code-hint-top">Кыргызстандын каалаган банкынын тиркемесинен скандаңыз</p>
@@ -425,30 +538,59 @@ window.location.href='app-with-demo.html';
 </style>
 
 <script>
-function openPaymentModal(){
+function openPaymentModal(plan='monthly'){
   // Определяем текущий язык
   const isKyrgyz = document.getElementById('content-ky').style.display === 'block';
+  
+  // Информация о тарифах
+  const plans = {
+    monthly: {
+      ru: {name:'Базовый', price: 500, period: 'месяц'}, 
+      ky: {name:'Базалык', price: 500, period: 'ай'}
+    },
+    quarterly: {
+      ru: {name:'Выгодный', price: 1200, period: '3 месяца'}, 
+      ky: {name:'Пайдалуу', price: 1200, period: '3 ай'}
+    }
+  };
+  
+  const currentPlan = plans[plan][isKyrgyz ? 'ky' : 'ru'];
   
   // Показываем нужную версию модального окна
   if(isKyrgyz){
     document.getElementById('modal-ru').style.display = 'none';
     document.getElementById('modal-ky').style.display = 'block';
+    document.getElementById('plan-name-ky').textContent = currentPlan.name;
+    document.getElementById('plan-price-ky').textContent = currentPlan.price;
+    document.getElementById('plan-period-ky').textContent = currentPlan.period;
   } else {
     document.getElementById('modal-ru').style.display = 'block';
     document.getElementById('modal-ky').style.display = 'none';
+    document.getElementById('plan-name-ru').textContent = currentPlan.name;
+    document.getElementById('plan-price-ru').textContent = currentPlan.price;
+    document.getElementById('plan-period-ru').textContent = currentPlan.period;
   }
   
   document.getElementById('paymentModal').classList.add('show');
   document.body.style.overflow='hidden';
   
   if(typeof gtag!=='undefined'){
-    gtag('event','begin_checkout',{currency:'KGS',value:2500,items:[{item_id:'advokat_full',item_name:'Полная версия Адвокат КР',price:2500,quantity:1}]})
+    gtag('event','begin_checkout',{
+      currency:'KGS',
+      value:currentPlan.price,
+      items:[{
+        item_id:'advokat_'+plan,
+        item_name:currentPlan.name + ' подписка',
+        price:currentPlan.price,
+        quantity:1
+      }]
+    })
   }
 }
 function closePaymentModal(){document.getElementById('paymentModal').classList.remove('show');document.body.style.overflow=''}
 function confirmPayment(){
 if(typeof gtag!=='undefined'){
-gtag('event','generate_lead',{currency:'KGS',value:2500})
+gtag('event','generate_lead',{currency:'KGS',value:500})
 }
 
 // Определяем текущий язык
@@ -457,7 +599,7 @@ const isKyrgyz = document.getElementById('content-ky') && document.getElementByI
 // Текст сообщения в зависимости от языка
 const message = isKyrgyz 
 ? encodeURIComponent('Саламатсызбы! Мен "Адвокат КР" толук версиясына кирүү үчүн төлөдүм. Активация кодун жөнөтүңүз!')
-: encodeURIComponent('Здравствуйте! Я оплатил доступ к полной версии "Адвокат КР". Пришлите, пожалуйста, код активации!');
+: encodeURIComponent('Здравствуйте! Я оплатил доступ к полной версии "Адвокат КР". Пришлите, пожалуйста, �код активации!');
 
 const phone='996555579970';
 const whatsappUrl=`https://wa.me/${phone}?text=${message}`;
@@ -468,4 +610,4 @@ document.addEventListener('keydown',function(event){if(event.key==='Escape'){clo
 </script>
 
 </body>
-</html>
+</html
