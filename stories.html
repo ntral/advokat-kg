@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Истории успеха • Адвокат КР</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#fff;min-height:100vh}
+.container{max-width:1200px;margin:0 auto;padding:40px 20px}
+.header{text-align:center;margin-bottom:60px}
+.title{font-family:'Playfair Display',serif;font-size:3rem;margin-bottom:16px;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{color:#94a3b8;font-size:1.2rem;margin-bottom:30px}
+.nav{display:flex;justify-content:center;gap:15px;margin-bottom:40px}
+.nav-btn{background:rgba(59,130,246,0.1);border:2px solid rgba(59,130,246,0.3);color:#60a5fa;padding:10px 24px;border-radius:12px;font-weight:600;cursor:pointer;transition:all 0.3s;text-decoration:none;display:inline-block}
+.nav-btn:hover{background:rgba(59,130,246,0.2);transform:translateY(-2px)}
+.section-title{font-size:2rem;margin:60px 0 30px;text-align:center;color:#60a5fa}
+.videos-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:30px;margin-bottom:60px}
+.video-card{background:rgba(30,41,59,0.6);border:2px solid rgba(148,163,184,0.2);border-radius:16px;padding:20px;transition:all 0.3s}
+.video-card:hover{transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,0,0,0.3);border-color:rgba(59,130,246,0.4)}
+.video-wrapper{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;background:#000;margin-bottom:15px}
+.video-wrapper iframe{position:absolute;top:0;left:0;width:100%;height:100%}
+.video-author{color:#cbd5e1;font-weight:600;margin-bottom:5px}
+.video-date{color:#64748b;font-size:0.85rem}
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:25px}
+.review-card{background:rgba(30,41,59,0.6);border:2px solid rgba(148,163,184,0.2);border-radius:16px;padding:25px;transition:all 0.3s}
+.review-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,0.3);border-color:rgba(59,130,246,0.3)}
+.rating{color:#fbbf24;font-size:1.5rem;margin-bottom:15px}
+.review-text{color:#cbd5e1;line-height:1.7;margin-bottom:15px;font-size:1.05rem}
+.review-author{color:#94a3b8;font-size:0.9rem;display:flex;justify-content:space-between;align-items:center;padding-top:15px;border-top:1px solid rgba(148,163,184,0.1)}
+.empty-state{text-align:center;padding:60px 20px;color:#94a3b8}
+.empty-icon{font-size:4rem;margin-bottom:20px}
+.loading{text-align:center;padding:60px;color:#94a3b8;font-size:1.2rem}
+@media(max-width:768px){
+.title{font-size:2rem}
+.subtitle{font-size:1rem}
+.section-title{font-size:1.5rem}
+.videos-grid,.reviews-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<div class="header">
+<h1 class="title">🎓 Истории успеха</h1>
+<p class="subtitle">Наши ученики сдали квалификационный экзамен!</p>
+<div class="nav">
+<a href="index.html" class="nav-btn">🏠 Главная</a>
+<a href="demo.html" class="nav-btn">✨ Демо</a>
+<a href="login.html" class="nav-btn">🔑 Вход</a>
+</div>
+</div>
+
+<div id="loading" class="loading">Загрузка отзывов...</div>
+
+<!-- Видео-отзывы -->
+<div id="videosSection" style="display:none">
+<h2 class="section-title">📹 Видео-отзывы</h2>
+<div class="videos-grid" id="videosContainer"></div>
+</div>
+
+<!-- Текстовые отзывы -->
+<div id="reviewsSection" style="display:none">
+<h2 class="section-title">💬 Отзывы</h2>
+<div class="reviews-grid" id="reviewsContainer"></div>
+</div>
+
+<!-- Пустое состояние -->
+<div id="emptyState" class="empty-state" style="display:none">
+<div class="empty-icon">📝</div>
+<h3 style="color:#cbd5e1;margin-bottom:15px">Пока нет отзывов</h3>
+<p>Станьте первым кто поделится опытом!</p>
+<p style="margin-top:15px"><a href="login.html" class="nav-btn">Войти и оставить отзыв</a></p>
+</div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+<script>
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBQD4IERaH6lW-TKs03giyUy9IL2UbT5OQ",
+  authDomain: "advokat-kg.firebaseapp.com",
+  projectId: "advokat-kg",
+  storageBucket: "advokat-kg.firebasestorage.app",
+  messagingSenderId: "13056866047",
+  appId: "1:13056866047:web:6ac7b7a7eb4f3c5326beca"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+async function loadReviews(){
+try {
+const snapshot = await db.collection('reviews')
+  .where('status', '==', 'approved')
+  .orderBy('createdAt', 'desc')
+  .get();
+
+document.getElementById('loading').style.display = 'none';
+
+if(snapshot.empty){
+document.getElementById('emptyState').style.display = 'block';
+return;
+}
+
+const videosContainer = document.getElementById('videosContainer');
+const reviewsContainer = document.getElementById('reviewsContainer');
+let hasVideos = false;
+let hasReviews = false;
+
+snapshot.forEach(doc => {
+const review = doc.data();
+
+// Если есть YouTube видео
+if(review.youtubeUrl){
+hasVideos = true;
+const videoId = extractYouTubeID(review.youtubeUrl);
+if(videoId){
+  const videoCard = document.createElement('div');
+  videoCard.className = 'video-card';
+  videoCard.innerHTML = `
+    <div class="video-wrapper">
+      <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <div class="rating">${'⭐'.repeat(review.rating)}</div>
+    <div class="review-text">${escapeHtml(review.text)}</div>
+    <div class="review-author">
+      <strong>${escapeHtml(review.name)}</strong>
+      <span>${formatDate(review.createdAt)}</span>
+    </div>
+  `;
+  videosContainer.appendChild(videoCard);
+}
+} else {
+// Текстовый отзыв
+hasReviews = true;
+const reviewCard = document.createElement('div');
+reviewCard.className = 'review-card';
+reviewCard.innerHTML = `
+  <div class="rating">${'⭐'.repeat(review.rating)}</div>
+  <div class="review-text">"${escapeHtml(review.text)}"</div>
+  <div class="review-author">
+    <strong>${escapeHtml(review.name)}</strong>
+    <span>${formatDate(review.createdAt)}</span>
+  </div>
+`;
+reviewsContainer.appendChild(reviewCard);
+}
+});
+
+if(hasVideos) document.getElementById('videosSection').style.display = 'block';
+if(hasReviews) document.getElementById('reviewsSection').style.display = 'block';
+
+} catch(error) {
+console.error('Ошибка загрузки отзывов:', error);
+document.getElementById('loading').innerHTML = '<div style="color:#ef4444">❌ Ошибка загрузки отзывов</div>';
+}
+}
+
+function extractYouTubeID(url){
+const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+const match = url.match(regExp);
+return (match && match[2].length === 11) ? match[2] : null;
+}
+
+function escapeHtml(text){
+const div = document.createElement('div');
+div.textContent = text;
+return div.innerHTML;
+}
+
+function formatDate(dateString){
+const date = new Date(dateString);
+return date.toLocaleDateString('ru-RU', {day: 'numeric', month: 'long', year: 'numeric'});
+}
+
+loadReviews();
+</script>
+
+</body>
+</html>
