@@ -107,6 +107,11 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 .timer-value{font-size:1.5rem}
 }
 </style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
 </head>
 <body>
 
@@ -203,6 +208,19 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 <div class="toast" id="toast"></div>
 
 <script>
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBQD4IERaH6lW-TKs03giyUy9IL2UbT5OQ",
+  authDomain: "advokat-kg.firebaseapp.com",
+  projectId: "advokat-kg",
+  storageBucket: "advokat-kg.firebasestorage.app",
+  messagingSenderId: "13056866047",
+  appId: "1:13056866047:web:6ac7b7a7eb4f3c5326beca"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 const user=sessionStorage.getItem('user');
 if(!user){window.location.href='index.html';}
 
@@ -220,6 +238,11 @@ document.getElementById('shuffleBtn').style.display='none';
 
 document.getElementById('username').textContent=user;
 if(user==='admin')document.getElementById('adminBtn').style.display='inline-block';
+
+// Проверка подписки для не-демо пользователей
+if(!isDemo && user !== 'admin'){
+checkSubscription();
+}
 
 let DATA={ru:[],ky:[]},lang='ru',currentLang='ru',mode='study',cur=0,allQ=[],filtered=[],bookmarks=new Set(),errors=new Set(),answered={},correct=0,wrong=0,showingBookmarks=false,showingErrors=false,lastPosition=0;
 let examMode=false,examStartTime=0,examTotalTime=110*60,examTimer=null,examQuestionTime=60;
@@ -366,6 +389,120 @@ updateCounts();
 function updateCounts(){
 document.getElementById('bookmarkCount').textContent=bookmarks.size;
 document.getElementById('errorCount').textContent=errors.size;
+}
+
+// Проверка подписки
+async function checkSubscription(){
+try {
+const username = sessionStorage.getItem('user');
+const userDoc = await db.collection('users').doc(username).get();
+
+if(!userDoc.exists) return;
+
+const userData = userDoc.data();
+const subscription = userData.subscription;
+
+if(!subscription) return;
+
+const endDate = new Date(subscription.endDate);
+const now = new Date();
+const daysLeft = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+
+// Подписка истекла
+if(daysLeft < 0){
+showExpiredModal();
+return;
+}
+
+// Осталось 2 дня или меньше - показываем уведомление
+if(daysLeft <= 2){
+showExpiringBanner(daysLeft);
+}
+
+} catch(error) {
+console.error('Ошибка проверки подписки:', error);
+}
+}
+
+// Баннер об окончании подписки
+function showExpiringBanner(daysLeft){
+const banner = document.createElement('div');
+banner.id = 'expiring-banner';
+banner.style.cssText = `
+position:fixed;
+top:60px;
+left:0;
+right:0;
+background:linear-gradient(135deg,#f59e0b,#d97706);
+color:#fff;
+padding:12px 20px;
+text-align:center;
+z-index:9999;
+font-weight:600;
+box-shadow:0 4px 12px rgba(0,0,0,0.2);
+animation:slideDown 0.3s ease;
+`;
+
+banner.innerHTML = `
+⚠️ Ваша подписка истекает через ${daysLeft} ${daysLeft === 1 ? 'день' : 'дня'}!
+<button onclick="openPaymentModal('monthly')" style="margin-left:15px;background:#fff;color:#d97706;border:none;padding:6px 16px;border-radius:6px;font-weight:700;cursor:pointer">
+Продлить сейчас
+</button>
+<button onclick="document.getElementById('expiring-banner').remove()" style="margin-left:10px;background:rgba(255,255,255,0.2);color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer">
+×
+</button>
+`;
+
+document.body.appendChild(banner);
+}
+
+// Модальное окно об истекшей подписке
+function showExpiredModal(){
+const modal = document.createElement('div');
+modal.id = 'expired-modal';
+modal.style.cssText = `
+position:fixed;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:rgba(0,0,0,0.8);
+z-index:10000;
+display:flex;
+align-items:center;
+justify-content:center;
+`;
+
+modal.innerHTML = `
+<div style="background:#fff;border-radius:16px;padding:40px;max-width:500px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
+<div style="font-size:4rem;margin-bottom:20px">⏰</div>
+<h2 style="color:#1e3a8a;font-size:1.8rem;margin-bottom:16px;font-weight:700">Подписка истекла</h2>
+<p style="color:#6b7280;font-size:1.1rem;margin-bottom:30px">
+Продлите подписку, чтобы продолжить обучение
+</p>
+<div style="background:#f3f4f6;padding:20px;border-radius:12px;margin-bottom:30px">
+<p style="color:#1f2937;font-weight:600;margin-bottom:10px">Доступные тарифы:</p>
+<p style="color:#3b82f6;font-size:1.2rem;font-weight:700">500 сом/месяц</p>
+<p style="color:#10b981;font-size:1.2rem;font-weight:700">1200 сом/3 месяца</p>
+</div>
+<button onclick="openPaymentModal('monthly')" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;padding:16px 40px;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer;width:100%;box-shadow:0 4px 12px rgba(59,130,246,0.3)">
+💳 Продлить подписку
+</button>
+<button onclick="window.location.href='index.html'" style="margin-top:15px;background:transparent;color:#6b7280;border:none;padding:10px;cursor:pointer;text-decoration:underline">
+Выйти
+</button>
+</div>
+`;
+
+document.body.appendChild(modal);
+
+// Блокируем доступ к вопросам
+document.querySelectorAll('button, a').forEach(el => {
+if(el.textContent !== 'Выйти' && el.textContent !== '💳 Продлить подписку'){
+el.style.pointerEvents = 'none';
+el.style.opacity = '0.5';
+}
+});
 }
 
 async function loadData(){
