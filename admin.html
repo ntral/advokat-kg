@@ -193,6 +193,22 @@ th,td{padding:12px 8px}
 </div>
 </div>
 
+<div class="card">
+<h2>💬 Модерация отзывов</h2>
+<div style="margin-bottom:20px">
+<button class="btn btn-secondary" onclick="loadReviews('pending')" id="btnPending">⏳ Ожидают (0)</button>
+<button class="btn btn-secondary" onclick="loadReviews('approved')" id="btnApproved">✅ Одобренные (0)</button>
+<button class="btn btn-secondary" onclick="loadReviews('all')" id="btnAll">📋 Все</button>
+</div>
+<div class="table-container">
+<div id="reviewsContainer"></div>
+<div id="emptyStateReviews" class="empty-state" style="display:none">
+<div class="empty-state-icon">💬</div>
+<p>Нет отзывов</p>
+</div>
+</div>
+</div>
+
 </div>
 
 <!-- Firebase SDK -->
@@ -919,9 +935,156 @@ sessionStorage.clear();
 window.location.href = 'login.html';
 }
 
+// Модерация отзывов
+let currentReviewFilter = 'pending';
+
+async function loadReviews(filter = 'pending'){
+currentReviewFilter = filter;
+showLoading(true, 'Загрузка отзывов...');
+
+try {
+let query = db.collection('reviews');
+
+if(filter !== 'all'){
+query = query.where('status', '==', filter);
+}
+
+const snapshot = await query.orderBy('createdAt', 'desc').get();
+
+const container = document.getElementById('reviewsContainer');
+const emptyState = document.getElementById('emptyStateReviews');
+container.innerHTML = '';
+
+// Обновляем счётчики
+updateReviewCounts();
+
+if(snapshot.empty){
+emptyState.style.display = 'block';
+showLoading(false);
+return;
+}
+
+emptyState.style.display = 'none';
+
+snapshot.forEach(doc => {
+const review = doc.data();
+const reviewId = doc.id;
+
+const card = document.createElement('div');
+card.style.cssText = 'background:#f3f4f6;padding:20px;border-radius:12px;margin-bottom:15px;border-left:4px solid ' + (review.status === 'approved' ? '#10b981' : review.status === 'pending' ? '#f59e0b' : '#ef4444');
+
+const stars = '⭐'.repeat(review.rating);
+const statusBadge = review.status === 'approved' ? '<span style="background:#10b981;color:#fff;padding:4px 12px;border-radius:6px;font-size:0.85rem">✅ Одобрено</span>' : review.status === 'pending' ? '<span style="background:#f59e0b;color:#fff;padding:4px 12px;border-radius:6px;font-size:0.85rem">⏳ Ожидает</span>' : '<span style="background:#ef4444;color:#fff;padding:4px 12px;border-radius:6px;font-size:0.85rem">❌ Отклонено</span>';
+
+card.innerHTML = `
+<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:15px">
+  <div>
+    <div style="color:#fbbf24;font-size:1.3rem;margin-bottom:5px">${stars}</div>
+    <div style="color:#1f2937;font-weight:600;margin-bottom:5px">${review.name} (${review.username})</div>
+    <div style="color:#6b7280;font-size:0.85rem">${new Date(review.createdAt).toLocaleString('ru-RU')}</div>
+  </div>
+  <div>${statusBadge}</div>
+</div>
+<div style="color:#374151;line-height:1.7;margin-bottom:15px;background:#fff;padding:15px;border-radius:8px">
+  "${review.text}"
+</div>
+${review.youtubeUrl ? `<div style="margin-bottom:15px"><a href="${review.youtubeUrl}" target="_blank" style="color:#3b82f6;text-decoration:none">📹 Видео: ${review.youtubeUrl}</a></div>` : ''}
+<div style="display:flex;gap:10px">
+  ${review.status === 'pending' ? `
+    <button class="btn btn-success btn-small" onclick="approveReview('${reviewId}')">✅ Одобрить</button>
+    <button class="btn btn-danger btn-small" onclick="rejectReview('${reviewId}')">❌ Отклонить</button>
+  ` : ''}
+  ${review.status === 'approved' ? `
+    <button class="btn btn-danger btn-small" onclick="rejectReview('${reviewId}')">❌ Отклонить</button>
+  ` : ''}
+  <button class="btn btn-danger btn-small" onclick="deleteReview('${reviewId}')">🗑️ Удалить</button>
+</div>
+`;
+
+container.appendChild(card);
+});
+
+showLoading(false);
+
+} catch(error) {
+console.error('Ошибка:', error);
+showError('❌ Ошибка загрузки отзывов');
+showLoading(false);
+}
+}
+
+async function updateReviewCounts(){
+try {
+const pendingCount = await db.collection('reviews').where('status', '==', 'pending').get();
+const approvedCount = await db.collection('reviews').where('status', '==', 'approved').get();
+
+document.getElementById('btnPending').textContent = `⏳ Ожидают (${pendingCount.size})`;
+document.getElementById('btnApproved').textContent = `✅ Одобренные (${approvedCount.size})`;
+} catch(error) {
+console.error('Ошибка подсчёта:', error);
+}
+}
+
+async function approveReview(reviewId){
+showLoading(true, 'Одобрение...');
+
+try {
+await db.collection('reviews').doc(reviewId).update({
+status: 'approved',
+approvedAt: new Date().toISOString(),
+approvedBy: sessionStorage.getItem('user')
+});
+
+showSuccess('✅ Отзыв одобрен и будет показан на странице "Истории успеха"');
+loadReviews(currentReviewFilter);
+
+} catch(error) {
+console.error('Ошибка:', error);
+showError('❌ Ошибка одобрения');
+showLoading(false);
+}
+}
+
+async function rejectReview(reviewId){
+showLoading(true, 'Отклонение...');
+
+try {
+await db.collection('reviews').doc(reviewId).update({
+status: 'rejected'
+});
+
+showSuccess('❌ Отзыв отклонён');
+loadReviews(currentReviewFilter);
+
+} catch(error) {
+console.error('Ошибка:', error);
+showError('❌ Ошибка отклонения');
+showLoading(false);
+}
+}
+
+async function deleteReview(reviewId){
+if(!confirm('Удалить отзыв безвозвратно?')) return;
+
+showLoading(true, 'Удаление...');
+
+try {
+await db.collection('reviews').doc(reviewId).delete();
+
+showSuccess('🗑️ Отзыв удалён');
+loadReviews(currentReviewFilter);
+
+} catch(error) {
+console.error('Ошибка:', error);
+showError('❌ Ошибка удаления');
+showLoading(false);
+}
+}
+
 // Загрузка при старте
 loadUsers();
 updateStats();
+loadReviews('pending');
 
 // Автообновление каждые 30 секунд
 setInterval(() => {
